@@ -9,16 +9,16 @@ type
 
     method ImportGC;
     begin
-      ImportGC(Darwin.architecture_OSX_x86_64, "10.14");
-      ImportGC(Darwin.architecture_iOS_armv7, "12.0");
-      ImportGC(Darwin.architecture_iOS_armv7s, "12.0");
-      ImportGC(Darwin.architecture_iOS_arm64, "12.0");
-      ImportGC(Darwin.architecture_iOSSimulator_i386, "12.0");
-      ImportGC(Darwin.architecture_iOSSimulator_x86_64, "12.0");
-      ImportGC(Darwin.architecture_tvOS_arm64, "12.0");
-      ImportGC(Darwin.architecture_tvOSSimulator_x86_64, "12.0");
-      ImportGC(Darwin.architecture_watchOS_armv7k, "5.0");
-      ImportGC(Darwin.architecture_watchOSSimulator_i386, "5.0");
+      ImportGC(Darwin.Architecture_macOS_x86_64, Darwin.macOSCurrentVersion);
+      ImportGC(Darwin.Architecture_iOS_armv7, Darwin.iOSCurrentVersion);
+      ImportGC(Darwin.Architecture_iOS_armv7s, Darwin.iOSCurrentVersion);
+      ImportGC(Darwin.Architecture_iOS_arm64, Darwin.iOSCurrentVersion);
+      ImportGC(Darwin.Architecture_iOSSimulator_i386, Darwin.iOSCurrentVersion);
+      ImportGC(Darwin.Architecture_iOSSimulator_x86_64, Darwin.iOSCurrentVersion);
+      ImportGC(Darwin.Architecture_tvOS_arm64, Darwin.tvOSCurrentVersion);
+      ImportGC(Darwin.Architecture_tvOSSimulator_x86_64, Darwin.tvOSCurrentVersion);
+      ImportGC(Darwin.Architecture_watchOS_armv7k, Darwin.watchOSCurrentVersion);
+      ImportGC(Darwin.Architecture_watchOSSimulator_i386, Darwin.watchOSCurrentVersion);
 
       //MergeGCArchitectures("macOS");
       //MergeGCArchitectures("iOS");
