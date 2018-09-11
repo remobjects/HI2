@@ -9,24 +9,8 @@ type
 
     method ImportGC;
     begin
-      ImportGC(Darwin.Architecture_macOS_x86_64, Darwin.macOSCurrentVersion);
-      ImportGC(Darwin.Architecture_iOS_armv7, Darwin.iOSCurrentVersion);
-      ImportGC(Darwin.Architecture_iOS_armv7s, Darwin.iOSCurrentVersion);
-      ImportGC(Darwin.Architecture_iOS_arm64, Darwin.iOSCurrentVersion);
-      ImportGC(Darwin.Architecture_iOSSimulator_i386, Darwin.iOSCurrentVersion);
-      ImportGC(Darwin.Architecture_iOSSimulator_x86_64, Darwin.iOSCurrentVersion);
-      ImportGC(Darwin.Architecture_tvOS_arm64, Darwin.tvOSCurrentVersion);
-      ImportGC(Darwin.Architecture_tvOSSimulator_x86_64, Darwin.tvOSCurrentVersion);
-      ImportGC(Darwin.Architecture_watchOS_armv7k, Darwin.watchOSCurrentVersion);
-      ImportGC(Darwin.Architecture_watchOSSimulator_i386, Darwin.watchOSCurrentVersion);
-
-      //MergeGCArchitectures("macOS");
-      //MergeGCArchitectures("iOS");
-      //MergeGCArchitectures("iOS Simulator");
-      //MergeGCArchitectures("tvOS");
-      //MergeGCArchitectures("tvOS Simulator");
-      //MergeGCArchitectures("watchOS");
-      //MergeGCArchitectures("watchOS Simulator");
+      for each (a, v) in Darwin.AllArchitectures do
+        ImportGC(a, v);
     end;
 
     method MergeGCArchitectures(aSDKName: String);
@@ -37,25 +21,25 @@ type
     method ImportGC(aArchitecture: Architecture; aVersion:String);
     begin
       var lJsonString := "{
-      'TargetString': '...',
-      'Version': '...',
-      'SDKVersionString': '...',
-      'SDKName': '...',
-      'Island': true,
-      'Imports': [
-      {
-      'Name': 'gc',
-      'Framework': false,
-      'Prefix': '',
-      'ForceNamespace': 'gc',
-      'Explicit': false,
-      'Files': [ 'gc.h' ],
-      'DepLibs': [ 'libgc.a' ],
-      'ImportDefs': []
-      }
-      ],
-      'Defines': ['GC_THREADS', 'GC_NO_THREAD_DECLS'],
-      'Platform': 'Darwin'
+        'TargetString': '...',
+        'Version': '...',
+        'SDKVersionString': '...',
+        'SDKName': '...',
+        'Island': true,
+        'Imports': [
+          {
+            'Name': 'gc',
+            'Framework': false,
+            'Prefix': '',
+            'ForceNamespace': 'gc',
+            'Explicit': false,
+            'Files': [ 'gc.h' ],
+            'DepLibs': [ 'libgc.a' ],
+            'ImportDefs': []
+          }
+        ],
+        'Defines': ['GC_THREADS', 'GC_NO_THREAD_DECLS'],
+        'Platform': 'Darwin'
       }".Replace("'", '"');
 
       var lBaseJson := JsonDocument.FromString(lJsonString);

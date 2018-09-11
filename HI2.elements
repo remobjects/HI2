@@ -48,6 +48,14 @@
     <Reference Include="Echoes">
       <Private>True</Private>
     </Reference>
+    <Reference Include="RemObjects.Elements.Basics">
+      <HintPath>..\EBuild\Bin\RemObjects.Elements.Basics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RemObjects.Elements.CrossBox">
+      <HintPath>..\EBuild\Bin\RemObjects.Elements.CrossBox.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.pas" />
@@ -64,6 +72,7 @@
     <Compile Include="Constants.pas" />
     <Compile Include="Importer.pas" />
     <Compile Include="Importer.Darwin.GC.pas" />
+    <Compile Include="Importer.Darwin.SDKs.pas" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\RemObjects Software\Elements\RemObjects.Elements.Echoes.targets" />
 </Project>
