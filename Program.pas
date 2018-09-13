@@ -9,11 +9,15 @@ type
       // add your own code here
       writeLn('The magic happens here.');
       var lImporter := new Importer();
-      lImporter.BaseFolder := "/Users/mh/Code/Elements/Frameworks/Island";
+      lImporter.BaseFolder := "/Users/mh/Code/Elements/Frameworks/Island2";
       lImporter.GCSourceFolder := "/Users/mh/Code/git/gc";
       lImporter.GCBinariesFolder := "/Users/mh/Downloads/gc";
       lImporter.HI := "/Users/mh/Code/Elements/Bin/HeaderImporter.exe";
-      lImporter.ImportGC();
+
+      //lImporter.FXBaseFolder
+
+      //lImporter.ImportGC();
+      lImporter.ImportXcode10Beta();
     end;
 
   end;

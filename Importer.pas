@@ -6,6 +6,17 @@ type
 
     property BaseFolder: String;
     property HI: String;
+    property Debug := false;
+
+//    property FXBaseFolder: String; // MUST BE SET!
+
+    method RunHI(aArgs: ImmutableList<String>);
+    begin
+      writeLn(Task.StringForCommand("HeaderImporter") Parameters(aArgs.ToArray));
+      var lExitCode := Task.Run(HI, aArgs.ToArray, nil, nil, s -> writeLn(s), s -> writeLn(s));
+      if lExitCode ≠ 0 then
+        raise new Exception("HeaderImporter failed with {0}", lExitCode);
+    end;
 
     method MergeArchitectures(aFolder: String; aFileName: String; aDelete: Boolean := true);
     begin

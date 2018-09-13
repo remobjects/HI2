@@ -9,25 +9,41 @@ type
   protected
   public
 
-    property FXBaseFolder: String; // MUST BE SET!
-
     method ImportXcode10Beta();
     begin
-      Darwin.DeveloperFolder := '/Users/mh/Applications/Xcode-10Beta6.app/Contents/Developer';
+      Darwin.DeveloperFolder := '/Users/mh/Applications/Xcode-10.app/Contents/Developer';
       Darwin.macOSVersion := '10.14';
       Darwin.iOSVersion := '12.0';
       Darwin.tvOSVersion := '12.0';
       Darwin.watchOSVersion := '5.0';
 
       ImportMacOSSDK();
-      //ImportIOSSDK();
-      //ImportWatchOSSDK();
-      //ImportTvOSSDK();
+      ImportIOSSDK();
+      ImportTvOSSDK();
+      ImportWatchOSSDK();
     end;
 
     method ImportMacOSSDK();
     begin
       ImportSDK("macOS", Darwin.macOSVersion);
+    end;
+
+    method ImportIOSSDK();
+    begin
+      ImportSDK("iOS", Darwin.iOSVersion, false);
+      ImportSDK("iOS", Darwin.iOSVersion, true);
+    end;
+
+    method ImportTvOSSDK();
+    begin
+      ImportSDK("tvOS", Darwin.tvOSVersion, false);
+      ImportSDK("tvOS", Darwin.tvOSVersion, true);
+    end;
+
+    method ImportWatchOSSDK();
+    begin
+      ImportSDK("watchOS", Darwin.watchOSVersion, false);
+      ImportSDK("watchOS", Darwin.watchOSVersion, true);
     end;
 
     method ImportSDK(aName: String; aVersion: String; aSimulator: Boolean := false);
@@ -39,16 +55,25 @@ type
 
       var lArchitectures := case aName of
         "macOS": Darwin.macOSArchitectures;
+        "iOS": if aSimulator then Darwin.iOSSimulatorArchitectures else Darwin.iOSArchitectures;
+        "tvOS": if aSimulator then Darwin.tvOSSimulatorArchitectures else Darwin.tvOSArchitectures;
+        "watchOS": if aSimulator then Darwin.watchOSSimulatorArchitectures else Darwin.watchOSArchitectures;
       end;
 
       var lDeploymentTargets := case aName of
         "macOS": Darwin.macOSDeploymentTargets;
+        "iOS": Darwin.iOSDeploymentTargets;
+        "tvOS": Darwin.tvOSDeploymentTargets;
+        "watchOS": Darwin.watchOSDeploymentTargets;
       end;
 
       method DefinesForVersion(v: String): String;
       begin
         var lEnvironmentVersionDefine := case aName of
-          "macOS": Darwin.macOSEnvironmentVersionDefine
+          "macOS": Darwin.macOSEnvironmentVersionDefine;
+          "iOS": Darwin.iOSEnvironmentVersionDefine;
+          "tvcOS": Darwin.tvOSEnvironmentVersionDefine;
+          "watchOS": Darwin.watchOSEnvironmentVersionDefine;
         end;
         lEnvironmentVersionDefine := lEnvironmentVersionDefine+"="+Darwin.CalculateIntegerVersion(aName, aVersion);
         var lDefines := lEnvironmentVersionDefine;
@@ -56,6 +81,7 @@ type
           lDefines := lDefines+";"+Darwin.ExtraDefinesToffee
         else if Darwin.Island then
           lDefines := lDefines+";"+Darwin.ExtraDefinesIsland;
+        result := lDefines;
       end;
 
       // below code is "processSDK()"
@@ -64,8 +90,9 @@ type
       if aSimulator then
         lTargetFolderName := lTargetFolderName+" Simulator";
 
-      var lTargetFolder := Path.Combine(FXBaseFolder, lTargetFolderName);
-      Folder.Delete(lTargetFolder);
+      var lTargetFolder := Path.Combine(BaseFolder, lTargetFolderName);
+      if lTargetFolder.FolderExists then
+        Folder.Delete(lTargetFolder);
 
       var lFrameworksFolder := Path.Combine(lSdkFolder, "System", "Library", "Frameworks");
 
@@ -82,6 +109,14 @@ type
               Folder.create(lTargetFolderForArch);
 
               var lFrameworks := new List<String>("Foundation", "Security"); // iOS Simulator requires this from rtl/objc. We wont actually *use* the generated file
+
+              RunHeaderImporterForSDK(lSdkFolder)
+                           Version(aVersion)
+                     VersionString(aVersion+$" ({d})")
+                      Architecture(a)
+                        Frameworks(lFrameworks)
+                           Defines(lDefines)
+                      OutputFolder(lTargetFolderForArch);
 
               ////runHeaderImporterForSDK({
                 //platform: architecture.triple,
@@ -122,11 +157,18 @@ type
           for each f in Folder.GetSubfolders(lFrameworksFolder) do begin
             if f.PathExtension = ".framework" then begin
               var lFrameworkName := f.LastPathComponentWithoutExtension;
-              if not IsBlacklisted(lFrameworkName, Darwin.FrameworksBlackList, aName, aVersion, a.Triple) then
+              if not Darwin.IsInBlacklist(Darwin.FrameworksBlackList, lFrameworkName, aVersion, a) then
                 lFrameworks.Add(f);
             end;
           end;
 
+          RunHeaderImporterForSDK(lSdkFolder)
+                       Version(aVersion)
+                 VersionString(aVersion)
+                  Architecture(a)
+                    Frameworks(lFrameworks)
+                       Defines(lDefines)
+                  OutputFolder(lTargetFolderForArch);
           //runHeaderImporterForSDK({
             //platform: architecture.triple,
             //outputpath: targetFolder,
@@ -160,10 +202,143 @@ type
 
     end;
 
-    method IsBlacklisted(aItem: String; aBlackList: array of String; aSDKName: String; aVersion: String; aTriple: String): Boolean;
+    method RunHeaderImporterForSDK(aSDKFolder: String)
+                           Version(aVersion: String)
+                     VersionString(aVersionString: String)
+                      Architecture(aArchitecture: Architecture)
+                        Frameworks(aFrameworks: ImmutableList<String>)
+                           Defines(aDefines: String)
+                      OutputFolder(aOutputFolder: String);
     begin
-      result := false;
+      var lFrameworksFolder := Path.Combine(aSDKFolder, "System", "Library", "Frameworks");
+
+      var lTargetString := aArchitecture.Triple;
+      if length(aArchitecture.CpuType) > 0 then
+      lTargetString := lTargetString+";"+aArchitecture.CpuType;
+
+      const ImportDefsJson_String = '[ {"Name": "dyld_stub_binder", "Library": "/usr/lib/libSystem.B.dylib", "Version": "81395766,65536" }, {"Name": "__Unwind_Resume", "Library": "/usr/lib/system/libunwind.dylib", "Version": "2294784,0"}, {"Name": "_stack_chk_fail", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "____toupper_l", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "____tolower_l", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "__DefaultRuneLocale", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_strtoul", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "__dyld_image_count", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "_abort", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "__dyld_bind_fully_image_containing_address", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "_pthread_atfork", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_pthread_setcancelstate", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "__setjmp", "Library": "/usr/lib/system/libsystem_platform.dylib", "Version": "11651079,0"}, {"Name": "_task_set_exception_ports", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_atoi", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_atol", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_sysctl", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_bcopy", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_pthread_get_stackaddr_np", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_get_end", "Library": "/usr/lib/system/libmacho.dylib", "Version": "59899904,0"}, {"Name": "_vm_protect", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_write", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_pthread_join", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_mach_task_self_", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_clock", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_thread_get_state", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_pthread_attr_getdetachstate", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_exc_server", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mach_port_allocate", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mach_port_insert_right", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_get_etext", "Library": "/usr/lib/system/libmacho.dylib", "Version": "59899904,0"}, {"Name": "_mach_thread_self", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_task_threads", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_exception_raise_state_identity", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_exception_raise", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_thread_resume", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "__dyld_register_func_for_add_image", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "__dyld_get_image_header", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "_thread_suspend", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mach_error_string", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_snprintf", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_exception_raise_state", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_pthread_attr_init", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_vm_deallocate", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_getpagesize", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_vsnprintf", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_signal", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_pthread_attr_destroy", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_thread_set_state", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_munmap", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_task_get_exception_ports", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mmap", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mach_msg", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "__dyld_get_image_name", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "__dyld_register_func_for_remove_image", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "_thread_info", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_getsectbynamefromheader_64", "Library": "/usr/lib/system/libmacho.dylib", "Version": "59899904,0"}, {"Name": "_mach_port_deallocate", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_pthread_attr_setdetachstate", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}]';
+      var lImportDefsJson := JsonDocument.FromString(ImportDefsJson_String).Root;
+
+
+      var lJsonImports := new JsonArray();
+      for each f in aFrameworks do begin
+        var lFrameworkJson := new JsonObject();
+        lFrameworkJson["Name"] := new JsonStringValue(f);
+        lFrameworkJson["Framework"] := new JsonBooleanValue(true);
+        lFrameworkJson["Prefix"] := "";
+        if f = "Foundation" then
+          lFrameworkJson["DropPrefixes"] := new JsonArray(["NS"]);
+        if f = "Cocoa" then
+          lFrameworkJson["DepFx"] := new JsonArray(["Foundation", "AppKit", "CoreGraphics", "CoreFoundation"])
+        else if f in ["AppKit", "UIKit"] then
+          lFrameworkJson["DepFx"] := new JsonArray(["Foundation", "CoreGraphics", "CoreFoundation"]);
+        lJsonImports.Add(lFrameworkJson);
+      end;
+
+      var lRtlFramework := new JsonObject();
+      lRtlFramework["Name"] := "rtl";
+      lRtlFramework["Framework"] := false;
+      lRtlFramework["Prefix"] := "";
+      lRtlFramework["Core"] := true;
+      lRtlFramework["ForceNamespace"] := "rtl";
+      lRtlFramework["DropPrefixes"] := new JsonArray(["NS"]);
+      lRtlFramework["Files"] := new JsonArray(Darwin.GetRTLFiles(aVersion, aArchitecture));
+      lRtlFramework["IndirectFiles"] := new JsonArray(Darwin.GetIndirectRTLFiles(aVersion, aArchitecture));
+      lRtlFramework["ImportDefs"] := lImportDefsJson;
+      lJsonImports.Add(lRtlFramework);
+
+      var lBlacklist := Darwin.FilterBlacklist(Darwin.IncludeHeaderBlackList.ToList(), aVersion, aArchitecture);
+      //if (options.headerBlackList)
+        //lBlacklist.Add(options.headerBlackList);
+
+      var lJsonDocument := JsonDocument.CreateDocument();
+      var lJson := lJsonDocument.Root;
+      lJson["TargetString"] := lTargetString;
+      lJson["Version"] := aVersion;
+      lJson["SDKVersionString"] := aVersionString;
+      lJson["Imports"] := lJsonImports;
+      lJson["Defines"] := new JsonArray(aDefines.Split(";", true));
+      lJson["Blacklist"] := new JsonArray(lBlacklist);
+      lJson["ForceInclude"] := Darwin.GetForceIncludeFiles(aVersion, aArchitecture);
+      lJson["Mobile"] := (aArchitecture.SDKName ≠ "macOS");
+      lJson["Platform"] := if Darwin.Island then "Darwin" else aArchitecture.SDKName;
+      lJson["SDKName"] := aArchitecture.SDKName;//if aArchitecture.SDKName = "macOS" then "OS X" else aArchitecture.SDKName;
+      lJson["Island"] := Darwin.Island;
+      var lOverride1 := new JsonObject(); lOverride1["Key"] := "objc/NSObject.h";      lOverride1["Value"] := "Foundation";
+      var lOverride2 := new JsonObject(); lOverride2["Key"] := "objc/NSObjCRuntime.h"; lOverride2["Value"] := "Foundation";
+      lJson["OverrideNamespace"] := new JsonArray([lOverride1, lOverride2]);
+
+      var lJsonName := $"import-{aArchitecture.SDKName}{if aArchitecture.Simulator then "-simulator"}-{aVersionString}-{aOutputFolder.LastPathComponent}.json";
+      lJsonName := Path.Combine(BaseFolder, lJsonName);
+      File.WriteText(lJsonName, lJsonDocument.ToString());
+      writeLn(lJsonDocument);
+
+      var lArgs := new List<String>;
+      lArgs.Add("import");
+      lArgs.Add($"--json={lJsonName}");
+      lArgs.Add("-o", aOutputFolder);
+
+      lArgs.Add($"-i", Path.Combine(aSDKFolder, "usr", "include"));
+      lArgs.Add($"-f", lFrameworksFolder);
+      lArgs.Add($"-i", BaseFolder);
+
+      //for each n in options.includepaths do
+        //lArgs.Add("-i", n);
+      //for each n in options.frameworkpaths do
+        //lArgs.Add("-f", n);
+      //for each n in options.nonframeworks do
+        //lArgs.Add("-c", n);
+      //for each n in options.link do
+        //lArgs.Add("-l" , n);
+      //if (more)
+        //s += " "+more;
+
+      lArgs.Add($"--libpath="+Path.Combine(aSDKFolder, "usr", "lib"));
+
+      if Debug then
+        lArgs.Add("--debug");
+
+      RunHI(lArgs);
+
+      //if (doDeleteJsonFiles)
+        //file.remove(jsonName);
+      //}
     end;
+
+                //platform: architecture.triple,
+                //outputpath: targetFolder,
+                //defines: defines,
+                //includeBlackList: includeBlackList,
+                //includepaths: [expand('$(sdkFolder)/usr/include')],
+                //frameworkpaths: [frameworksFolder],
+                //frameworks: frameworks,
+                //version: version,
+                //versionString: __shortVersion(version)+' ('+deploymentVersion+')',
+                //architecture: architecture,
+                //forceIncludes: forceIncludes,
+                //rtlFiles: __buildRtlFilesList(version, architecture),
+                //indirectRtlFiles: indirectRtlFiles
+              ////}, '-i ./');
+              ////runHeaderImporterForSDK({
+                //platform: architecture.triple,
+                //outputpath: targetFolder,
+                //defines: defines,
+                //includeBlackList: includeBlackList,
+                //includepaths: [expand('$(sdkFolder)/usr/include')],
+                //frameworkpaths: [frameworksFolder],
+                //frameworks: frameworks,
+                //version: version,
+                //versionString: __shortVersion(version)+' ('+deploymentVersion+')',
+                //architecture: architecture,
+                //forceIncludes: forceIncludes,
+                //rtlFiles: __buildRtlFilesList(version, architecture),
+                //indirectRtlFiles: indirectRtlFiles
+              ////}, '-i ./');
+
+    //method IsBlacklisted(aItem: String; aBlackList: array of String; aSDKName: String; aVersion: String; aTriple: String): Boolean;
+    //begin
+      //result := false;
+    //end;
 
   end;
 

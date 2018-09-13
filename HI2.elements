@@ -44,6 +44,7 @@
     </Reference>
     <Reference Include="Elements">
       <Private>True</Private>
+      <HintPath>..\RTL2\Source\bin\Debug\Elements.dll</HintPath>
     </Reference>
     <Reference Include="Echoes">
       <Private>True</Private>
@@ -73,6 +74,8 @@
     <Compile Include="Importer.pas" />
     <Compile Include="Importer.Darwin.GC.pas" />
     <Compile Include="Importer.Darwin.SDKs.pas" />
+    <Compile Include="Constants.Darwin.Blacklists.pas" />
+    <Compile Include="Constants.Darwin.RTL.pas" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\RemObjects Software\Elements\RemObjects.Elements.Echoes.targets" />
 </Project>
