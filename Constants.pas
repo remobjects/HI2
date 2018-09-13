@@ -312,9 +312,9 @@ type
 
         if i > -1 then begin
           var prefix := b.substring(0, i);
-          if (prefix ≠ aVersion) and (prefix ≠ aArchitecture.Triple) then begin
+          b := b.substring(i+1);
+          if (prefix ≠ aVersion) and (prefix ≠ aArchitecture.Triple) and (prefix ≠ aArchitecture.SDKName) then
             continue;
-          end;
           i := b.indexOf(':');
           if i > -1 then begin
             prefix := b.Substring(0, i);

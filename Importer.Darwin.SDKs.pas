@@ -65,7 +65,7 @@ type
         var lEnvironmentVersionDefine := case aName of
           "macOS": Darwin.macOSEnvironmentVersionDefine;
           "iOS": Darwin.iOSEnvironmentVersionDefine;
-          "tvcOS": Darwin.tvOSEnvironmentVersionDefine;
+          "tvOS": Darwin.tvOSEnvironmentVersionDefine;
           "watchOS": Darwin.watchOSEnvironmentVersionDefine;
         end;
         lEnvironmentVersionDefine := lEnvironmentVersionDefine+"="+Darwin.CalculateIntegerVersion(aName, aVersion);
@@ -287,7 +287,7 @@ type
       var lJsonName := $"import-{aArchitecture.SDKName}{if aArchitecture.Simulator then "-simulator"}-{aVersionString}-{aOutputFolder.LastPathComponent}.json";
       lJsonName := Path.Combine(BaseFolder, lJsonName);
       File.WriteText(lJsonName, lJsonDocument.ToString());
-      //writeLn(lJsonDocument);
+      writeLn(lJsonDocument);
 
       var lArgs := new List<String>;
       lArgs.Add("import");
@@ -339,6 +339,7 @@ type
       folder.Create(Path.Combine(BaseFolder, "__Public"));
 
       var lTargetZipName := Path.Combine(BaseFolder, "__CI2Shared", lTargetFolderName)+".zip";
+      var lTargetZipName3 := Path.Combine(BaseFolder, "__CI2Shared", lTargetFolderName)+" Simulator.zip";
       var lTargetZipName2 := Path.Combine(BaseFolder, "__Public", lTargetFolderName)+".zip";
       writeLn($"Creating {lTargetZipName}");
       CreateZip(lTargetFolder, lTargetZipName);
@@ -346,6 +347,8 @@ type
         File.CopyTo(lTargetZipName, lTargetZipName2);
       end
       else begin
+        writeLn($"Creating {lTargetZipName3}");
+        CreateZip(lTargetFolder+" Simulator", lTargetZipName3);
         writeLn($"Creating {lTargetZipName2}");
         CreateZip([lTargetFolder, lTargetFolder2], lTargetZipName2);
       end;
