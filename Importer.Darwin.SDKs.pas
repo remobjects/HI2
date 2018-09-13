@@ -9,6 +9,8 @@ type
   protected
   public
 
+    property SkipDeploymentTargets := false;
+
     method ImportXcode10Beta();
     begin
       Darwin.DeveloperFolder := '/Users/mh/Applications/Xcode-10.app/Contents/Developer';
@@ -96,47 +98,32 @@ type
 
       var lFrameworksFolder := Path.Combine(lSdkFolder, "System", "Library", "Frameworks");
 
-      //if (doBuildDeploymentTargets)
-      for each d in lDeploymentTargets.Split(";") do begin
-        if d.CompareVersionTripleTo(aVersion) < 0 then begin
-          for each (a, nil) in lArchitectures do begin
-            if not assigned(a.MinimumDeploymentTarget) or (a.MinimumDeploymentTarget.CompareVersionTripleTo(d) ≤ 0) then begin
-              var lDefines := a.Defines+";"+DefinesForVersion(d);
+      if not SkipDeploymentTargets then begin
+        for each d in lDeploymentTargets.Split(";") do begin
+          if d.CompareVersionTripleTo(aVersion) < 0 then begin
+            for each (a, nil) in lArchitectures do begin
+              if not assigned(a.MinimumDeploymentTarget) or (a.MinimumDeploymentTarget.CompareVersionTripleTo(d) ≤ 0) then begin
+                var lDefines := a.Defines+";"+DefinesForVersion(d);
 
-              // below code is "doProcessDeploymentTargetSDK(options.version, deploymentVersion, options.sdkFolder, architectures[a], defines, targetFolder, options.forceIncludes);"
+                // below code is "doProcessDeploymentTargetSDK(options.version, deploymentVersion, options.sdkFolder, architectures[a], defines, targetFolder, options.forceIncludes);"
 
-              var lTargetFolderForArch := Path.Combine(lTargetFolder, a.Triple);
-              Folder.create(lTargetFolderForArch);
+                var lTargetFolderForArch := Path.Combine(lTargetFolder, a.Triple);
+                Folder.create(lTargetFolderForArch);
 
-              var lFrameworks := new List<String>("Foundation", "Security"); // iOS Simulator requires this from rtl/objc. We wont actually *use* the generated file
+                var lFrameworks := new List<String>("Foundation", "Security"); // iOS Simulator requires this from rtl/objc. We wont actually *use* the generated file
 
-              RunHeaderImporterForSDK(lSdkFolder)
-                           Version(aVersion)
-                     VersionString(aVersion+$" ({d})")
-                      Architecture(a)
-                        Frameworks(lFrameworks)
-                           Defines(lDefines)
-                      OutputFolder(lTargetFolderForArch);
+                RunHeaderImporterForSDK(lSdkFolder)
+                                Version(aVersion)
+                          VersionString(aVersion+$" ({d})")
+                           Architecture(a)
+                             Frameworks(lFrameworks)
+                                Defines(lDefines)
+                           OutputFolder(lTargetFolderForArch);
 
-              ////runHeaderImporterForSDK({
-                //platform: architecture.triple,
-                //outputpath: targetFolder,
-                //defines: defines,
-                //includeBlackList: includeBlackList,
-                //includepaths: [expand('$(sdkFolder)/usr/include')],
-                //frameworkpaths: [frameworksFolder],
-                //frameworks: frameworks,
-                //version: version,
-                //versionString: __shortVersion(version)+' ('+deploymentVersion+')',
-                //architecture: architecture,
-                //forceIncludes: forceIncludes,
-                //rtlFiles: __buildRtlFilesList(version, architecture),
-                //indirectRtlFiles: indirectRtlFiles
-              ////}, '-i ./');
-
-              File.Move(Path.combine(lTargetFolderForArch, "rtl.fx"), Path.combine(lTargetFolderForArch, $"rtl-{d}.fx"));
-              file.Delete(Path.combine(lTargetFolderForArch, "Foundation.fx"));
-              file.Delete(Path.combine(lTargetFolderForArch, "Security.fx"));
+                File.Move(Path.combine(lTargetFolderForArch, "rtl.fx"), Path.combine(lTargetFolderForArch, $"rtl-{d}.fx"));
+                file.Delete(Path.combine(lTargetFolderForArch, "Foundation.fx"));
+                file.Delete(Path.combine(lTargetFolderForArch, "Security.fx"));
+              end;
             end;
           end;
         end;
@@ -158,32 +145,17 @@ type
             if f.PathExtension = ".framework" then begin
               var lFrameworkName := f.LastPathComponentWithoutExtension;
               if not Darwin.IsInBlacklist(Darwin.FrameworksBlackList, lFrameworkName, aVersion, a) then
-                lFrameworks.Add(f);
+                lFrameworks.Add(lFrameworkName);
             end;
           end;
 
           RunHeaderImporterForSDK(lSdkFolder)
-                       Version(aVersion)
-                 VersionString(aVersion)
-                  Architecture(a)
-                    Frameworks(lFrameworks)
-                       Defines(lDefines)
-                  OutputFolder(lTargetFolderForArch);
-          //runHeaderImporterForSDK({
-            //platform: architecture.triple,
-            //outputpath: targetFolder,
-            //defines: defines,
-            //includeBlackList: includeBlackList,
-            //includepaths: [expand('$(sdkFolder)/usr/include')],
-            //frameworkpaths: [frameworksFolder],
-            //frameworks: frameworks,
-            //version: lInternalVersion,
-            //versionString: __shortVersion(versionString),
-            //architecture: architecture,
-            //forceIncludes: forceIncludes,
-            //rtlFiles: __buildRtlFilesList(version, architecture),
-            //indirectRtlFiles: indirectRtlFiles
-          //}, '-i ./');
+                          Version(aVersion)
+                    VersionString(aVersion)
+                     Architecture(a)
+                       Frameworks(lFrameworks)
+                          Defines(lDefines)
+                     OutputFolder(lTargetFolderForArch);
         end;
       end;
       //mergeOrFlatten(targetFolder, architectures);

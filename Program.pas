@@ -12,11 +12,13 @@ type
       lImporter.BaseFolder := "/Users/mh/Code/Elements/Frameworks/Island2";
       lImporter.GCSourceFolder := "/Users/mh/Code/git/gc";
       lImporter.GCBinariesFolder := "/Users/mh/Downloads/gc";
-      lImporter.HI := "/Users/mh/Code/Elements/Bin/HeaderImporter.exe";
+      lImporter.HI := "/Users/mh/Code/Elements/Source/HeaderImporter/Bin/Debug/HeaderImporter.exe";
 
       //lImporter.FXBaseFolder
 
       //lImporter.ImportGC();
+
+      lImporter.SkipDeploymentTargets := true;
       lImporter.ImportXcode10Beta();
     end;
 

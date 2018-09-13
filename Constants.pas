@@ -18,19 +18,19 @@ type
   Darwin = public static partial class
   private
 
-    const _definesShared = "_USE_EXTENDED_LOCALES_;__LITTLE_ENDIAN__;__APPLE__;__APPLE_CC__;__MACH__;__GNUC__=4;__GNUC_MINOR__=2;__OBJC__;__OBJC2__;__STDC__=1;JSC_OBJC_API_ENABLED";
-    const _macOSdefines64 =        _definesShared+";__x86_64__;__LP64__=1;__SSE__;__SSE2__;IOKIT";
-    const _iOSDefines32 =          _definesShared+";__arm__";
-    const _iOSDefines64 =          _definesShared+";__arm__;__arm64__;__LP64__=1";
-    const _iOSDefinesSimulator32 = _definesShared+";__i386__;__SSE__;__SSE2__";
+    const _definesShared = "_USE_EXTENDED_LOCALES_;__LITTLE_ENDIAN__;__APPLE__;__APPLE_CC__;__MACH__;__GNUC__=4;__GNUC_MINOR__=2;__OBJC__;__OBJC2__;__STDC__=1;JSC_OBJC_API_ENABLED;";
+    const _macOSdefines64 =        _definesShared+";__x86_64__;__LP64__=1;__SSE__;__SSE2__;IOKIT;CPU64";
+    const _iOSDefines32 =          _definesShared+";__arm__;ARM;CPU32;";
+    const _iOSDefines64 =          _definesShared+";__arm__;__arm64__;__LP64__=1;ARM;ARM64;CPU64";
+    const _iOSDefinesSimulator32 = _definesShared+";__i386__;__SSE__;__SSE2__;CPU32";
     const _iOSDefinesSimulator64 = _macOSdefines64;
 
     const cpuType_Penryn = "penryn";
 
   public
     const macOSDefines64 =            _macOSdefines64+";OSX;MACOS;MAC;DEVICE";
-    const iOSDefines32 =              _iOSDefines32+";IOS;DEVICE";
-    const iOSDefines64 =              _iOSDefines64+";IOS;DEVICE";
+    const iOSDefines32 =              _iOSDefines32+";IOS;DEVICE;";
+    const iOSDefines64 =              _iOSDefines64+";IOS;DEVICE;";
     const watchOSDefines32 =          _iOSDefines32+";WATCHOS;DEVICE";
     const watchOSDefines64 =          _iOSDefines64+";WATCHOS;DEVICE";
     const tvOSDefines64 =             _iOSDefines64+";TVOS;DEVICE";
@@ -40,8 +40,8 @@ type
     const watchOSDefinesSimulator64 = _iOSDefinesSimulator64+";WATCHOS;WATCHOSSIMULATOR;SIMULATOR";
     const tvOSDefinesSimulator64 =    _iOSDefinesSimulator64+";TVOS;TVOSSIMULATOR;SIMULATOR";
 
-    const ExtraDefinesToffee = ";__ELEMENTS;__NOUGAT__;__TOFFEE__";
-    const ExtraDefinesIsland = ";__ELEMENTS;__ISLAND__";
+    const ExtraDefinesToffee = ";DARWIN;__ELEMENTS;__NOUGAT__;__TOFFEE__";
+    const ExtraDefinesIsland = ";DARWIN;__ELEMENTS;__ISLAND__";
 
     property Architecture_macOS_x86_64            : Architecture read new Architecture(Triple := "x86_64-apple-macosx",  Defines := macOSDefines64,            SDKName := "macOS",                      CpuType := cpuType_Penryn);
     property Architecture_iOS_armv7               : Architecture read new Architecture(Triple := "armv7-apple-ios",      Defines := iOSDefines32,              SDKName := "iOS");
