@@ -20,7 +20,7 @@ type
 
       lImporter.SkipDeploymentTargets := true;
       lImporter.ImportXcode10();
-      //lImporter.ImportXcode93();
+      //lImporter.ImportXcode94();
     end;
 
   end;
