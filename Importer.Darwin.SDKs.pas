@@ -11,41 +11,31 @@ type
 
     property SkipDeploymentTargets := false;
 
-    method ImportXcode10Beta();
-    begin
-      Darwin.DeveloperFolder := '/Users/mh/Applications/Xcode-10.app/Contents/Developer';
-      Darwin.macOSVersion := '10.14';
-      Darwin.iOSVersion := '12.0';
-      Darwin.tvOSVersion := '12.0';
-      Darwin.watchOSVersion := '5.0';
-
-      ImportMacOSSDK();
-      ImportIOSSDK();
-      ImportTvOSSDK();
-      ImportWatchOSSDK();
-    end;
-
     method ImportMacOSSDK();
     begin
-      ImportSDK("macOS", Darwin.macOSVersion);
+      //ImportSDK("macOS", Darwin.macOSVersion);
+      CreateSDKZip("macOS", Darwin.macOSVersion);
     end;
 
     method ImportIOSSDK();
     begin
       ImportSDK("iOS", Darwin.iOSVersion, false);
       ImportSDK("iOS", Darwin.iOSVersion, true);
+      CreateSDKZip("iOS", Darwin.iOSVersion);
     end;
 
     method ImportTvOSSDK();
     begin
       ImportSDK("tvOS", Darwin.tvOSVersion, false);
       ImportSDK("tvOS", Darwin.tvOSVersion, true);
+      CreateSDKZip("tvOS", Darwin.tvOSVersion);
     end;
 
     method ImportWatchOSSDK();
     begin
       ImportSDK("watchOS", Darwin.watchOSVersion, false);
       ImportSDK("watchOS", Darwin.watchOSVersion, true);
+      CreateSDKZip("watchOS", Darwin.watchOSVersion);
     end;
 
     method ImportSDK(aName: String; aVersion: String; aSimulator: Boolean := false);
@@ -93,86 +83,138 @@ type
         lTargetFolderName := lTargetFolderName+" Simulator";
 
       var lTargetFolder := Path.Combine(BaseFolder, lTargetFolderName);
-      if lTargetFolder.FolderExists then
-        Folder.Delete(lTargetFolder);
+      //if lTargetFolder.FolderExists then
+        //Folder.Delete(lTargetFolder);
 
       var lFrameworksFolder := Path.Combine(lSdkFolder, "System", "Library", "Frameworks");
 
-      if not SkipDeploymentTargets then begin
-        for each d in lDeploymentTargets.Split(";") do begin
-          if d.CompareVersionTripleTo(aVersion) < 0 then begin
-            for each (a, nil) in lArchitectures do begin
-              if not assigned(a.MinimumDeploymentTarget) or (a.MinimumDeploymentTarget.CompareVersionTripleTo(d) ≤ 0) then begin
-                var lDefines := a.Defines+";"+DefinesForVersion(d);
+      //if not SkipDeploymentTargets then begin
+        //for each d in lDeploymentTargets.Split(";") do begin
+          //if d.CompareVersionTripleTo(aVersion) < 0 then begin
+            //for each (a, nil) in lArchitectures do begin
+              //if not assigned(a.MinimumDeploymentTarget) or (a.MinimumDeploymentTarget.CompareVersionTripleTo(d) ≤ 0) then begin
+                //var lDefines := a.Defines+";"+DefinesForVersion(d);
 
-                // below code is "doProcessDeploymentTargetSDK(options.version, deploymentVersion, options.sdkFolder, architectures[a], defines, targetFolder, options.forceIncludes);"
+                //// below code is "doProcessDeploymentTargetSDK(options.version, deploymentVersion, options.sdkFolder, architectures[a], defines, targetFolder, options.forceIncludes);"
 
-                var lTargetFolderForArch := Path.Combine(lTargetFolder, a.Triple);
-                Folder.create(lTargetFolderForArch);
+                //var lTargetFolderForArch := Path.Combine(lTargetFolder, a.Arch);
+                //Folder.create(lTargetFolderForArch);
 
-                var lFrameworks := new List<String>("Foundation", "Security"); // iOS Simulator requires this from rtl/objc. We wont actually *use* the generated file
+                //var lFrameworks := new List<String>("Foundation", "Security"); // iOS Simulator requires this from rtl/objc. We wont actually *use* the generated file
 
-                RunHeaderImporterForSDK(lSdkFolder)
-                                Version(aVersion)
-                          VersionString(aVersion+$" ({d})")
-                           Architecture(a)
-                             Frameworks(lFrameworks)
-                                Defines(lDefines)
-                           OutputFolder(lTargetFolderForArch);
+                //RunHeaderImporterForSDK(lSdkFolder)
+                                //Version(aVersion)
+                          //VersionString(aVersion+$" ({d})")
+                           //Architecture(a)
+                             //Frameworks(lFrameworks)
+                                //Defines(lDefines)
+                           //OutputFolder(lTargetFolderForArch);
 
-                File.Move(Path.combine(lTargetFolderForArch, "rtl.fx"), Path.combine(lTargetFolderForArch, $"rtl-{d}.fx"));
-                file.Delete(Path.combine(lTargetFolderForArch, "Foundation.fx"));
-                file.Delete(Path.combine(lTargetFolderForArch, "Security.fx"));
-              end;
-            end;
-          end;
-        end;
-      end;
+                //File.Move(Path.combine(lTargetFolderForArch, "rtl.fx"), Path.combine(lTargetFolderForArch, $"rtl-{d}.fx"));
+                //file.Delete(Path.combine(lTargetFolderForArch, "Foundation.fx"));
+                //file.Delete(Path.combine(lTargetFolderForArch, "Security.fx"));
+              //end;
+            //end;
+          //end;
+        //end;
+      //end;
 
 
-      // main target
-      for each (a, nil) in lArchitectures do begin
-        if not assigned(a.MinimumTargetSDK) or (a.MinimumTargetSDK.CompareVersionTripleTo(aVersion) ≤ 0) then begin
-          var lDefines := a.Defines+";"+DefinesForVersion(aVersion);
+      //// main target
+      //for each (a, nil) in lArchitectures do begin
+        //if not assigned(a.MinimumTargetSDK) or (a.MinimumTargetSDK.CompareVersionTripleTo(aVersion) ≤ 0) then begin
+          //var lDefines := a.Defines+";"+DefinesForVersion(aVersion);
 
-          // below code is "doProcessSDK(options.internalVersion, options.version, options.sdkFolder,  architectures[a], defines, targetFolder, options.forceIncludes);"
+          //// below code is "doProcessSDK(options.internalVersion, options.version, options.sdkFolder,  architectures[a], defines, targetFolder, options.forceIncludes);"
 
-          var lTargetFolderForArch := Path.Combine(lTargetFolder, a.Triple);
-          Folder.create(lTargetFolderForArch);
+          //var lTargetFolderForArch := Path.Combine(lTargetFolder, a.Arch);
+          //Folder.create(lTargetFolderForArch);
 
-          var lFrameworks := new List<String>();
-          for each f in Folder.GetSubfolders(lFrameworksFolder) do begin
-            if f.PathExtension = ".framework" then begin
-              var lFrameworkName := f.LastPathComponentWithoutExtension;
-              if not Darwin.IsInBlacklist(Darwin.FrameworksBlackList, lFrameworkName, aVersion, a) then
-                lFrameworks.Add(lFrameworkName);
-            end;
-          end;
+          //var lFrameworks := new List<String>();
+          //for each f in Folder.GetSubfolders(lFrameworksFolder) do begin
+            //if f.PathExtension = ".framework" then begin
+              //var lFrameworkName := f.LastPathComponentWithoutExtension;
+              //if not Darwin.IsInBlacklist(Darwin.FrameworksBlackList, lFrameworkName, aVersion, a) then
+                //lFrameworks.Add(lFrameworkName);
+            //end;
+          //end;
 
-          RunHeaderImporterForSDK(lSdkFolder)
-                          Version(aVersion)
-                    VersionString(aVersion)
-                     Architecture(a)
-                       Frameworks(lFrameworks)
-                          Defines(lDefines)
-                     OutputFolder(lTargetFolderForArch);
-        end;
-      end;
-      //mergeOrFlatten(targetFolder, architectures);
+          //RunHeaderImporterForSDK(lSdkFolder)
+                          //Version(aVersion)
+                    //VersionString(aVersion)
+                     //Architecture(a)
+                       //Frameworks(lFrameworks)
+                          //Defines(lDefines)
+                     //OutputFolder(lTargetFolderForArch);
+        //end;
+      //end;
+
+      MergeOrFlatten(lTargetFolder, lArchitectures.Select(a -> a[0]).ToList());
       //codegen(targetFolder);
 
       //var lForceIncldes := case aName of
         //"macOS": Darwin.forceIncludes_macOS
       //end;
 
-
-      //folder.create("$(fxBaseFolder)/__CI2Shared/");
-      //folder.create("$(fxBaseFolder)/__Public/");
-      //aName := if aName = "macOS" then Darwin.NameForMacOS(aVersion) else aName;
-      //zip.compress("$(fxBaseFolder)/__CI2Shared/$(name) $(shortVersion).zip", "$(fxBaseFolder)", "$(name) $(shortVersion)/*.*");
-      //file.copy("$(fxBaseFolder)/__CI2Shared/$(name) $(shortVersion).zip", "$(fxBaseFolder)/__Public/$(name) $(shortVersion).zip");
-
     end;
+
+    //
+    //
+    //
+
+    method MergeOrFlatten(aTargetFolder: String; aArchitectures: ImmutableList<Architecture>);
+    begin
+      if aArchitectures.Count > 1 then
+        Merge(aTargetFolder, aArchitectures)
+      else if aArchitectures.Count = 1 then
+        Flatten(aTargetFolder, aArchitectures.First);
+    end;
+
+    method Merge(aTargetFolder: String; aArchitectures: ImmutableList<Architecture>);
+    begin
+      var fx := Folder.GetFiles(Path.Combine(aTargetFolder, aArchitectures.First.Arch)).Where(f -> f.PathExtension = ".fx").Select(f -> f.LastPathComponent).ToList();
+
+      for each f in fx do begin
+        var lArgs := new List<String>;
+        lArgs.Add("combine");
+        lArgs.Add(Path.Combine(aTargetFolder, f));
+
+        var lCount := 0;
+        for each a in aArchitectures do begin
+          var f2 := Path.Combine(aTargetFolder, a.Arch, f);
+          if f2.FileExists then begin
+            lArgs.Add(f2);
+            inc(lCount);
+          end;
+        end;
+
+        if lCount > 1 then begin
+          RunHI(lArgs);
+        end
+        else begin
+          for each a in aArchitectures do begin
+            var f2 := Path.Combine(aTargetFolder, a.Arch, f);
+            if f2.FileExists then
+              File.CopyTo(f2, Path.Combine(aTargetFolder, f2.LastPathComponent));
+          end;
+        end;
+      end;
+
+      for each a in aArchitectures do
+        Folder.Delete(Path.Combine(aTargetFolder, a.Arch));
+    end;
+
+    method Flatten(aTargetFolder: String; aArchitecture: Architecture);
+    begin
+      var lSubfolder := Path.Combine(aTargetFolder, aArchitecture.Arch);
+      for each f in Folder.GetFiles(lSubfolder).Where(f -> f.PathExtension = ".fx") do
+        File.Move(f, Path.Combine(aTargetFolder, f.LastPathComponent));
+      Folder.Delete(lSubfolder);
+    end;
+
+    //
+    //
+    //
 
     method RunHeaderImporterForSDK(aSDKFolder: String)
                            Version(aVersion: String)
@@ -277,40 +319,52 @@ type
       //}
     end;
 
-                //platform: architecture.triple,
-                //outputpath: targetFolder,
-                //defines: defines,
-                //includeBlackList: includeBlackList,
-                //includepaths: [expand('$(sdkFolder)/usr/include')],
-                //frameworkpaths: [frameworksFolder],
-                //frameworks: frameworks,
-                //version: version,
-                //versionString: __shortVersion(version)+' ('+deploymentVersion+')',
-                //architecture: architecture,
-                //forceIncludes: forceIncludes,
-                //rtlFiles: __buildRtlFilesList(version, architecture),
-                //indirectRtlFiles: indirectRtlFiles
-              ////}, '-i ./');
-              ////runHeaderImporterForSDK({
-                //platform: architecture.triple,
-                //outputpath: targetFolder,
-                //defines: defines,
-                //includeBlackList: includeBlackList,
-                //includepaths: [expand('$(sdkFolder)/usr/include')],
-                //frameworkpaths: [frameworksFolder],
-                //frameworks: frameworks,
-                //version: version,
-                //versionString: __shortVersion(version)+' ('+deploymentVersion+')',
-                //architecture: architecture,
-                //forceIncludes: forceIncludes,
-                //rtlFiles: __buildRtlFilesList(version, architecture),
-                //indirectRtlFiles: indirectRtlFiles
-              ////}, '-i ./');
+    //
+    //
+    //
 
-    //method IsBlacklisted(aItem: String; aBlackList: array of String; aSDKName: String; aVersion: String; aTriple: String): Boolean;
-    //begin
-      //result := false;
-    //end;
+    method CreateSDKZip(aName: String; aVersion: String);
+    begin
+      //aName := if aName = "macOS" then Darwin.NameForMacOS(aVersion) else aName;
+
+      var lTargetFolderName := aName+" "+aVersion;
+      var lTargetFolderName2 := lTargetFolderName+" Simulator";
+
+      var lTargetFolder := Path.Combine(BaseFolder, lTargetFolderName);
+      var lTargetFolder2 := Path.Combine(BaseFolder, lTargetFolderName2);
+
+      folder.Create(Path.Combine(BaseFolder, "__CI2Shared"));
+      folder.Create(Path.Combine(BaseFolder, "__Public"));
+
+      var lTargetZipName := Path.Combine(BaseFolder, "__CI2Shared", lTargetFolderName)+".zip";
+      var lTargetZipName2 := Path.Combine(BaseFolder, "__Public", lTargetFolderName)+".zip";
+      writeLn($"Creating {lTargetZipName}");
+      CreateZip(lTargetFolder, lTargetZipName);
+      if aName = "macOS" then begin
+        File.CopyTo(lTargetZipName, lTargetZipName2);
+      end
+      else begin
+        writeLn($"Creating {lTargetZipName2}");
+        CreateZip([lTargetFolder, lTargetFolder2], lTargetZipName2);
+      end;
+    end;
+
+    method CreateZip(aFolder: String; aZipFilePath: String);
+    begin
+      using lFile := new Ionic.Zip.ZipFile() do begin
+        lFile.AddDirectory(aFolder, aFolder.LastPathComponent);
+        lFile.Save(aZipFilePath);
+      end;
+    end;
+
+    method CreateZip(aFolders: array of String; aZipFilePath: String);
+    begin
+      using lFile := new Ionic.Zip.ZipFile() do begin
+        for each f in aFolders do
+          lFile.AddDirectory(f, f.LastPathComponent);
+        lFile.Save(aZipFilePath);
+      end;
+    end;
 
   end;
 

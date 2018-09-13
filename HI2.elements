@@ -76,6 +76,7 @@
     <Compile Include="Importer.Darwin.SDKs.pas" />
     <Compile Include="Constants.Darwin.Blacklists.pas" />
     <Compile Include="Constants.Darwin.RTL.pas" />
+    <Compile Include="Importer.Darwin.Tasks.pas" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\RemObjects Software\Elements\RemObjects.Elements.Echoes.targets" />
 </Project>

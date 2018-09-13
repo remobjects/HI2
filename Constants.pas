@@ -7,6 +7,7 @@ type
   Architecture = public record
   public
     Triple: String;
+    property Arch: String read Triple.SubstringToFirstOccurrenceOf("-");
     CpuType: String;
     Defines: String;
     SDKName: String;

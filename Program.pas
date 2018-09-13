@@ -19,7 +19,8 @@ type
       //lImporter.ImportGC();
 
       lImporter.SkipDeploymentTargets := true;
-      lImporter.ImportXcode10Beta();
+      lImporter.ImportXcode10();
+      //lImporter.ImportXcode93();
     end;
 
   end;
