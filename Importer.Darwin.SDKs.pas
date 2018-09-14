@@ -289,7 +289,9 @@ type
       var lJsonName := $"import-{aArchitecture.SDKName}{if aArchitecture.Simulator then "-simulator"}-{aVersionString}-{aOutputFolder.LastPathComponent}.json";
       lJsonName := Path.Combine(SDKsBaseFolder, lJsonName);
       File.WriteText(lJsonName, lJsonDocument.ToString());
-      writeLn(lJsonDocument);
+
+      if Debug then
+        writeLn(lJsonDocument);
 
       var lArgs := new List<String>;
       lArgs.Add("import");

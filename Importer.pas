@@ -13,7 +13,7 @@ type
     method RunHI(aArgs: ImmutableList<String>);
     begin
       writeLn(Task.StringForCommand("HeaderImporter") Parameters(aArgs.ToArray));
-      var lExitCode := Task.Run(HI, aArgs.ToArray, nil, nil, s -> writeLn(s), s -> begin if Debug then writeLn("     "+s); end);
+      var lExitCode := Task.Run(HI, aArgs.ToArray, nil, nil, s -> begin if Debug then writeLn("  "+s); end, s -> writeLn("  "+s));
       if lExitCode ≠ 0 then
         raise new Exception("HeaderImporter failed with {0}", lExitCode);
     end;
