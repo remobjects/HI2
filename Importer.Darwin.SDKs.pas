@@ -9,6 +9,8 @@ type
   protected
   public
 
+    property SDKsBaseFolder: String read if Darwin.Island then Path.Combine(BaseFolder, "Darwin") else BaseFolder;
+
     property SkipDeploymentTargets := false;
 
     method ImportMacOSSDK();
@@ -83,7 +85,7 @@ type
       if aSimulator then
         lTargetFolderName := lTargetFolderName+" Simulator";
 
-      var lTargetFolder := Path.Combine(BaseFolder, lTargetFolderName);
+      var lTargetFolder := Path.Combine(SDKsBaseFolder, lTargetFolderName);
       if lTargetFolder.FolderExists then
         Folder.Delete(lTargetFolder);
 
@@ -285,7 +287,7 @@ type
       lJson["OverrideNamespace"] := new JsonArray([lOverride1, lOverride2]);
 
       var lJsonName := $"import-{aArchitecture.SDKName}{if aArchitecture.Simulator then "-simulator"}-{aVersionString}-{aOutputFolder.LastPathComponent}.json";
-      lJsonName := Path.Combine(BaseFolder, lJsonName);
+      lJsonName := Path.Combine(SDKsBaseFolder, lJsonName);
       File.WriteText(lJsonName, lJsonDocument.ToString());
       writeLn(lJsonDocument);
 
@@ -296,7 +298,7 @@ type
 
       lArgs.Add($"-i", Path.Combine(aSDKFolder, "usr", "include"));
       lArgs.Add($"-f", lFrameworksFolder);
-      lArgs.Add($"-i", BaseFolder);
+      lArgs.Add($"-i", SDKsBaseFolder);
 
       //for each n in options.includepaths do
         //lArgs.Add("-i", n);
@@ -332,15 +334,15 @@ type
       var lTargetFolderName := aName+" "+aVersion;
       var lTargetFolderName2 := lTargetFolderName+" Simulator";
 
-      var lTargetFolder := Path.Combine(BaseFolder, lTargetFolderName);
-      var lTargetFolder2 := Path.Combine(BaseFolder, lTargetFolderName2);
+      var lTargetFolder := Path.Combine(SDKsBaseFolder, lTargetFolderName);
+      var lTargetFolder2 := Path.Combine(SDKsBaseFolder, lTargetFolderName2);
 
-      folder.Create(Path.Combine(BaseFolder, "__CI2Shared"));
-      folder.Create(Path.Combine(BaseFolder, "__Public"));
+      folder.Create(Path.Combine(SDKsBaseFolder, "__CI2Shared"));
+      folder.Create(Path.Combine(SDKsBaseFolder, "__Public"));
 
-      var lTargetZipName := Path.Combine(BaseFolder, "__CI2Shared", lTargetFolderName)+".zip";
-      var lTargetZipName3 := Path.Combine(BaseFolder, "__CI2Shared", lTargetFolderName)+" Simulator.zip";
-      var lTargetZipName2 := Path.Combine(BaseFolder, "__Public", lTargetFolderName)+".zip";
+      var lTargetZipName := Path.Combine(SDKsBaseFolder, "__CI2Shared", lTargetFolderName)+".zip";
+      var lTargetZipName3 := Path.Combine(SDKsBaseFolder, "__CI2Shared", lTargetFolderName)+" Simulator.zip";
+      var lTargetZipName2 := Path.Combine(SDKsBaseFolder, "__Public", lTargetFolderName)+".zip";
       writeLn($"Creating {lTargetZipName}");
       CreateZip(lTargetFolder, lTargetZipName);
       if aName = "macOS" then begin

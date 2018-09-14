@@ -11,11 +11,15 @@ type
     begin
       for each (a, v) in Darwin.AllArchitectures do
         ImportGC(a, v);
+
+      var lTargetZipName := Path.Combine(BaseFolder, "GC", "Darwin.zip");
+      writeLn($"Creating {lTargetZipName}");
+      CreateZip(Path.Combine(BaseFolder, "GC", "Darwin"), lTargetZipName);
     end;
 
     method MergeGCArchitectures(aSDKName: String);
     begin
-      MergeArchitectures(Path.Combine(BaseFolder, "Darwin", "GC", aSDKName), "gc.fx");
+      MergeArchitectures(Path.Combine(BaseFolder, "GC", "Darwin", aSDKName), "gc.fx");
     end;
 
     method ImportGC(aArchitecture: Architecture; aVersion:String);
@@ -62,12 +66,12 @@ type
         lSDKName := lSDKName+" Simulator";
       end;
 
-      var lOutPath := Path.Combine(BaseFolder, "Darwin", "GC", lSDKName, lArch);
+      var lOutPath := Path.Combine(BaseFolder, "GC", "Darwin", lSDKName, lArch);
 
       var lArgs := new List<String>;
       lArgs.Add("import");
       lArgs.Add("--json="+lBaseJsonFile);
-      lArgs.Add("--fxpaths="+Path.Combine(BaseFolder, "Darwin", lSDK));
+      lArgs.Add("--fxpaths="+Path.Combine(SDKsBaseFolder, lSDK));
       lArgs.Add("--include="+Path.Combine(GCSourceFolder, "include"));
       lArgs.Add("--outpath="+lOutPath);
 

@@ -71,7 +71,7 @@ type
     const MIN_IOS_VERSION_FOR_ARM64     = "7.0";
     const MAX_IOS_VERSION_FOR_ARM_32BIT = "10.0";
 
-    const MIN_WATCHOS_VERSION_FOR_ARM64 = "5.09";
+    const MIN_WATCHOS_VERSION_FOR_ARM64 = "5.0";
 
     const macOSCurrentVersion = "10.14";
     const iOSCurrentVersion = "12.0";

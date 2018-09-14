@@ -9,7 +9,7 @@ type
       // add your own code here
       writeLn('The magic happens here.');
       var lImporter := new Importer();
-      lImporter.BaseFolder := "/Users/mh/Code/Elements/Frameworks/Island2";
+      lImporter.BaseFolder := "/Users/mh/Code/Elements/Frameworks/Island";
       lImporter.GCSourceFolder := "/Users/mh/Code/git/gc";
       lImporter.GCBinariesFolder := "/Users/mh/Downloads/gc";
       lImporter.HI := "/Users/mh/Code/Elements/Source/HeaderImporter/Bin/Debug/HeaderImporter.exe";
