@@ -85,6 +85,7 @@ type
     property iOSVersion: String := iOSCurrentVersion;
     property tvOSVersion: String := tvOSCurrentVersion;
     property watchOSVersion: String := watchOSCurrentVersion;
+    property BetaSuffix: String := "";
     property DeveloperFolder: String := ToffeePaths.Instance.LocalXcodeDeveloperFolder;
     property Island := true;
     property Toffee := false;

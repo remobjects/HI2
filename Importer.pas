@@ -12,10 +12,21 @@ type
 
     method RunHI(aArgs: ImmutableList<String>);
     begin
-      writeLn(Task.StringForCommand("HeaderImporter") Parameters(aArgs.ToArray));
-      var lExitCode := Task.Run(HI, aArgs.ToArray, nil, nil, s -> begin if Debug then writeLn("  "+s); end, s -> writeLn("  "+s));
-      if lExitCode ≠ 0 then
+      writeLn(Task.StringForCommand("HeaderImporter") Parameters(aArgs));
+      var lOutput := new StringBuilder();
+      var lExitCode := Task.Run(HI, aArgs.ToArray, nil, nil, s -> begin
+        lOutput.AppendLine(s);
+        if Debug then
+          writeLn("  "+s);
+      end, s -> begin
+        lOutput.AppendLine(s);
+        writeLn("  "+s);
+      end);
+
+      if lExitCode ≠ 0 then begin
+        writeLn(lOutput.ToString);
         raise new Exception("HeaderImporter failed with {0}", lExitCode);
+      end;
     end;
 
     method MergeArchitectures(aFolder: String; aFileName: String; aDelete: Boolean := true);
@@ -35,7 +46,7 @@ type
         lArgs.Add("combine");
         lArgs.Add(lOutputFile);
         lArgs.Add(lFiles);
-        writeLn(Task.StringForCommand("HeaderImporter") Parameters(lArgs.ToArray));
+        writeLn(Task.StringForCommand("HeaderImporter") Parameters(lArgs));
         Task.Run(HI, lArgs.ToArray, nil, nil, s -> writeLn(s), s -> writeLn(s));
       end
       else if lFiles.Count = 1 then begin

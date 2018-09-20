@@ -44,9 +44,9 @@ type
     begin
       writeLn($"Import {aName} {aVersion} {if aSimulator then "Simulator"}");
 
-      //var lShortVersion := Darwin.ShortVersion(aVersion);
-      var lInternalVersion := if aName = "watchOS" then Darwin.iOSVersion else aVersion;
-      var lSdkFolder := Darwin.SdkFolderInXcode(aName, aVersion, aSimulator);
+      var lShortVersion := Darwin.ShortVersion(aVersion);
+      var lInternalVersion := if aName = "watchOS" then Darwin.iOSVersion else lShortVersion;
+      var lSdkFolder := Darwin.SdkFolderInXcode(aName, lShortVersion, aSimulator);
 
       var lArchitectures := case aName of
         "macOS": Darwin.macOSArchitectures;
@@ -70,7 +70,7 @@ type
           "tvOS": Darwin.tvOSEnvironmentVersionDefine;
           "watchOS": Darwin.watchOSEnvironmentVersionDefine;
         end;
-        lEnvironmentVersionDefine := lEnvironmentVersionDefine+"="+Darwin.CalculateIntegerVersion(aName, aVersion);
+        lEnvironmentVersionDefine := lEnvironmentVersionDefine+"="+Darwin.CalculateIntegerVersion(aName, lShortVersion);
         var lDefines := lEnvironmentVersionDefine;
         if Darwin.Toffee then
           lDefines := lDefines+";"+Darwin.ExtraDefinesToffee
@@ -81,7 +81,7 @@ type
 
       // below code is "processSDK()"
 
-      var lTargetFolderName := aName+" "+aVersion;
+      var lTargetFolderName := aName+" "+lShortVersion;
       if aSimulator then
         lTargetFolderName := lTargetFolderName+" Simulator";
 
@@ -126,7 +126,7 @@ type
       // main target
       for each (a, nil) in lArchitectures do begin
         if not assigned(a.MinimumTargetSDK) or (a.MinimumTargetSDK.CompareVersionTripleTo(aVersion) ≤ 0) then begin
-          var lDefines := a.Defines+";"+DefinesForVersion(aVersion);
+          var lDefines := a.Defines+";"+DefinesForVersion(lShortVersion);
 
           // below code is "doProcessSDK(options.internalVersion, options.version, options.sdkFolder,  architectures[a], defines, targetFolder, options.forceIncludes);"
 
@@ -137,7 +137,7 @@ type
           for each f in Folder.GetSubfolders(lFrameworksFolder) do begin
             if f.PathExtension = ".framework" then begin
               var lFrameworkName := f.LastPathComponentWithoutExtension;
-              if not Darwin.IsInBlacklist(Darwin.FrameworksBlackList, lFrameworkName, aVersion, a) then
+              if not Darwin.IsInBlacklist(Darwin.FrameworksBlackList, lFrameworkName, lShortVersion, a) then
                 lFrameworks.Add(lFrameworkName);
             end;
           end;
@@ -228,6 +228,8 @@ type
                            Defines(aDefines: String)
                       OutputFolder(aOutputFolder: String);
     begin
+      var lShortVersion := Darwin.ShortVersion(aVersion);
+
       var lFrameworksFolder := Path.Combine(aSDKFolder, "System", "Library", "Frameworks");
 
       var lTargetString := aArchitecture.Triple;
@@ -260,12 +262,12 @@ type
       lRtlFramework["Core"] := true;
       lRtlFramework["ForceNamespace"] := "rtl";
       lRtlFramework["DropPrefixes"] := new JsonArray(["NS"]);
-      lRtlFramework["Files"] := new JsonArray(Darwin.GetRTLFiles(aVersion, aArchitecture));
-      lRtlFramework["IndirectFiles"] := new JsonArray(Darwin.GetIndirectRTLFiles(aVersion, aArchitecture));
+      lRtlFramework["Files"] := new JsonArray(Darwin.GetRTLFiles(lShortVersion, aArchitecture));
+      lRtlFramework["IndirectFiles"] := new JsonArray(Darwin.GetIndirectRTLFiles(lShortVersion, aArchitecture));
       lRtlFramework["ImportDefs"] := lImportDefsJson;
       lJsonImports.Add(lRtlFramework);
 
-      var lBlacklist := Darwin.FilterBlacklist(Darwin.IncludeHeaderBlackList.ToList(), aVersion, aArchitecture);
+      var lBlacklist := Darwin.FilterBlacklist(Darwin.IncludeHeaderBlackList.ToList(), lShortVersion, aArchitecture);
       //if (options.headerBlackList)
         //lBlacklist.Add(options.headerBlackList);
 
@@ -277,7 +279,7 @@ type
       lJson["Imports"] := lJsonImports;
       lJson["Defines"] := new JsonArray(aDefines.Split(";", true));
       lJson["Blacklist"] := new JsonArray(lBlacklist);
-      lJson["ForceInclude"] := Darwin.GetForceIncludeFiles(aVersion, aArchitecture);
+      lJson["ForceInclude"] := Darwin.GetForceIncludeFiles(lShortVersion, aArchitecture);
       lJson["Mobile"] := (aArchitecture.SDKName ≠ "macOS");
       lJson["Platform"] := if Darwin.Island then "Darwin" else aArchitecture.SDKName;
       lJson["SDKName"] := aArchitecture.SDKName;//if aArchitecture.SDKName = "macOS" then "OS X" else aArchitecture.SDKName;
@@ -333,7 +335,15 @@ type
     begin
       //aName := if aName = "macOS" then Darwin.NameForMacOS(aVersion) else aName;
 
-      var lTargetFolderName := aName+" "+aVersion;
+      var lShortVersion := Darwin.ShortVersion(aVersion);
+      var lSuffix := if lShortVersion ≠ aVersion then " ("+aVersion+")" else "";
+      if length(Darwin.BetaSuffix) > 0 then begin
+        lSuffix := (Darwin.BetaSuffix+lSuffix);
+      end;
+      if length(lSuffix) > 0 then
+        lSuffix := " - "+lSuffix;
+
+      var lTargetFolderName := aName+" "+lShortVersion;
       var lTargetFolderName2 := lTargetFolderName+" Simulator";
 
       var lTargetFolder := Path.Combine(SDKsBaseFolder, lTargetFolderName);
@@ -342,9 +352,9 @@ type
       folder.Create(Path.Combine(SDKsBaseFolder, "__CI2Shared"));
       folder.Create(Path.Combine(SDKsBaseFolder, "__Public"));
 
-      var lTargetZipName := Path.Combine(SDKsBaseFolder, "__CI2Shared", lTargetFolderName)+".zip";
-      var lTargetZipName3 := Path.Combine(SDKsBaseFolder, "__CI2Shared", lTargetFolderName)+" Simulator.zip";
-      var lTargetZipName2 := Path.Combine(SDKsBaseFolder, "__Public", lTargetFolderName)+".zip";
+      var lTargetZipName := Path.Combine(SDKsBaseFolder, "__CI2Shared", lTargetFolderName)+lSuffix+".zip";
+      var lTargetZipName3 := Path.Combine(SDKsBaseFolder, "__CI2Shared", lTargetFolderName)+" Simulator"+lSuffix+".zip";
+      var lTargetZipName2 := Path.Combine(SDKsBaseFolder, "__Public", lTargetFolderName)+lSuffix+".zip";
       writeLn($"Creating {lTargetZipName}");
       CreateZip(lTargetFolder, lTargetZipName);
       if aName = "macOS" then begin
