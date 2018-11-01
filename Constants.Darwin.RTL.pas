@@ -117,18 +117,14 @@ type
                 "sys/*.h",
                 "xlocale/*.h"
                 ];
-    const indirectRtlFiles_macOS = [
-                "mach-o/arm/*.h",
-                "mach-o/arm64/*.h",
-                "mach-o/i386/*.h",
-                "mach-o/x86_64/*.h"];
+    const indirectRtlFiles_macOS = ["mach-o/i386/*.h", "mach-o/x86_64/*.h"]; // // "mach-o/arm/*.h", "mach-o/arm64/*.h"
     const indirectRtlFiles_iOS = ["mach-o/arm/*.h", "mach-o/arm64/*.h"];
     const indirectRtlFiles_watchOS: array of String = []; // ["mach-o/arm/*.h", "mach-o/arm64/*.h"];
     const indirectRtlFiles_tvOS = ["mach-o/arm64/*.h"];
 
     property indirectRtlFiles_iOSSimulator: array of String read indirectRtlFiles_macOS;
     const indirectRtlFiles_tvOSSimulator = ["mach-o/x86_64/*.h"];
-    const indirectRtlFiles_watchOSSimulator = ["mach-o/i386/*.h"];
+    const indirectRtlFiles_watchOSSimulator: array of String = [];//"mach-o/i386/*.h"];
 
     //
     //

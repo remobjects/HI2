@@ -41,7 +41,7 @@ type
     const watchOSDefinesSimulator64 = _iOSDefinesSimulator64+";WATCHOS;WATCHOSSIMULATOR;SIMULATOR";
     const tvOSDefinesSimulator64 =    _iOSDefinesSimulator64+";TVOS;TVOSSIMULATOR;SIMULATOR";
 
-    const ExtraDefinesToffee = ";DARWIN;__ELEMENTS;__NOUGAT__;__TOFFEE__";
+    const ExtraDefinesToffee = ";DARWIN;__ELEMENTS;__TOFFEE__";
     const ExtraDefinesIsland = ";DARWIN;__ELEMENTS;__ISLAND__";
 
     property Architecture_macOS_x86_64            : Architecture read new Architecture(Triple := "x86_64-apple-macosx",  Defines := macOSDefines64,            SDKName := "macOS",                      CpuType := cpuType_Penryn);
@@ -62,10 +62,10 @@ type
     const tvOSEnvironmentVersionDefine    = '__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__';
     const watchOSEnvironmentVersionDefine = '__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__';
 
-    const macOSDeploymentTargets =    "10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
-    const iOSDeploymentTargets =     "12.0;11.4;11.0;10.0;9.0;8.0";
-    const tvOSDeploymentTargets =    "12.0;11.4;11.0;10.0;9.0";
-    const watchOSDeploymentTargets = "5.0;4.3;4.0;3.0;2.0";
+    const macOSDeploymentTargets =   "10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
+    const iOSDeploymentTargets =     "12.0;11.0;10.0;9.0;8.0";
+    const tvOSDeploymentTargets =    "12.0;11.0;10.0;9.0";
+    const watchOSDeploymentTargets = "5.0;4.0;3.0;2.0";
 
     const MIN_IOS_VERSION_FOR_ARMV7S    = "6.0";
     const MIN_IOS_VERSION_FOR_ARM64     = "7.0";
@@ -89,6 +89,8 @@ type
     property DeveloperFolder: String := ToffeePaths.Instance.LocalXcodeDeveloperFolder;
     property Island := true;
     property Toffee := false;
+
+    property Mode: String read if Toffee then "Toffee" else if Island then "Island" else "Unknown";
 
     //property CrossBox := RemObjects.Elements.CrossBox.CrossBoxManager.Instance.LocalCrossBoxServer as RemObjects.Elements.CrossBox.ICrossBoxServerForToffee; readonly;
 

@@ -288,7 +288,7 @@ type
       var lOverride2 := new JsonObject(); lOverride2["Key"] := "objc/NSObjCRuntime.h"; lOverride2["Value"] := "Foundation";
       lJson["OverrideNamespace"] := new JsonArray([lOverride1, lOverride2]);
 
-      var lJsonName := $"import-{aArchitecture.SDKName}{if aArchitecture.Simulator then "-simulator"}-{aVersionString}-{aOutputFolder.LastPathComponent}.json";
+      var lJsonName := $"import-{Darwin.Mode}-{aArchitecture.SDKName}{if aArchitecture.Simulator then "-Simulator"}-{aVersionString}-{aOutputFolder.LastPathComponent}.json";
       lJsonName := Path.Combine(SDKsBaseFolder, lJsonName);
       File.WriteText(lJsonName, lJsonDocument.ToString());
 
@@ -336,9 +336,9 @@ type
       //aName := if aName = "macOS" then Darwin.NameForMacOS(aVersion) else aName;
 
       var lShortVersion := Darwin.ShortVersion(aVersion);
-      var lSuffix := if lShortVersion ≠ aVersion then " ("+aVersion+")" else "";
+      var lSuffix := if lShortVersion ≠ aVersion then "("+aVersion+")" else "";
       if length(Darwin.BetaSuffix) > 0 then begin
-        lSuffix := (Darwin.BetaSuffix+lSuffix);
+        lSuffix := (lSuffix+" "+Darwin.BetaSuffix).Trim;
       end;
       if length(lSuffix) > 0 then
         lSuffix := " - "+lSuffix;
@@ -352,8 +352,8 @@ type
       folder.Create(Path.Combine(SDKsBaseFolder, "__CI2Shared"));
       folder.Create(Path.Combine(SDKsBaseFolder, "__Public"));
 
-      var lTargetZipName := Path.Combine(SDKsBaseFolder, "__CI2Shared", lTargetFolderName)+lSuffix+".zip";
-      var lTargetZipName3 := Path.Combine(SDKsBaseFolder, "__CI2Shared", lTargetFolderName)+" Simulator"+lSuffix+".zip";
+      var lTargetZipName := Path.Combine(SDKsBaseFolder, "__CI2Shared", lTargetFolderName)+".zip";
+      var lTargetZipName3 := Path.Combine(SDKsBaseFolder, "__CI2Shared", lTargetFolderName)+" Simulator.zip";
       var lTargetZipName2 := Path.Combine(SDKsBaseFolder, "__Public", lTargetFolderName)+lSuffix+".zip";
       writeLn($"Creating {lTargetZipName}");
       CreateZip(lTargetFolder, lTargetZipName);

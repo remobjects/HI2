@@ -22,6 +22,7 @@ type
       begin
         Darwin.Toffee := false;
         Darwin.Island := true;
+        lImporter.SkipDeploymentTargets := true; // for now!
         lImporter.BaseFolder := Path.Combine(lFrameworkBaseFolder, "Island");
       end;
 
@@ -29,14 +30,19 @@ type
       begin
         Darwin.Toffee := true;
         Darwin.Island := false;
+        lImporter.SkipDeploymentTargets := false;
         lImporter.BaseFolder := Path.Combine(lFrameworkBaseFolder, "Toffee");
       end;
 
       //lImporter.ImportGC();
 
       PrepareToffee();
-      lImporter.SkipDeploymentTargets := true;
-      lImporter.ImportXcode10_1();
+      Importer.ImportXcode10_1();
+
+      PrepareIsland();
+      Importer.ImportXcode10_1();
+
+      //lImporter.ImportXcode10_0();
       //lImporter.ImportXcode94();
     end;
 
