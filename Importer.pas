@@ -12,9 +12,9 @@ type
 
     method RunHI(aArgs: ImmutableList<String>);
     begin
-      writeLn(Task.StringForCommand("HeaderImporter") Parameters(aArgs));
+      writeLn(Process.StringForCommand("HeaderImporter") Parameters(aArgs));
       var lOutput := new StringBuilder();
-      var lExitCode := Task.Run(HI, aArgs.ToArray, nil, nil, s -> begin
+      var lExitCode := Process.Run(HI, aArgs.ToArray, nil, nil, s -> begin
         lOutput.AppendLine(s);
         if Debug then
           writeLn("  "+s);
@@ -46,8 +46,7 @@ type
         lArgs.Add("combine");
         lArgs.Add(lOutputFile);
         lArgs.Add(lFiles);
-        writeLn(Task.StringForCommand("HeaderImporter") Parameters(lArgs));
-        Task.Run(HI, lArgs.ToArray, nil, nil, s -> writeLn(s), s -> writeLn(s));
+        RunHI(lArgs);
       end
       else if lFiles.Count = 1 then begin
         File.CopyTo(lFiles.First, lOutputFile);

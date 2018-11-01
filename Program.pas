@@ -37,10 +37,10 @@ type
       //lImporter.ImportGC();
 
       PrepareToffee();
-      Importer.ImportXcode10_1();
+      lImporter.ImportXcode10_1();
 
       PrepareIsland();
-      Importer.ImportXcode10_1();
+      lImporter.ImportXcode10_1();
 
       //lImporter.ImportXcode10_0();
       //lImporter.ImportXcode94();

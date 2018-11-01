@@ -75,8 +75,7 @@ type
       lArgs.Add("--include="+Path.Combine(GCSourceFolder, "include"));
       lArgs.Add("--outpath="+lOutPath);
 
-      writeLn(Task.StringForCommand("HeaderImporter") Parameters(lArgs));
-      Task.Run(HI, lArgs.ToArray, nil, nil, s -> writeLn(s), s -> writeLn(s));
+      RunHI(lArgs);
 
       if GCBinariesFolder:FolderExists then begin
         var lBinary := Path.Combine(GCBinariesFolder, "gc-"+aArchitecture.Triple+".a");

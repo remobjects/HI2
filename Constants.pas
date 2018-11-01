@@ -94,6 +94,8 @@ type
 
     //property CrossBox := RemObjects.Elements.CrossBox.CrossBoxManager.Instance.LocalCrossBoxServer as RemObjects.Elements.CrossBox.ICrossBoxServerForToffee; readonly;
 
+    property iOS32: Boolean read Toffee or (iOSVersion.CompareVersionTripleTo(MAX_IOS_VERSION_FOR_ARM_32BIT) ≤ 0);
+    property iOS64: Boolean read iOSVersion.CompareVersionTripleTo(MIN_IOS_VERSION_FOR_ARM64) ≥ 0;
 
     method CalculateIntegerVersion(aName: String; aVersion: String): String;
     begin
@@ -168,20 +170,19 @@ type
 
     method iOSArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
-      //if iOSVersion.CompareVersionTripleTo(MAX_IOS_VERSION_FOR_ARM_32BIT) ≤ 0 then begin
-      yield (Architecture_iOS_armv7, iOSVersion);
-      if iOSVersion.CompareVersionTripleTo(MIN_IOS_VERSION_FOR_ARMV7S) ≥ 0/* && compareVersions(version, MAX_IOS_VERSION_FOR_ARM_32BIT) <= 0)*/ then
+      if iOS32 then
+        yield (Architecture_iOS_armv7, iOSVersion);
+      if (iOSVersion.CompareVersionTripleTo(MIN_IOS_VERSION_FOR_ARMV7S) ≥ 0) and iOS32 then
         yield (Architecture_iOS_armv7s, iOSVersion);
-      //end;
-      if iOSVersion.CompareVersionTripleTo(MIN_IOS_VERSION_FOR_ARM64) ≥ 0 then
+      if iOS64 then
         yield (Architecture_iOS_arm64, iOSVersion);
     end;
 
     method iOSSimulatorArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
-      //if iOSVersion.CompareVersionTripleTo(MAX_IOS_VERSION_FOR_ARM_32BIT) ≤ 0 then
-      yield (Architecture_iOSSimulator_i386, iOSVersion);
-      if iOSVersion.CompareVersionTripleTo(MIN_IOS_VERSION_FOR_ARM64) ≥ 0 then
+      if iOS32 then
+        yield (Architecture_iOSSimulator_i386, iOSVersion);
+      if iOS64 then
         yield (Architecture_iOSSimulator_x86_64, iOSVersion);
     end;
 
