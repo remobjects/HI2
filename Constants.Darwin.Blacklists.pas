@@ -132,10 +132,8 @@ type
                   '11.4:x86_64-apple-tvos:IOSurface', // fails on missing xpc/xpc.h
 
                   // Review for Xcode 9.4 (and retest for 10?)
-                  'MetalPerformanceShaders',
+                  'MetalPerformanceShaders'
 
-                  // Review for Xcode 10
-                  'ApplicationServices' // ApplicationServices/QD/QDAvailability.h (28) Cannot find include file: os/availibility.h
                   ].ToList; readonly;
 
   end;

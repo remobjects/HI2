@@ -31,8 +31,8 @@ type
       Darwin.watchOSVersion := "5.1";
       Darwin.BetaSuffix := "";
 
-      ImportIOSSDK();
       ImportMacOSSDK();
+      ImportIOSSDK();
       ImportTvOSSDK();
       ImportWatchOSSDK();
     end;

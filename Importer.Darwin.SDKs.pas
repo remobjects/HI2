@@ -45,7 +45,8 @@ type
       writeLn($"Import {aName} {aVersion} {if aSimulator then "Simulator"}");
 
       var lShortVersion := Darwin.ShortVersion(aVersion);
-      var lInternalVersion := if aName = "watchOS" then Darwin.iOSVersion else lShortVersion;
+      var lInternalVersion := if aName = "watchOS" then Darwin.iOSVersion else aVersion;
+      var lInternalShortVersion := Darwin.ShortVersion(lInternalVersion);
       var lSdkFolder := Darwin.SdkFolderInXcode(aName, lShortVersion, aSimulator);
 
       var lArchitectures := case aName of
@@ -70,7 +71,7 @@ type
           "tvOS": Darwin.tvOSEnvironmentVersionDefine;
           "watchOS": Darwin.watchOSEnvironmentVersionDefine;
         end;
-        lEnvironmentVersionDefine := lEnvironmentVersionDefine+"="+Darwin.CalculateIntegerVersion(aName, lShortVersion);
+        lEnvironmentVersionDefine := lEnvironmentVersionDefine+"="+Darwin.CalculateIntegerVersion(aName, lInternalShortVersion);
         var lDefines := lEnvironmentVersionDefine;
         if Darwin.Toffee then
           lDefines := lDefines+";"+Darwin.ExtraDefinesToffee
@@ -106,7 +107,7 @@ type
                 var lFrameworks := new List<String>("Foundation", "Security"); // iOS Simulator requires this from rtl/objc. We wont actually *use* the generated file
 
                 RunHeaderImporterForSDK(lSdkFolder)
-                                Version(aVersion)
+                                Version(lInternalVersion)
                           VersionString(aVersion+$" ({d})")
                            Architecture(a)
                              Frameworks(lFrameworks)
@@ -126,7 +127,7 @@ type
       // main target
       for each (a, nil) in lArchitectures do begin
         if not assigned(a.MinimumTargetSDK) or (a.MinimumTargetSDK.CompareVersionTripleTo(aVersion) ≤ 0) then begin
-          var lDefines := a.Defines+";"+DefinesForVersion(lShortVersion);
+          var lDefines := a.Defines+";"+DefinesForVersion(lInternalShortVersion);
 
           // below code is "doProcessSDK(options.internalVersion, options.version, options.sdkFolder,  architectures[a], defines, targetFolder, options.forceIncludes);"
 
@@ -287,6 +288,9 @@ type
       var lOverride1 := new JsonObject(); lOverride1["Key"] := "objc/NSObject.h";      lOverride1["Value"] := "Foundation";
       var lOverride2 := new JsonObject(); lOverride2["Key"] := "objc/NSObjCRuntime.h"; lOverride2["Value"] := "Foundation";
       lJson["OverrideNamespace"] := new JsonArray([lOverride1, lOverride2]);
+
+      lJson["VirtualFiles"] := new JsonObject();
+      lJson["VirtualFiles"]["os/availibility.h"] := "#include <os/availability.h>";
 
       var lJsonName := $"import-{Darwin.Mode}-{aArchitecture.SDKName}{if aArchitecture.Simulator then "-Simulator"}-{aVersionString}-{aOutputFolder.LastPathComponent}.json";
       lJsonName := Path.Combine(SDKsBaseFolder, lJsonName);
