@@ -144,7 +144,7 @@ type
           end;
 
           RunHeaderImporterForSDK(lSdkFolder)
-                          Version(aVersion)
+                          Version(lInternalVersion)
                     VersionString(aVersion)
                      Architecture(a)
                        Frameworks(lFrameworks)
