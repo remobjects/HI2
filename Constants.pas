@@ -42,7 +42,7 @@ type
     const tvOSDefinesSimulator64 =    _iOSDefinesSimulator64+";TVOS;TVOSSIMULATOR;SIMULATOR";
 
     const ExtraDefinesToffee = ";DARWIN;__ELEMENTS;__TOFFEE__";
-    const ExtraDefinesIsland = ";DARWIN;__ELEMENTS;__ISLAND__";
+    const ExtraDefinesIsland = ";DARWIN;__ELEMENTS;__ISLAND__;POSIX";
 
     property Architecture_macOS_x86_64            : Architecture read new Architecture(Triple := "x86_64-apple-macosx",  Defines := macOSDefines64,            SDKName := "macOS",                      CpuType := cpuType_Penryn);
     property Architecture_iOS_armv7               : Architecture read new Architecture(Triple := "armv7-apple-ios",      Defines := iOSDefines32,              SDKName := "iOS");

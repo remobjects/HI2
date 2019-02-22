@@ -101,7 +101,7 @@ type
 
                   'Kernel',
 
-                  'i386-apple-watchos:AVFoundation',
+                  //'i386-apple-watchos:AVFoundation',
                   'i386-apple-ios:IOKit',
 
                   '8.4:i386-apple-ios:Metal',
