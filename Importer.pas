@@ -1,4 +1,7 @@
-﻿namespace HI2;
+﻿namespace RemObjects.Elements.HI2;
+
+uses
+  RemObjects.Elements.RTL;
 
 type
   Importer = public partial class
@@ -6,25 +9,48 @@ type
 
     property BaseFolder: String;
     property HI: String;
+    property Mono: String;
     property Debug := false;
+    property CreateZips := true;
 
 //    property FXBaseFolder: String; // MUST BE SET!
 
+    property LoggingCallback: block(aLine: String);
+
+    method Log(aLine: String);
+    begin
+      if assigned(LoggingCallback) then
+        LoggingCallback(aLine)
+      else
+        writeLn(aLine);
+    end;
+
+
     method RunHI(aArgs: ImmutableList<String>);
     begin
-      writeLn(Process.StringForCommand("HeaderImporter") Parameters(aArgs));
+      Log(Process.StringForCommand("HeaderImporter") Parameters(aArgs));
       var lOutput := new StringBuilder();
-      var lExitCode := Process.Run(HI, aArgs.ToArray, nil, nil, s -> begin
+
+      var lExe := HI;
+      if defined("TOFFEE") and assigned(Mono) then begin
+        var lArguments := aArgs.MutableVersion;
+        lArguments.Insert(0, HI);
+        aArgs := lArguments;
+        lExe := Mono;
+      end;
+
+      var lExitCode := Process.Run(lExe, aArgs.ToArray, nil, nil, s -> begin
         lOutput.AppendLine(s);
-        if Debug then
-          writeLn("  "+s);
+        if Debug or assigned(LoggingCallback) then
+          Log("  "+s);
       end, s -> begin
         lOutput.AppendLine(s);
-        writeLn("  "+s);
+        Log("  "+s);
       end);
 
       if lExitCode ≠ 0 then begin
-        writeLn(lOutput.ToString);
+        if not (Debug or assigned(LoggingCallback)) then
+          Log(lOutput.ToString);
         raise new Exception("HeaderImporter failed with {0}", lExitCode);
       end;
     end;

@@ -1,4 +1,4 @@
-﻿namespace HI2;
+﻿namespace RemObjects.Elements.HI2;
 
 uses
   RemObjects.Elements.Basics;

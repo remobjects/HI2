@@ -1,4 +1,7 @@
-﻿namespace HI2;
+﻿namespace RemObjects.Elements.HI2;
+
+uses
+  RemObjects.Elements.RTL;
 
 type
   Importer = public partial class
@@ -12,9 +15,11 @@ type
       for each (a, v) in Darwin.AllArchitectures do
         ImportGC(a, v);
 
-      var lTargetZipName := Path.Combine(BaseFolder, "GC", "Darwin.zip");
-      writeLn($"Creating {lTargetZipName}");
-      CreateZip(Path.Combine(BaseFolder, "GC", "Darwin"), lTargetZipName);
+      if defined("ECHOES") and CreateZips then begin
+        var lTargetZipName := Path.Combine(BaseFolder, "GC", "Darwin.zip");
+        writeLn($"Creating {lTargetZipName}");
+        CreateZip(Path.Combine(BaseFolder, "GC", "Darwin"), lTargetZipName);
+      end;
     end;
 
     method MergeGCArchitectures(aSDKName: String);
