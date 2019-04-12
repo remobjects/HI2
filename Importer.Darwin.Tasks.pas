@@ -22,12 +22,12 @@ type
 
     method ImportXcode10_2;
     begin
-      Darwin.DeveloperFolder := "/Users/mh/Applications/Xcode-10.2-Beta2.app/Contents/Developer";
+      Darwin.DeveloperFolder := "/Users/mh/Applications/Xcode-10.2.app/Contents/Developer";
       Darwin.macOSVersion := "10.14.4";
       Darwin.iOSVersion := "12.2";
       Darwin.tvOSVersion := "12.2";
       Darwin.watchOSVersion := "5.2";
-      Darwin.BetaSuffix := "Beta 2";
+      Darwin.BetaSuffix := "";
 
       ImportMacOSSDK();
       ImportIOSSDK();
