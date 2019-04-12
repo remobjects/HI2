@@ -1,4 +1,4 @@
-﻿namespace HI2;
+﻿namespace RemObjects.Elements.HI2;
 
 type
   Darwin = public static partial class
