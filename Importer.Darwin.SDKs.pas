@@ -349,10 +349,10 @@ type
         lSuffix := " - "+lSuffix;
 
       var lTargetFolderName := aName+" "+lShortVersion;
-      var lTargetFolderName2 := lTargetFolderName+" Simulator";
+      //var lTargetFolderName2 := lTargetFolderName+" Simulator";
 
-      var lTargetFolder := Path.Combine(SDKsBaseFolder, lTargetFolderName);
-      var lTargetFolder2 := Path.Combine(SDKsBaseFolder, lTargetFolderName2);
+      //var lTargetFolder := Path.Combine(SDKsBaseFolder, lTargetFolderName);
+      //var lTargetFolder2 := Path.Combine(SDKsBaseFolder, lTargetFolderName2);
 
       if defined("ECHOES") and CreateZips then begin
         Folder.Create(Path.Combine(SDKsBaseFolder, "__CI2Shared"));
