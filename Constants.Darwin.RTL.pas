@@ -5,25 +5,19 @@ type
   private
 
     const rtlFiles = [
-                "arpa/*.h",
                 "assert.h",
-                "CommonCrypto/*.h",
                 "copyfile.h",
                 "ctype.h",
                 "cups/cups.h",
                 "cups/ppd.h",
                 "device/*.h",
                 "dirent.h",
-                "dispatch/dispatch.h",
                 "errno.h",
                 "i386/limits.h",
                 "iconv.h",
                 "inttypes.h",
-                "libkern/*.h",
                 "limits.h",
                 "locale.h",
-                "mach-o/*.h",
-                "malloc/*.h",
                 "math.h",
                 "netdb.h",
                 "netinet/in.h",
@@ -32,7 +26,6 @@ type
                 "netinet/tcp.h",
                 "netinet/tcpip.h",
                 "netinet/udp.h",
-                "objc/*.h",
                 "pthread/pthread.h",
                 "pwd.h",
                 "regex.h",
@@ -43,7 +36,6 @@ type
                 "stdint.h",
                 "stdio.h",
                 "stdlib.h",
-                "sys/_types/*.h",
                 "sys/event.h",
                 "sys/ioctl.h",
                 "sys/mount.h",
@@ -52,7 +44,6 @@ type
                 "TargetConditionals.h",
                 "time.h",
                 "unwind.h",
-                "uuid/*.h",
                 "wchar.h",
                 "wctype.h",
                 "xpc/xpc.h"
@@ -71,7 +62,6 @@ type
                 //"sys/ioctl.h",
                 //"sys/mount.h",
                 //"sys/utsname.h",
-                //"uuid/*.h",
                 //"xpc/xpc.h",
                 ];
 
@@ -91,10 +81,33 @@ type
                 //"sasl/*.h",    // sasl/hmac-md5.h (11:5 pp: 54) Declaration expected; current token: Identifier  MD5_CTX
                 //"security/*.h",  // security/mac_policy.h (83) Cannot find include file: security/security/_label.h
                 //"vfs/*.h",      // fs/vfs_support.h (48) Cannot find include file: vfs/sys/systm.h
+                "arpa/*.h",
+                "CommonCrypto/*.h",
+                "dispatch/dispatch.h",
+                "libkern/*.h",
+                "mach-o/*.h",
+                "malloc/*.h",
+                "objc/*.h",
+                "sys/_types/*.h",
+                "uuid/*.h",
                 "xar/*.h"
                 ];
 
-    const rtlFiles_iOS = ["arm/limits.h"];
+    //const rtlFiles_DrivereKit = [];
+
+
+    const rtlFiles_iOS = [
+                          "arpa/*.h",
+                          "CommonCrypto/*.h",
+                          "dispatch/dispatch.h",
+                          "libkern/*.h",
+                          "mach-o/*.h",
+                          "malloc/*.h",
+                          "objc/*.h",
+                          "os/log.h",
+                          "sys/_types/*.h",
+                          "uuid/*.h",
+                          "arm/limits.h"];
     const rtlFiles_iOSSimulator: array of String = [];
 
     property rtlFiles_watchOS: array of String read rtlFiles_iOS;
@@ -123,6 +136,7 @@ type
     const indirectRtlFiles_iOS = ["mach-o/arm/*.h", "mach-o/arm64/*.h"];
     const indirectRtlFiles_watchOS: array of String = []; // ["mach-o/arm/*.h", "mach-o/arm64/*.h"];
     const indirectRtlFiles_tvOS = ["mach-o/arm64/*.h"];
+    const indirectRtlFiles_DriverKit: array of String = [];
 
     property indirectRtlFiles_iOSSimulator: array of String read indirectRtlFiles_macOS;
     const indirectRtlFiles_tvOSSimulator = ["mach-o/x86_64/*.h"];
@@ -166,7 +180,8 @@ type
             { 'Key': 'GLKit/GLKit.h','Value': ['OpenGLES/gltypes.h']},
             { 'Key': 'NotificationCenter/NotificationCenter.h','Value': ['UIKit/UIVisualEffectView.h'] },
             { 'Key': 'SceneKit/SceneKit.h', 'Value': [ 'CoreImage/CoreImage.h' ] },
-            { 'Key': 'Social/Social.h','Value': ['UIKit/UITextView.h']}
+            { 'Key': 'Social/Social.h','Value': ['UIKit/UITextView.h']},
+            { 'Key': 'ImageCaptureCore/ICDevice.h', 'Value': ['availability.h']}
             ]".Replace("'",'"');
     var forceIncludes_watchOS := forceIncludes_iOS;
     var forceIncludes_tvOS := forceIncludes_iOS;

@@ -20,6 +20,18 @@ type
       CreateSDKZip("macOS", Darwin.macOSVersion);
     end;
 
+    method ImportUIKitForMac();
+    begin
+      ImportSDK("UIKitForMac", Darwin.macOSVersion);
+      CreateSDKZip("UIKitForMac", Darwin.macOSVersion);
+    end;
+
+    method ImportDriverKitSDK();
+    begin
+      ImportSDK("DriverKit", Darwin.DriverKitVersion);
+      CreateSDKZip("DriverKit", Darwin.DriverKitVersion);
+    end;
+
     method ImportIOSSDK();
     begin
       ImportSDK("iOS", Darwin.iOSVersion, false);
@@ -52,6 +64,8 @@ type
 
       var lArchitectures := case aName of
         "macOS": Darwin.macOSArchitectures;
+        "UIKitForMac": Darwin.UIKitForMacArchitectures;
+        "DriverKit": Darwin.DriverKitArchitectures;
         "iOS": if aSimulator then Darwin.iOSSimulatorArchitectures else Darwin.iOSArchitectures;
         "tvOS": if aSimulator then Darwin.tvOSSimulatorArchitectures else Darwin.tvOSArchitectures;
         "watchOS": if aSimulator then Darwin.watchOSSimulatorArchitectures else Darwin.watchOSArchitectures;
@@ -59,6 +73,7 @@ type
 
       var lDeploymentTargets := case aName of
         "macOS": Darwin.macOSDeploymentTargets;
+        "UIKitForMac": Darwin.UIKitForMacDeploymentTargets;
         "iOS": Darwin.iOSDeploymentTargets;
         "tvOS": Darwin.tvOSDeploymentTargets;
         "watchOS": Darwin.watchOSDeploymentTargets;
@@ -68,6 +83,7 @@ type
       begin
         var lEnvironmentVersionDefine := case aName of
           "macOS": Darwin.macOSEnvironmentVersionDefine;
+          "UIKitForMac": Darwin.macOSEnvironmentVersionDefine;
           "iOS": Darwin.iOSEnvironmentVersionDefine;
           "tvOS": Darwin.tvOSEnvironmentVersionDefine;
           "watchOS": Darwin.watchOSEnvironmentVersionDefine;
@@ -91,10 +107,19 @@ type
       if lTargetFolder.FolderExists then
         Folder.Delete(lTargetFolder);
 
-      var lFrameworksFolder := Path.Combine(lSdkFolder, "System", "Library", "Frameworks");
+      var lFrameworksFolders := new List<String>(Path.Combine(lSdkFolder, "System", "Library", "Frameworks"));
+      case aName of
+        "UIKitForMac": lFrameworksFolders.Insert(0, Path.Combine(lSdkFolder, "System", "iOSSupport", "System", "Library", "Frameworks"));
+        "DriverKit": lFrameworksFolders.ReplaceAt(0, Path.Combine(lSdkFolder, "System", "DriverKit", "System", "Library", "Frameworks"));
+      end;
+
+      var lUsrFolder := Path.Combine(lSdkFolder, "usr");
+      case aName of
+        "DriverKit": lUsrFolder := Path.Combine(lSdkFolder, "System", "DriverKit", "usr");
+      end;
 
       if not SkipDeploymentTargets then begin
-        for each d in lDeploymentTargets.Split(";") do begin
+        for each d in lDeploymentTargets:Split(";") do begin
           if d.CompareVersionTripleTo(aVersion) < 0 then begin
             for each (a, nil) in lArchitectures do begin
               if not assigned(a.MinimumDeploymentTarget) or (a.MinimumDeploymentTarget.CompareVersionTripleTo(d) ≤ 0) then begin
@@ -108,6 +133,8 @@ type
                 var lFrameworks := new List<String>("Foundation", "Security"); // iOS Simulator requires this from rtl/objc. We wont actually *use* the generated file
 
                 RunHeaderImporterForSDK(lSdkFolder)
+                      FrameworksFolders(lFrameworksFolders)
+                              UsrFolder(lUsrFolder)
                                 Version(lInternalVersion)
                           VersionString(aVersion+$" ({d})")
                            Architecture(a)
@@ -136,7 +163,7 @@ type
           Folder.create(lTargetFolderForArch);
 
           var lFrameworks := new List<String>();
-          for each f in Folder.GetSubfolders(lFrameworksFolder) do begin
+          for each f in Folder.GetSubfolders(lFrameworksFolders.First) do begin
             if f.PathExtension = ".framework" then begin
               var lFrameworkName := f.LastPathComponentWithoutExtension;
               if not Darwin.IsInBlacklist(Darwin.FrameworksBlackList, lFrameworkName, lShortVersion, a) then
@@ -145,6 +172,8 @@ type
           end;
 
           RunHeaderImporterForSDK(lSdkFolder)
+                FrameworksFolders(lFrameworksFolders)
+                        UsrFolder(lUsrFolder)
                           Version(lInternalVersion)
                     VersionString(aVersion)
                      Architecture(a)
@@ -223,6 +252,8 @@ type
     //
 
     method RunHeaderImporterForSDK(aSDKFolder: String)
+                 FrameworksFolders(aFrameworksFolders: List<String>)
+                  UsrFolder(aUsrFolder: String)
                            Version(aVersion: String)
                      VersionString(aVersionString: String)
                       Architecture(aArchitecture: Architecture)
@@ -232,11 +263,9 @@ type
     begin
       var lShortVersion := Darwin.ShortVersion(aVersion);
 
-      var lFrameworksFolder := Path.Combine(aSDKFolder, "System", "Library", "Frameworks");
-
       var lTargetString := aArchitecture.Triple;
       if length(aArchitecture.CpuType) > 0 then
-      lTargetString := lTargetString+";"+aArchitecture.CpuType;
+        lTargetString := lTargetString+";"+aArchitecture.CpuType;
 
       const ImportDefsJson_String = '[ {"Name": "dyld_stub_binder", "Library": "/usr/lib/libSystem.B.dylib", "Version": "81395766,65536" }, {"Name": "__Unwind_Resume", "Library": "/usr/lib/system/libunwind.dylib", "Version": "2294784,0"}, {"Name": "_stack_chk_fail", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "____toupper_l", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "____tolower_l", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "__DefaultRuneLocale", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_strtoul", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "__dyld_image_count", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "_abort", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "__dyld_bind_fully_image_containing_address", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "_pthread_atfork", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_pthread_setcancelstate", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "__setjmp", "Library": "/usr/lib/system/libsystem_platform.dylib", "Version": "11651079,0"}, {"Name": "_task_set_exception_ports", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_atoi", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_atol", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_sysctl", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_bcopy", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_pthread_get_stackaddr_np", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_get_end", "Library": "/usr/lib/system/libmacho.dylib", "Version": "59899904,0"}, {"Name": "_vm_protect", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_write", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_pthread_join", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_mach_task_self_", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_clock", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_thread_get_state", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_pthread_attr_getdetachstate", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_exc_server", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mach_port_allocate", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mach_port_insert_right", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_get_etext", "Library": "/usr/lib/system/libmacho.dylib", "Version": "59899904,0"}, {"Name": "_mach_thread_self", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_task_threads", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_exception_raise_state_identity", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_exception_raise", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_thread_resume", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "__dyld_register_func_for_add_image", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "__dyld_get_image_header", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "_thread_suspend", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mach_error_string", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_snprintf", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_exception_raise_state", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_pthread_attr_init", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_vm_deallocate", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_getpagesize", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_vsnprintf", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_signal", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_pthread_attr_destroy", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_thread_set_state", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_munmap", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_task_get_exception_ports", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mmap", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mach_msg", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "__dyld_get_image_name", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "__dyld_register_func_for_remove_image", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "_thread_info", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_getsectbynamefromheader_64", "Library": "/usr/lib/system/libmacho.dylib", "Version": "59899904,0"}, {"Name": "_mach_port_deallocate", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_pthread_attr_setdetachstate", "Library": "/usr/lib/system/introspection/libsystem_pthread.dylib", "Version": "21678110,0"}]';
       var lImportDefsJson := JsonDocument.FromString(ImportDefsJson_String).Root;
@@ -290,10 +319,16 @@ type
       var lOverride2 := new JsonObject(); lOverride2["Key"] := "objc/NSObjCRuntime.h"; lOverride2["Value"] := "Foundation";
       lJson["OverrideNamespace"] := new JsonArray([lOverride1, lOverride2]);
 
+      if length(aArchitecture.Environment) > 0 then
+        (lJson["Defines"] as JsonArray).Add("target_environment="+aArchitecture.Environment);
+      (lJson["Defines"] as JsonArray).Add("target_vendor="+coalesce(aArchitecture.Vendor, "apple"):ToLower);
+      (lJson["Defines"] as JsonArray).Add("target_os="+coalesce(aArchitecture.OS, aArchitecture.SDKName):ToLower);
+      (lJson["Defines"] as JsonArray).Add("target_arch="+aArchitecture.Arch);
+
       lJson["VirtualFiles"] := new JsonObject();
       lJson["VirtualFiles"]["os/availibility.h"] := "#include <os/availability.h>";
 
-      var lJsonName := $"import-{Darwin.Mode}-{aArchitecture.SDKName}{if aArchitecture.Simulator then "-Simulator"}-{aVersionString}-{aOutputFolder.LastPathComponent}.json";
+      var lJsonName := $"import-{Darwin.Mode}-{aArchitecture.DisplaySDKName}{if aArchitecture.Simulator then "-Simulator"}-{aVersionString}-{aOutputFolder.LastPathComponent}.json";
       lJsonName := Path.Combine(SDKsBaseFolder, lJsonName);
       File.WriteText(lJsonName, lJsonDocument.ToString());
 
@@ -305,8 +340,9 @@ type
       lArgs.Add($"--json={lJsonName}");
       lArgs.Add("-o", aOutputFolder);
 
-      lArgs.Add($"-i", Path.Combine(aSDKFolder, "usr", "include"));
-      lArgs.Add($"-f", lFrameworksFolder);
+      lArgs.Add($"-i", Path.Combine(aUsrFolder, "include"));
+      for each f in aFrameworksFolders do
+        lArgs.Add($"-f", f);
       lArgs.Add($"-i", SDKsBaseFolder);
 
       //for each n in options.includepaths do
@@ -320,7 +356,7 @@ type
       //if (more)
         //s += " "+more;
 
-      lArgs.Add($"--libpath="+Path.Combine(aSDKFolder, "usr", "lib"));
+      lArgs.Add($"--libpath="+Path.Combine(aUsrFolder, "lib"));
 
       if Debug then
         lArgs.Add("--debug");
@@ -348,13 +384,13 @@ type
       if length(lSuffix) > 0 then
         lSuffix := " - "+lSuffix;
 
-      var lTargetFolderName := aName+" "+lShortVersion;
-      //var lTargetFolderName2 := lTargetFolderName+" Simulator";
-
-      //var lTargetFolder := Path.Combine(SDKsBaseFolder, lTargetFolderName);
-      //var lTargetFolder2 := Path.Combine(SDKsBaseFolder, lTargetFolderName2);
-
       if defined("ECHOES") and CreateZips then begin
+        var lTargetFolderName := aName+" "+lShortVersion;
+        var lTargetFolderName2 := lTargetFolderName+" Simulator";
+
+        var lTargetFolder := Path.Combine(SDKsBaseFolder, lTargetFolderName);
+        var lTargetFolder2 := Path.Combine(SDKsBaseFolder, lTargetFolderName2);
+
         Folder.Create(Path.Combine(SDKsBaseFolder, "__CI2Shared"));
         Folder.Create(Path.Combine(SDKsBaseFolder, "__Public"));
 
