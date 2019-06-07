@@ -30,12 +30,12 @@ type
       Darwin.DriverKitVersion := "19.0";
       Darwin.BetaSuffix := "Beta 1";
 
-      //ImportMacOSSDK();
-      //ImportIOSSDK();
-      ImportUIKitForMac();
+      ImportMacOSSDK();
+      ImportIOSSDK();
+      //ImportUIKitForMac();
       //ImportDriverKitSDK();
-      //ImportTvOSSDK();
-      //ImportWatchOSSDK();
+      ImportTvOSSDK();
+      ImportWatchOSSDK();
     end;
 
     method ImportXcode10_2;

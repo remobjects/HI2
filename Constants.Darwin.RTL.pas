@@ -108,7 +108,7 @@ type
                           "sys/_types/*.h",
                           "uuid/*.h",
                           "arm/limits.h"];
-    const rtlFiles_iOSSimulator: array of String = ["objc/*.h"];
+    const rtlFiles_iOSSimulator: array of String = ["objc/*.h", "os/log.h"];
 
     property rtlFiles_watchOS: array of String read rtlFiles_iOS;
     property rtlFiles_watchOSSimulator: array of String read rtlFiles_iOSSimulator;
