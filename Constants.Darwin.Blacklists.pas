@@ -132,7 +132,20 @@ type
                   '11.4:x86_64-apple-tvos:IOSurface', // fails on missing xpc/xpc.h
 
                   // Review for Xcode 9.4 (and retest for 10?)
-                  'MetalPerformanceShaders'
+                  'MetalPerformanceShaders',
+
+                  // 10.15 and later, these are C++ so we cannot support them
+                  'x86_64-apple-macosx:DriverKit', 
+                  'x86_64-apple-macosx:HIDDriverKit',
+                  'x86_64-apple-macosx:NetworkingDriverKit',
+                  'x86_64-apple-macosx:USBDriverKit',
+                  'x86_64-apple-macosx:USBSerialDriverKit',
+
+                  // only for now
+                  '10.15:x86_64-apple-ios-macabi:WebKit', // loads wrong version?
+                  '10.15:x86_64-apple-ios-macabi:EventKitUI', // EventKitUI/EKCalendarChooser.h (87372) Type-specifier expected! Identifier (EKCalendar)
+                  '10.15:x86_64-apple-ios-macabi:QuickLook', // QuickLook/QuickLook.h - CoreGraphics/CGDirectDisplayMetal.h (156880) Identifier expected less (<)
+                  '10.15:x86_64-apple-ios-macabi:SafariServices' // SafariServices/SafariServices.h - SafariServices/SFSafariPage.h (202151) Declaration expected Identifier (NSImage)
 
                   ].ToList; readonly;
 

@@ -18,11 +18,14 @@ type
       lImporter.HI := "/Users/mh/Code/Elements/Source/HeaderImporter/Bin/Debug/HeaderImporter.exe";
       var lFrameworkBaseFolder := "/Users/mh/Code/Elements/Frameworks/";
 
+      lImporter.SkipDeploymentTargets := false;
+      //lImporter.Debug := true;
+
       method PrepareIsland();
       begin
         Darwin.Toffee := false;
         Darwin.Island := true;
-        lImporter.SkipDeploymentTargets := false;
+        //lImporter.SkipDeploymentTargets := true;
         lImporter.BaseFolder := Path.Combine(lFrameworkBaseFolder, "Island");
       end;
 
@@ -31,7 +34,6 @@ type
         Darwin.Toffee := true;
         Darwin.Island := false;
         //lImporter.SkipDeploymentTargets := true;
-        lImporter.SkipDeploymentTargets := false;
         lImporter.BaseFolder := Path.Combine(lFrameworkBaseFolder, "Toffee");
       end;
 
@@ -40,8 +42,8 @@ type
       PrepareToffee();
       lImporter.ImportCurrentXcode();
 
-      PrepareIsland();
-      lImporter.ImportCurrentXcode();
+      //PrepareIsland();
+      //lImporter.ImportCurrentXcode();
 
       //lImporter.ImportXcode10_0();
       //lImporter.ImportXcode94();

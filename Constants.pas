@@ -25,7 +25,7 @@ type
   Darwin = public static partial class
   private
 
-    const _definesShared = "_USE_EXTENDED_LOCALES_;__LITTLE_ENDIAN__;__APPLE__;__APPLE_CC__;__MACH__;__GNUC__=4;__GNUC_MINOR__=2;__OBJC__;__OBJC2__;__STDC__=1;JSC_OBJC_API_ENABLED;WK_API_ENABLED;OS_OBJECT_USE_OBJC";
+    const _definesShared = "_USE_EXTENDED_LOCALES_;__LITTLE_ENDIAN__;__APPLE__;__APPLE_CC__;__MACH__;__GNUC__=4;__GNUC_MINOR__=2;__OBJC__;__OBJC2__;__STDC__=1;JSC_OBJC_API_ENABLED;WK_API_ENABLED;OS_OBJECT_USE_OBJC;OS_OBJECT_HAVE_OBJC_SUPPORT";
     const _macOSdefines64 =        _definesShared+";__x86_64__;__LP64__=1;__SSE__;__SSE2__;IOKIT;CPU64";
     const _iOSDefines32 =          _definesShared+";__arm__;ARM;CPU32;";
     const _iOSDefines64 =          _definesShared+";__arm__;__arm64__;__LP64__=1;ARM;ARM64;CPU64";
@@ -35,8 +35,10 @@ type
     const cpuType_Penryn = "penryn";
 
   public
-    const macOSDefines64 =            _macOSdefines64+";OSX;MACOS;MAC;DEVICE"+/*HACK*/";__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_13=;__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_14=;__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_15=";
-    const UIKitForMacDefines64 =      _macOSdefines64+";IOS;DEVICE;UIKitForMac";
+    const AVAILABILITY_HACK = ";__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_13=;__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_14=;__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_15=";
+
+    const macOSDefines64 =            _macOSdefines64+";OSX;MACOS;MAC;DEVICE"+AVAILABILITY_HACK;
+    const UIKitForMacDefines64 =      _macOSdefines64+";IOS;DEVICE;UIKITFORMAC"+AVAILABILITY_HACK;
     const iOSDefines32 =              _iOSDefines32+";IOS;DEVICE;";
     const iOSDefines64 =              _iOSDefines64+";IOS;DEVICE;";
     const watchOSDefines32 =          _iOSDefines32+";WATCHOS;DEVICE";
@@ -51,7 +53,7 @@ type
     const ExtraDefinesToffee = ";DARWIN;__ELEMENTS;__TOFFEE__";
     const ExtraDefinesIsland = ";DARWIN;__ELEMENTS;__ISLAND__;POSIX";
 
-    property Architecture_UIKitForMac_x86_64         : Architecture read new Architecture(Triple := "x86_64-apple-macosx",  Defines := UIKitForMacDefines64,         SDKName := "macOS", OS := "iOS",         Environment := "macabi",     CpuType := cpuType_Penryn);
+    property Architecture_UIKitForMac_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-ios-macabi",  Defines := UIKitForMacDefines64,      SDKName := "iOS",                        Environment := "macabi",     CpuType := cpuType_Penryn);
     property Architecture_DriverKit_x86_64        : Architecture read new Architecture(Triple := "x86_64-apple-macosx",  Defines := macOSDefines64,            SDKName := "macOS", OS := "DriverKit",                                CpuType := cpuType_Penryn);
     property Architecture_macOS_x86_64            : Architecture read new Architecture(Triple := "x86_64-apple-macosx",  Defines := macOSDefines64,            SDKName := "macOS",                                                   CpuType := cpuType_Penryn);
     property Architecture_iOS_armv7               : Architecture read new Architecture(Triple := "armv7-apple-ios",      Defines := iOSDefines32,              SDKName := "iOS");

@@ -108,7 +108,7 @@ type
                           "sys/_types/*.h",
                           "uuid/*.h",
                           "arm/limits.h"];
-    const rtlFiles_iOSSimulator: array of String = [];
+    const rtlFiles_iOSSimulator: array of String = ["objc/*.h"];
 
     property rtlFiles_watchOS: array of String read rtlFiles_iOS;
     property rtlFiles_watchOSSimulator: array of String read rtlFiles_iOSSimulator;
@@ -132,7 +132,7 @@ type
                 "sys/*.h",
                 "xlocale/*.h"
                 ];
-    const indirectRtlFiles_macOS = ["mach-o/i386/*.h", "mach-o/x86_64/*.h"]; // // "mach-o/arm/*.h", "mach-o/arm64/*.h"
+    const indirectRtlFiles_macOS = ["mach-o/i386/*.h", "mach-o/x86_64/*.h", "os/*.h"];
     const indirectRtlFiles_iOS = ["mach-o/arm/*.h", "mach-o/arm64/*.h"];
     const indirectRtlFiles_watchOS: array of String = []; // ["mach-o/arm/*.h", "mach-o/arm64/*.h"];
     const indirectRtlFiles_tvOS = ["mach-o/arm64/*.h"];
@@ -171,23 +171,25 @@ type
             { 'Key': 'JavaRuntimeSupport/JavaRuntimeSupport.h', 'Value': [ 'Foundation/Foundation.h' ] },
             { 'Key': 'OpenDirectory/CFOpenDirectory/CFOpenDirectoryConstants.h', 'Value': [ 'CoreFoundation/CoreFoundation.h' ] },
             { 'Key': 'Quartz/ImageKit/ImageKitDeprecated.h', 'Value': [ 'Foundation/Foundation.h' ] },
-            { 'Key': 'SafariServices/SafariServices.h','Value': ['UIKit/UIActivity.h'] },
+            { 'Key': 'SafariServices/SafariServices.h', 'Value': ['UIKit/UIActivity.h'] },
             { 'Key': 'IOKit/hid/IOHIDBase.h', 'Value': [ 'CoreFoundation/CFBase.h'] },
-            { 'Key': 'Foundation/NSItemProvider.h', 'Value': [ 'Foundation/NSError.h'] }
+            { 'Key': 'Foundation/NSItemProvider.h', 'Value': [ 'Foundation/NSError.h'] },
+            { 'Key': 'CoreServices/OSServices/Power.h', 'Value': [ 'availability.h','os/availability.h'] }
             ]".Replace("'",'"');
     var forceIncludes_iOS := "[
-            { 'Key': 'GameKit/GameKit.h','Value': ['UIKit/UIKit.h', 'OpenGLES/gltypes.h']},
-            { 'Key': 'GLKit/GLKit.h','Value': ['OpenGLES/gltypes.h']},
-            { 'Key': 'NotificationCenter/NotificationCenter.h','Value': ['UIKit/UIVisualEffectView.h'] },
+            { 'Key': 'GameKit/GameKit.h', 'Value': ['UIKit/UIKit.h', 'OpenGLES/gltypes.h']},
+            { 'Key': 'GLKit/GLKit.h', 'Value': ['OpenGLES/gltypes.h']},
+            { 'Key': 'NotificationCenter/NotificationCenter.h', 'Value': ['UIKit/UIVisualEffectView.h'] },
             { 'Key': 'SceneKit/SceneKit.h', 'Value': [ 'CoreImage/CoreImage.h' ] },
-            { 'Key': 'Social/Social.h','Value': ['UIKit/UITextView.h']},
+            { 'Key': 'Social/Social.h', 'Value': ['UIKit/UITextView.h']},
             { 'Key': 'ImageCaptureCore/ICDevice.h', 'Value': ['availability.h']}
             ]".Replace("'",'"');
     var forceIncludes_watchOS := forceIncludes_iOS;
     var forceIncludes_tvOS := forceIncludes_iOS;
     var forceIncludes_macOS := "[
-            { 'Key': 'Quartz/ImageKit/IKImageEditPanel.h','Value': ['Foundation/NSError.h']},
-            { 'Key': 'Quartz/ImageKit/IKImageView.h','Value': ['Foundation/NSError.h']}
+            { 'Key': 'Quartz/ImageKit/IKImageEditPanel.h', 'Value': ['Foundation/NSError.h']},
+            { 'Key': 'Quartz/ImageKit/IKImageView.h', 'Value': ['Foundation/NSError.h']},
+            { 'Key': 'Hypervisor/hv_vmx.h', 'Value': ['Hypervisor/hv.h']}
             ]".Replace("'",'"');
 
   end;
