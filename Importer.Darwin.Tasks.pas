@@ -32,7 +32,7 @@ type
 
       ImportMacOSSDK();
       ImportIOSSDK();
-      //ImportUIKitForMac();
+      ImportUIKitForMac();
       //ImportDriverKitSDK();
       ImportTvOSSDK();
       ImportWatchOSSDK();

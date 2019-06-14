@@ -38,7 +38,7 @@ type
     const AVAILABILITY_HACK = ";__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_13=;__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_14=;__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_15=";
 
     const macOSDefines64 =            _macOSdefines64+";OSX;MACOS;MAC;DEVICE"+AVAILABILITY_HACK;
-    const UIKitForMacDefines64 =      _macOSdefines64+";IOS;DEVICE;UIKITFORMAC"+AVAILABILITY_HACK;
+    const UIKitForMacDefines64 =      _macOSdefines64+";IOS;DEVICE;UIKITFORMAC;!TARGET_OS_IPHONE=1"+AVAILABILITY_HACK;
     const iOSDefines32 =              _iOSDefines32+";IOS;DEVICE;";
     const iOSDefines64 =              _iOSDefines64+";IOS;DEVICE;";
     const watchOSDefines32 =          _iOSDefines32+";WATCHOS;DEVICE";
@@ -74,7 +74,7 @@ type
     const tvOSEnvironmentVersionDefine    = '__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__';
     const watchOSEnvironmentVersionDefine = '__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__';
 
-    const UIKitForMacDeploymentTargets =   "10.15";
+    const UIKitForMacDeploymentTargets =   "13.0";
     const macOSDeploymentTargets =   "10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
     const iOSDeploymentTargets =     "13.0;12.0;11.0;10.0;9.0;8.0";
     const tvOSDeploymentTargets =    "13.0;12.0;11.0;10.0;9.0";

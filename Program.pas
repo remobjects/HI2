@@ -42,8 +42,8 @@ type
       PrepareToffee();
       lImporter.ImportCurrentXcode();
 
-      //PrepareIsland();
-      //lImporter.ImportCurrentXcode();
+      PrepareIsland();
+      lImporter.ImportCurrentXcode();
 
       //lImporter.ImportXcode10_0();
       //lImporter.ImportXcode94();

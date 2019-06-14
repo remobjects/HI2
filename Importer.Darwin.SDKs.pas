@@ -22,8 +22,8 @@ type
 
     method ImportUIKitForMac();
     begin
-      ImportSDK("UIKitForMac", Darwin.macOSVersion);
-      CreateSDKZip("UIKitForMac", Darwin.macOSVersion);
+      ImportSDK("UIKitForMac", Darwin.iOSVersion) RootSDK("macOS", Darwin.macOSVersion);
+      CreateSDKZip("UIKitForMac", Darwin.iOSVersion);
     end;
 
     method ImportDriverKitSDK();
@@ -53,14 +53,14 @@ type
       CreateSDKZip("watchOS", Darwin.watchOSVersion);
     end;
 
-    method ImportSDK(aName: String; aVersion: String; aSimulator: Boolean := false);
+    method ImportSDK(aName: String; aVersion: String; aSimulator: Boolean := false) RootSDK(aRootSDKName: String := nil; aRootSDKVersion: String := nil);
     begin
       writeLn($"Import {aName} {aVersion} {if aSimulator then "Simulator"}");
 
       var lShortVersion := Darwin.ShortVersion(aVersion);
       var lInternalVersion := if aName = "watchOS" then Darwin.iOSVersion else aVersion;
       var lInternalShortVersion := Darwin.ShortVersion(lInternalVersion);
-      var lSdkFolder := Darwin.SdkFolderInXcode(aName, lShortVersion, aSimulator);
+      var lSdkFolder := Darwin.SdkFolderInXcode(aName, coalesce(aRootSDKVersion, lShortVersion), aSimulator);
 
       var lArchitectures := case aName of
         "macOS": Darwin.macOSArchitectures;
@@ -109,7 +109,7 @@ type
 
       var lFrameworksFolders := new List<String>(Path.Combine(lSdkFolder, "System", "Library", "Frameworks"));
       case aName of
-        "UIKitForMac": lFrameworksFolders.Insert(0, Path.Combine(lSdkFolder, "System", "iOSSupport", "System", "Library", "Frameworks"));
+        "UIKitForMac": lFrameworksFolders.ReplaceAt(0, Path.Combine(lSdkFolder, "System", "iOSSupport", "System", "Library", "Frameworks"));
         "DriverKit": lFrameworksFolders.ReplaceAt(0, Path.Combine(lSdkFolder, "System", "DriverKit", "System", "Library", "Frameworks"));
       end;
 
@@ -151,7 +151,6 @@ type
         end;
       end;
 
-
       // main target
       for each (a, nil) in lArchitectures do begin
         if not assigned(a.MinimumTargetSDK) or (a.MinimumTargetSDK.CompareVersionTripleTo(aVersion) ≤ 0) then begin
@@ -175,6 +174,7 @@ type
                 FrameworksFolders(lFrameworksFolders)
                         UsrFolder(lUsrFolder)
                           Version(lInternalVersion)
+                          RootSDK(if assigned(aRootSDKName) then aRootSDKName+" "+aRootSDKVersion else nil)
                     VersionString(aVersion)
                      Architecture(a)
                        Frameworks(lFrameworks)
@@ -253,8 +253,9 @@ type
 
     method RunHeaderImporterForSDK(aSDKFolder: String)
                  FrameworksFolders(aFrameworksFolders: List<String>)
-                  UsrFolder(aUsrFolder: String)
+                         UsrFolder(aUsrFolder: String)
                            Version(aVersion: String)
+                           RootSDK(aRootSDK: String := nil)
                      VersionString(aVersionString: String)
                       Architecture(aArchitecture: Architecture)
                         Frameworks(aFrameworks: ImmutableList<String>)
@@ -345,6 +346,11 @@ type
         lArgs.Add($"-f", f);
       lArgs.Add($"-i", SDKsBaseFolder);
 
+      if assigned(aRootSDK) then begin
+        var lBaseFXFolder := Path.Combine(Path.GetParentDirectory(Path.GetParentDirectory(aOutputFolder)), aRootSDK);
+        lArgs.Add($"-x", lBaseFXFolder);
+      end;
+
       //for each n in options.includepaths do
         //lArgs.Add("-i", n);
       //for each n in options.frameworkpaths do
@@ -399,7 +405,7 @@ type
         var lTargetZipName2 := Path.Combine(SDKsBaseFolder, "__Public", lTargetFolderName)+lSuffix+".zip";
         writeLn($"Creating {lTargetZipName}");
         CreateZip(lTargetFolder, lTargetZipName);
-        if aName = "macOS" then begin
+        if aName in ["macOS", "UIKitForMac"] then begin
           File.CopyTo(lTargetZipName, lTargetZipName2);
         end
         else begin
