@@ -22,20 +22,21 @@ type
 
     method ImportXcode11_Beta;
     begin
-      Darwin.DeveloperFolder := "/Users/mh/Applications/Xcode-11-Beta1.app/Contents/Developer";
+      Darwin.DeveloperFolder := "/Users/mh/Applications/Xcode-11-Beta2.app/Contents/Developer";
       Darwin.macOSVersion := "10.15";
       Darwin.iOSVersion := "13.0";
       Darwin.tvOSVersion := "13.0";
       Darwin.watchOSVersion := "6.0";
       Darwin.DriverKitVersion := "19.0";
-      Darwin.BetaSuffix := "Beta 1";
+      Darwin.BetaSuffix := "Beta 2";
 
       ImportMacOSSDK();
       ImportIOSSDK();
       ImportUIKitForMac();
-      //ImportDriverKitSDK();
       ImportTvOSSDK();
       ImportWatchOSSDK();
+
+      //ImportDriverKitSDK();
     end;
 
     method ImportXcode10_2;

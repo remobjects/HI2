@@ -20,6 +20,7 @@ type
     Environment: String;
 
     property DisplaySDKName: String read if OS = "DriverKit" then OS else if Environment = "macabi" then "UIKitForMac" else SDKName;
+    property UIKitForMac: Boolean read Environment = "macabi";
   end;
 
   Darwin = public static partial class
@@ -53,7 +54,7 @@ type
     const ExtraDefinesToffee = ";DARWIN;__ELEMENTS;__TOFFEE__";
     const ExtraDefinesIsland = ";DARWIN;__ELEMENTS;__ISLAND__;POSIX";
 
-    property Architecture_UIKitForMac_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-ios-macabi",  Defines := UIKitForMacDefines64,      SDKName := "iOS",                        Environment := "macabi",     CpuType := cpuType_Penryn);
+    property Architecture_UIKitForMac_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-ios-macabi",  Defines := UIKitForMacDefines64,  SDKName := "iOS",                        Environment := "macabi",     CpuType := cpuType_Penryn);
     property Architecture_DriverKit_x86_64        : Architecture read new Architecture(Triple := "x86_64-apple-macosx",  Defines := macOSDefines64,            SDKName := "macOS", OS := "DriverKit",                                CpuType := cpuType_Penryn);
     property Architecture_macOS_x86_64            : Architecture read new Architecture(Triple := "x86_64-apple-macosx",  Defines := macOSDefines64,            SDKName := "macOS",                                                   CpuType := cpuType_Penryn);
     property Architecture_iOS_armv7               : Architecture read new Architecture(Triple := "armv7-apple-ios",      Defines := iOSDefines32,              SDKName := "iOS");
@@ -87,10 +88,10 @@ type
 
     const MIN_WATCHOS_VERSION_FOR_ARM64 = "5.0";
 
-    const macOSCurrentVersion = "10.14";
-    const iOSCurrentVersion = "12.0";
-    const tvOSCurrentVersion = "12.0";
-    const watchOSCurrentVersion = "5.0";
+    const macOSCurrentVersion = "10.15";
+    const iOSCurrentVersion = "13.0";
+    const tvOSCurrentVersion = "13.0";
+    const watchOSCurrentVersion = "6.0";
     const driverKitCurrentVersion = "19.0";
 
     const xcodeCurrentVersion = "10.0"; // 2018
@@ -178,13 +179,14 @@ type
     // Architectures
     //
 
-    method AllArchitectures: sequence of tuple of (Architecture, String); iterator;
+    method AllIslandDarwinArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
       yield (Architecture_macOS_x86_64, macOSVersion);
-      yield (Architecture_iOS_armv7, iOSVersion);
-      yield (Architecture_iOS_armv7s, iOSVersion);
+      yield (Architecture_UIKitForMac_x86_64, iOSVersion);
+      //yield (Architecture_iOS_armv7, iOSVersion);
+      //yield (Architecture_iOS_armv7s, iOSVersion);
       yield (Architecture_iOS_arm64, iOSVersion);
-      yield (Architecture_iOSSimulator_i386, iOSVersion);
+      //yield (Architecture_iOSSimulator_i386, iOSVersion);
       yield (Architecture_iOSSimulator_x86_64, iOSVersion);
       yield (Architecture_tvOS_arm64, tvOSVersion);
       yield (Architecture_tvOSSimulator_x86_64, tvOSVersion);
@@ -350,10 +352,15 @@ type
     begin
       var lPerPlatformString := case aArchitecture.SDKName of
         "macOS": forceIncludes_macOS;
+        "UIKitForMac": forceIncludes_macOS;
         "iOS": forceIncludes_iOS;
         "watchOS": forceIncludes_watchOS;
         "tvOS": forceIncludes_tvOS;
       end;
+
+      if aArchitecture.Environment = "macabi" then
+        lPerPlatformString := forceIncludes_macOS;
+
       var lShared := JsonDocument.TryFromString(forceIncludes_Shared);
       var lPerPlatform := JsonDocument.TryFromString(lPerPlatformString);
       result := lShared.Root as JsonArray;

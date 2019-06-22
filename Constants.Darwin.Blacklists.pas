@@ -77,7 +77,6 @@ type
                 ].ToList; readonly;
 
     property FrameworksBlackList := [
-                  //'Kernel', /* nothing useful in here */
                   'GSS',
                   '10.7:GSS',         /* GSS/gssapi.h (934) Cannot find include file: GSS/GSS/gssapi_spi.h */
                   '10.8:GSS',          /* GSS/gssapi_oid.h (25:41 pp: 751) One of Semicolon, Comma expected; current token: Identifier  __gss_krb5_copy_ccache_x_oid_desc */
@@ -135,11 +134,14 @@ type
                   'MetalPerformanceShaders',
 
                   // 10.15 and later, these are C++ so we cannot support them
-                  'x86_64-apple-macosx:DriverKit',
-                  'x86_64-apple-macosx:HIDDriverKit',
-                  'x86_64-apple-macosx:NetworkingDriverKit',
-                  'x86_64-apple-macosx:USBDriverKit',
-                  'x86_64-apple-macosx:USBSerialDriverKit',
+                  'DriverKit',
+                  'HIDDriverKit',
+                  'NetworkingDriverKit',
+                  'USBDriverKit',
+                  'USBSerialDriverKit',
+                  'x86_64-apple-ios-macabi:GLKit',
+
+                  'IOKit', // Error   IOKit/IORPC.h - IOKit/IORPC.h (5902) opening brace expected Identifier (IORPCMessage)
 
                   ].ToList; readonly;
 

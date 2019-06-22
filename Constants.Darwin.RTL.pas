@@ -189,7 +189,8 @@ type
     var forceIncludes_macOS := "[
             { 'Key': 'Quartz/ImageKit/IKImageEditPanel.h', 'Value': ['Foundation/NSError.h']},
             { 'Key': 'Quartz/ImageKit/IKImageView.h', 'Value': ['Foundation/NSError.h']},
-            { 'Key': 'Hypervisor/hv_vmx.h', 'Value': ['Hypervisor/hv.h']}
+            { 'Key': 'Hypervisor/hv_vmx.h', 'Value': ['Hypervisor/hv.h']},
+            { 'Key': 'Automator/AMAction.h', 'Value': ['CoreGraphics/CoreGraphics.h']}
             ]".Replace("'",'"');
 
   end;

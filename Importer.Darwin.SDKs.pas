@@ -83,7 +83,7 @@ type
       begin
         var lEnvironmentVersionDefine := case aName of
           "macOS": Darwin.macOSEnvironmentVersionDefine;
-          "UIKitForMac": Darwin.macOSEnvironmentVersionDefine;
+          "UIKitForMac": Darwin.iOSEnvironmentVersionDefine;
           "iOS": Darwin.iOSEnvironmentVersionDefine;
           "tvOS": Darwin.tvOSEnvironmentVersionDefine;
           "watchOS": Darwin.watchOSEnvironmentVersionDefine;
@@ -109,7 +109,7 @@ type
 
       var lFrameworksFolders := new List<String>(Path.Combine(lSdkFolder, "System", "Library", "Frameworks"));
       case aName of
-        "UIKitForMac": lFrameworksFolders.ReplaceAt(0, Path.Combine(lSdkFolder, "System", "iOSSupport", "System", "Library", "Frameworks"));
+        "UIKitForMac": lFrameworksFolders.Insert(0, Path.Combine(lSdkFolder, "System", "iOSSupport", "System", "Library", "Frameworks"));
         "DriverKit": lFrameworksFolders.ReplaceAt(0, Path.Combine(lSdkFolder, "System", "DriverKit", "System", "Library", "Frameworks"));
       end;
 
@@ -162,11 +162,13 @@ type
           Folder.create(lTargetFolderForArch);
 
           var lFrameworks := new List<String>();
-          for each f in Folder.GetSubfolders(lFrameworksFolders.First) do begin
-            if f.PathExtension = ".framework" then begin
-              var lFrameworkName := f.LastPathComponentWithoutExtension;
-              if not Darwin.IsInBlacklist(Darwin.FrameworksBlackList, lFrameworkName, lShortVersion, a) then
-                lFrameworks.Add(lFrameworkName);
+          for each f2 in lFrameworksFolders do begin
+            for each f in Folder.GetSubfolders(f2) do begin
+              if f.PathExtension = ".framework" then begin
+                var lFrameworkName := f.LastPathComponentWithoutExtension;
+                if not lFrameworks.Contains(lFrameworkName) and not Darwin.IsInBlacklist(Darwin.FrameworksBlackList, lFrameworkName, lShortVersion, a) then
+                  lFrameworks.Add(lFrameworkName);
+              end;
             end;
           end;
 
@@ -346,10 +348,10 @@ type
         lArgs.Add($"-f", f);
       lArgs.Add($"-i", SDKsBaseFolder);
 
-      if assigned(aRootSDK) then begin
-        var lBaseFXFolder := Path.Combine(Path.GetParentDirectory(Path.GetParentDirectory(aOutputFolder)), aRootSDK);
-        lArgs.Add($"-x", lBaseFXFolder);
-      end;
+      //if assigned(aRootSDK) then begin
+        //var lBaseFXFolder := Path.Combine(Path.GetParentDirectory(Path.GetParentDirectory(aOutputFolder)), aRootSDK);
+        //lArgs.Add($"-x", lBaseFXFolder);
+      //end;
 
       //for each n in options.includepaths do
         //lArgs.Add("-i", n);

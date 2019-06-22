@@ -13,8 +13,6 @@ type
       writeLn();
 
       var lImporter := new Importer();
-      lImporter.GCSourceFolder := "/Users/mh/Code/git/gc";
-      lImporter.GCBinariesFolder := "/Users/mh/Downloads/gc";
       lImporter.HI := "/Users/mh/Code/Elements/Source/HeaderImporter/Bin/Debug/HeaderImporter.exe";
       var lFrameworkBaseFolder := "/Users/mh/Code/Elements/Frameworks/";
 
@@ -37,7 +35,17 @@ type
         lImporter.BaseFolder := Path.Combine(lFrameworkBaseFolder, "Toffee");
       end;
 
-      //lImporter.ImportGC();
+      method ImportGC();
+      begin
+        lImporter.GCSourceFolder := "/Users/mh/Code/RemObjects/gc";
+        lImporter.GCBinariesFolder := "/Users/mh/Code/Elements/Bin/References/Island";
+        //lImporter.GCBinariesFolder := "/Users/mh/Downloads/gc";
+        lImporter.BaseFolder := Path.Combine(lFrameworkBaseFolder, "Island");
+        lImporter.ImportGC();
+      end;
+
+      //ImportGC();
+      //exit;
 
       PrepareToffee();
       lImporter.ImportCurrentXcode();

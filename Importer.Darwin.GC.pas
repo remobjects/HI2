@@ -12,7 +12,7 @@ type
 
     method ImportGC;
     begin
-      for each (a, v) in Darwin.AllArchitectures do
+      for each (a, v) in Darwin.AllIslandDarwinArchitectures do
         ImportGC(a, v);
 
       if defined("ECHOES") and CreateZips then begin
@@ -60,15 +60,20 @@ type
       lBaseJson.Root["SDKVersionString"] := aVersion;
       lBaseJson.Root["SDKName"] := aArchitecture.SDKName;
 
+      Folder.Create(BaseFolder);
       var lBaseJsonFile := Path.Combine(BaseFolder, aArchitecture.Triple+".gc-json");
       File.WriteText(lBaseJsonFile, lBaseJson.ToString);
 
       var lArch := aArchitecture.Triple.SubstringToFirstOccurrenceOf("-");
-      var lSDK := aArchitecture.SDKName+" "+aVersion;
-      var lSDKName := aArchitecture.SDKName;
+      var lSDK := aArchitecture.DisplaySDKName+" "+aVersion;
+      var lSDKName := aArchitecture.DisplaySDKName;
       if aArchitecture.Simulator then begin
         lSDK := lSDK+" Simulator";
         lSDKName := lSDKName+" Simulator";
+      end
+      else if aArchitecture.UIKitForMac then begin
+        //lSDK := "UIKit for Mac "+aVersion;
+        lSDKName := "UIKit for Mac";
       end;
 
       var lOutPath := Path.Combine(BaseFolder, "GC", "Darwin", lSDKName, lArch);
@@ -84,9 +89,19 @@ type
 
       if GCBinariesFolder:FolderExists then begin
         var lBinary := Path.Combine(GCBinariesFolder, "gc-"+aArchitecture.Triple+".a");
-        writeLn($'lBinary {lBinary}');
-        if lBinary.FileExists then
+        if lBinary.FileExists then begin
+          writeLn($'lBinary {lBinary}');
           File.CopyTo(lBinary, Path.Combine(lOutPath, "libgc.a"));
+        end
+        else begin
+          lBinary := Path.Combine(GCBinariesFolder, lSDKName, aArchitecture.Arch, "libgc.a");
+          if lBinary.FileExists then begin
+            File.CopyTo(lBinary, Path.Combine(lOutPath, "libgc.a"));
+          end
+          else begin
+            writeLn("No binary at "+lBinary);
+          end;
+        end;
       end;
 
     end;
