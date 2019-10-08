@@ -30,6 +30,7 @@ type
     const _macOSdefines64 =        _definesShared+";__x86_64__;__LP64__=1;__SSE__;__SSE2__;IOKIT;CPU64";
     const _iOSDefines32 =          _definesShared+";__arm__;ARM;CPU32;";
     const _iOSDefines64 =          _definesShared+";__arm__;__arm64__;__LP64__=1;ARM;ARM64;CPU64";
+    const _watchOSDefines64 =      _definesShared+";__arm__;__arm64_32__;ARM;ARM64;";
     const _iOSDefinesSimulator32 = _definesShared+";__i386__;__SSE__;__SSE2__;CPU32";
     const _iOSDefinesSimulator64 = _macOSdefines64;
 
@@ -38,12 +39,12 @@ type
   public
     const AVAILABILITY_HACK = ";__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_13=;__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_14=;__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_15=";
 
-    const macOSDefines64 =            _macOSdefines64+";OSX;MACOS;MAC;DEVICE"+AVAILABILITY_HACK;
-    const UIKitForMacDefines64 =      _macOSdefines64+";IOS;DEVICE;UIKITFORMAC;!TARGET_OS_IPHONE=1"+AVAILABILITY_HACK;
+    const macOSDefines64 =            _macOSdefines64+";OSX;MACOS;MAC;DEVICE";//+AVAILABILITY_HACK;
+    const UIKitForMacDefines64 =      _macOSdefines64+";IOS;DEVICE;UIKITFORMAC;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
     const iOSDefines32 =              _iOSDefines32+";IOS;DEVICE;";
     const iOSDefines64 =              _iOSDefines64+";IOS;DEVICE;";
     const watchOSDefines32 =          _iOSDefines32+";WATCHOS;DEVICE";
-    const watchOSDefines64 =          _iOSDefines64+";WATCHOS;DEVICE";
+    const watchOSDefines64 =          _watchOSDefines64+";WATCHOS;DEVICE";
     const tvOSDefines64 =             _iOSDefines64+";TVOS;DEVICE";
     const iOSDefinesSimulator32 =     _iOSDefinesSimulator32+";IOS;IOSSIMULATOR;SIMULATOR";
     const iOSDefinesSimulator64 =     _iOSDefinesSimulator64+";IOS;IOSSIMULATOR;SIMULATOR";
@@ -54,21 +55,21 @@ type
     const ExtraDefinesToffee = ";DARWIN;__ELEMENTS;__TOFFEE__";
     const ExtraDefinesIsland = ";DARWIN;__ELEMENTS;__ISLAND__;POSIX";
 
-    property Architecture_UIKitForMac_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-ios-macabi",  Defines := UIKitForMacDefines64,  SDKName := "iOS",                        Environment := "macabi",     CpuType := cpuType_Penryn);
-    property Architecture_DriverKit_x86_64        : Architecture read new Architecture(Triple := "x86_64-apple-macosx",  Defines := macOSDefines64,            SDKName := "macOS", OS := "DriverKit",                                CpuType := cpuType_Penryn);
-    property Architecture_macOS_x86_64            : Architecture read new Architecture(Triple := "x86_64-apple-macosx",  Defines := macOSDefines64,            SDKName := "macOS",                                                   CpuType := cpuType_Penryn);
-    property Architecture_iOS_armv7               : Architecture read new Architecture(Triple := "armv7-apple-ios",      Defines := iOSDefines32,              SDKName := "iOS");
-    property Architecture_iOS_armv7s              : Architecture read new Architecture(Triple := "armv7s-apple-ios",     Defines := iOSDefines32,              SDKName := "iOS",                                                                                MinimumTargetSDK := "6.0");
-    property Architecture_iOS_arm64               : Architecture read new Architecture(Triple := "arm64-apple-ios",      Defines := iOSDefines64,              SDKName := "iOS",                                                                                MinimumTargetSDK := "6.0",  MinimumDeploymentTarget := "6.0");
-    property Architecture_iOS_arm64e              : Architecture read new Architecture(Triple := "arm64e-apple-ios",     Defines := iOSDefines64,              SDKName := "iOS",                                                                                MinimumTargetSDK := "12.0", MinimumDeploymentTarget := "12.0");
-    property Architecture_iOSSimulator_i386       : Architecture read new Architecture(Triple := "i386-apple-ios",       Defines := iOSDefinesSimulator32,     SDKName := "iOS",     Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn);
-    property Architecture_iOSSimulator_x86_64     : Architecture read new Architecture(Triple := "x86_64-apple-ios",     Defines := iOSDefinesSimulator64,     SDKName := "iOS",     Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "6.0",  MinimumDeploymentTarget := "6.0");
-    property Architecture_watchOS_armv7k          : Architecture read new Architecture(Triple := "armv7k-apple-watchos", Defines := watchOSDefines32,          SDKName := "watchOS",                                                                            MinimumTargetSDK := "2.0");
-    property Architecture_watchOS_arm64           : Architecture read new Architecture(Triple := "arm64-apple-watchos",  Defines := watchOSDefines64,          SDKName := "watchOS",                                                                            MinimumTargetSDK := "5.0");
-    property Architecture_watchOSSimulator_i386   : Architecture read new Architecture(Triple := "i386-apple-watchos",   Defines := watchOSDefinesSimulator32, SDKName := "watchOS", Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "2.0");
-    property Architecture_watchOSSimulator_x86_64 : Architecture read new Architecture(Triple := "x86_64-apple-watchos", Defines := watchOSDefinesSimulator64, SDKName := "watchOS", Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "5.0");
-    property Architecture_tvOS_arm64              : Architecture read new Architecture(Triple := "arm64-apple-tvos",     Defines := tvOSDefines64,             SDKName := "tvOS",                                                                               MinimumTargetSDK := "9.0");
-    property Architecture_tvOSSimulator_x86_64    : Architecture read new Architecture(Triple := "x86_64-apple-tvos",    Defines := tvOSDefinesSimulator64,    SDKName := "tvOS",    Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "9.0");
+    property Architecture_UIKitForMac_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-ios-macabi", Defines := UIKitForMacDefines64,      SDKName := "iOS",                        Environment := "macabi",     CpuType := cpuType_Penryn);
+    property Architecture_DriverKit_x86_64        : Architecture read new Architecture(Triple := "x86_64-apple-macosx",     Defines := macOSDefines64,            SDKName := "macOS", OS := "DriverKit",                                CpuType := cpuType_Penryn);
+    property Architecture_macOS_x86_64            : Architecture read new Architecture(Triple := "x86_64-apple-macosx",     Defines := macOSDefines64,            SDKName := "macOS",                                                   CpuType := cpuType_Penryn);
+    property Architecture_iOS_armv7               : Architecture read new Architecture(Triple := "armv7-apple-ios",         Defines := iOSDefines32,              SDKName := "iOS");
+    property Architecture_iOS_armv7s              : Architecture read new Architecture(Triple := "armv7s-apple-ios",        Defines := iOSDefines32,              SDKName := "iOS",                                                                                MinimumTargetSDK := "6.0");
+    property Architecture_iOS_arm64               : Architecture read new Architecture(Triple := "arm64-apple-ios",         Defines := iOSDefines64,              SDKName := "iOS",                                                                                MinimumTargetSDK := "6.0",  MinimumDeploymentTarget := "6.0");
+    property Architecture_iOS_arm64e              : Architecture read new Architecture(Triple := "arm64e-apple-ios",        Defines := iOSDefines64,              SDKName := "iOS",                                                                                MinimumTargetSDK := "12.0", MinimumDeploymentTarget := "12.0");
+    property Architecture_iOSSimulator_i386       : Architecture read new Architecture(Triple := "i386-apple-ios",          Defines := iOSDefinesSimulator32,     SDKName := "iOS",     Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn);
+    property Architecture_iOSSimulator_x86_64     : Architecture read new Architecture(Triple := "x86_64-apple-ios",        Defines := iOSDefinesSimulator64,     SDKName := "iOS",     Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "6.0",  MinimumDeploymentTarget := "6.0");
+    property Architecture_watchOS_armv7k          : Architecture read new Architecture(Triple := "armv7k-apple-watchos",    Defines := watchOSDefines32,          SDKName := "watchOS",                                                                            MinimumTargetSDK := "2.0");
+    property Architecture_watchOS_arm64_32        : Architecture read new Architecture(Triple := "arm64_32-apple-watchos",  Defines := watchOSDefines64,          SDKName := "watchOS",                                                                            MinimumTargetSDK := "5.0");
+    property Architecture_watchOSSimulator_i386   : Architecture read new Architecture(Triple := "i386-apple-watchos",      Defines := watchOSDefinesSimulator32, SDKName := "watchOS", Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "2.0");
+    property Architecture_watchOSSimulator_x86_64 : Architecture read new Architecture(Triple := "x86_64-apple-watchos",    Defines := watchOSDefinesSimulator64, SDKName := "watchOS", Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "5.0");
+    property Architecture_tvOS_arm64              : Architecture read new Architecture(Triple := "arm64-apple-tvos",        Defines := tvOSDefines64,             SDKName := "tvOS",                                                                               MinimumTargetSDK := "9.0");
+    property Architecture_tvOSSimulator_x86_64    : Architecture read new Architecture(Triple := "x86_64-apple-tvos",       Defines := tvOSDefinesSimulator64,    SDKName := "tvOS",    Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "9.0");
 
     const macOSEnvironmentVersionDefine   = '__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__';
     const iOSEnvironmentVersionDefine     = '__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__';
@@ -191,7 +192,7 @@ type
       yield (Architecture_tvOS_arm64, tvOSVersion);
       yield (Architecture_tvOSSimulator_x86_64, tvOSVersion);
       yield (Architecture_watchOS_armv7k, watchOSVersion);
-      //yield (Architecture_watchOS_arm64, watchOSVersion);
+      yield (Architecture_watchOS_arm64_32, watchOSVersion);
       yield (Architecture_watchOSSimulator_i386, watchOSVersion);
       yield (Architecture_watchOSSimulator_x86_64, watchOSVersion);
     end;
@@ -244,8 +245,8 @@ type
     method watchOSArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
       yield (Architecture_watchOS_armv7k, watchOSVersion);
-      //if watchOSVersion.CompareVersionTripleTo(MIN_WATCHOS_VERSION_FOR_ARM64) ≥ 0 then
-        //yield (Architecture_watchOS_arm64, watchOSVersion);
+      if watchOSVersion.CompareVersionTripleTo(MIN_WATCHOS_VERSION_FOR_ARM64) ≥ 0 then
+        yield (Architecture_watchOS_arm64_32, watchOSVersion);
     end;
 
     method watchOSSimulatorArchitectures: sequence of tuple of (Architecture, String); iterator;

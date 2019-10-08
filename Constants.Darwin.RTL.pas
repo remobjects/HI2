@@ -12,6 +12,7 @@ type
                 "cups/ppd.h",
                 "device/*.h",
                 "dirent.h",
+                "dlfcn.h",
                 "errno.h",
                 "i386/limits.h",
                 "iconv.h",

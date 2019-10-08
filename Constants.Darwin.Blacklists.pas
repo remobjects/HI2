@@ -130,7 +130,7 @@ type
                   '11.4:x86_64-apple-ios:IOSurface',  // fails on missing xpc/xpc.h
                   '11.4:x86_64-apple-tvos:IOSurface', // fails on missing xpc/xpc.h
 
-                  // Review for Xcode 9.4 (and retest for 10?)
+                  // Review for Xcode 9.4 (and retest for 10?) Still broken in 11
                   'MetalPerformanceShaders',
 
                   // 10.15 and later, these are C++ so we cannot support them
@@ -139,6 +139,8 @@ type
                   'NetworkingDriverKit',
                   'USBDriverKit',
                   'USBSerialDriverKit',
+
+                  // Deprecated and not supported on UIKit for Mac:
                   'x86_64-apple-ios-macabi:GLKit',
 
                   'IOKit', // Error   IOKit/IORPC.h - IOKit/IORPC.h (5902) opening brace expected Identifier (IORPCMessage)
