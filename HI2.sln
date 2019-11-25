@@ -2,6 +2,11 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # RemObjects Fire
 Project("{656346D9-4656-40DA-A068-22D5425D4639}") = "HI2", "HI2.elements", "{FFB61B34-176B-4F77-B847-53A0D9905CC9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EDD5844B-07EA-4D7C-86A7-24D2C6270B85} = {EDD5844B-07EA-4D7C-86A7-24D2C6270B85}
+	EndProjectSection
+EndProject
+Project("{656346D9-4656-40DA-A068-22D5425D4639}") = "HeaderImporter", "..\Elements\Source\HeaderImporter\HeaderImporter.elements", "{EDD5844B-07EA-4D7C-86A7-24D2C6270B85}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +18,10 @@ Global
 		{FFB61B34-176B-4F77-B847-53A0D9905CC9}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
 		{FFB61B34-176B-4F77-B847-53A0D9905CC9}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
 		{FFB61B34-176B-4F77-B847-53A0D9905CC9}.Release|AnyCPU.Build.0 = Release|AnyCPU
+		{EDD5844B-07EA-4D7C-86A7-24D2C6270B85}.Debug|AnyCPU.ActiveCfg = Debug|AnyCPU
+		{EDD5844B-07EA-4D7C-86A7-24D2C6270B85}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
+		{EDD5844B-07EA-4D7C-86A7-24D2C6270B85}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
+		{EDD5844B-07EA-4D7C-86A7-24D2C6270B85}.Release|AnyCPU.Build.0 = Release|AnyCPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

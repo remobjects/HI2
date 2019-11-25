@@ -38,7 +38,7 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode11_2_Beta(1);
+      ImportXcode11_2;
     end;
 
     method ImportAllXcodes;
@@ -54,15 +54,34 @@ type
     //
     //
 
-    method ImportXcode11_2_Beta(aBeta: Integer);
+    //method ImportXcode11_NEXT_Beta(aBeta: Integer);
+    //begin
+      //Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.2-Beta{aBeta}.app/Contents/Developer";
+      //Darwin.macOSVersion := "10.15";
+      //Darwin.iOSVersion := "13.2";
+      //Darwin.tvOSVersion := "13.2";
+      //Darwin.watchOSVersion := "6.1";
+      //Darwin.DriverKitVersion := "19.0";
+      //Darwin.BetaSuffix := $"Xcode 11.2 Beta {aBeta}";
+
+      //ImportMacOSSDK();
+      //ImportIOSSDK();
+      //ImportUIKitForMac();
+      //ImportTvOSSDK();
+      //ImportWatchOSSDK();
+
+      ////ImportDriverKitSDK();
+    //end;
+
+    method ImportXcode11_2;
     begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.2-Beta{aBeta}.app/Contents/Developer";
+      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.2.1-GM.app/Contents/Developer";
       Darwin.macOSVersion := "10.15";
       Darwin.iOSVersion := "13.2";
       Darwin.tvOSVersion := "13.2";
       Darwin.watchOSVersion := "6.1";
       Darwin.DriverKitVersion := "19.0";
-      Darwin.BetaSuffix := $"Xcode 11.2 Beta {aBeta}";
+      Darwin.BetaSuffix := $"Xcode 11.2.1";
 
       ImportMacOSSDK();
       ImportIOSSDK();
