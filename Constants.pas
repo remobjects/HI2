@@ -372,14 +372,14 @@ type
     begin
       var lResult := new List<String>;
       for each b in aBlackList do begin
-        var i := b.indexOf(':');
+        var i := b.IndexOf(':');
 
         if i > -1 then begin
-          var prefix := b.substring(0, i);
-          b := b.substring(i+1);
+          var prefix := b.Substring(0, i);
+          b := b.Substring(i+1);
           if (prefix ≠ aVersion) and (prefix ≠ aArchitecture.Triple) and (prefix ≠ aArchitecture.SDKName) then
             continue;
-          i := b.indexOf(':');
+          i := b.IndexOf(':');
           if i > -1 then begin
             prefix := b.Substring(0, i);
             b := b.Substring(i + 1);

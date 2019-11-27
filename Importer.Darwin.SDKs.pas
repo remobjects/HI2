@@ -142,9 +142,9 @@ type
                                 Defines(lDefines)
                            OutputFolder(lTargetFolderForArch);
 
-                File.Move(Path.combine(lTargetFolderForArch, "rtl.fx"), Path.combine(lTargetFolderForArch, $"rtl-{d}.fx"));
-                File.Delete(Path.combine(lTargetFolderForArch, "Foundation.fx"));
-                File.Delete(Path.combine(lTargetFolderForArch, "Security.fx"));
+                File.Move(Path.Combine(lTargetFolderForArch, "rtl.fx"), Path.Combine(lTargetFolderForArch, $"rtl-{d}.fx"));
+                File.Delete(Path.Combine(lTargetFolderForArch, "Foundation.fx"));
+                File.Delete(Path.Combine(lTargetFolderForArch, "Security.fx"));
               end;
             end;
           end;
