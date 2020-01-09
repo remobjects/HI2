@@ -113,10 +113,16 @@ type
         "DriverKit": lFrameworksFolders.ReplaceAt(0, Path.Combine(lSdkFolder, "System", "DriverKit", "System", "Library", "Frameworks"));
       end;
 
-      var lUsrFolder := case aName of
-        "UIKitForMac": Path.Combine(lSdkFolder, "System", "iOSSupport", "usr");
-        "DriverKit": Path.Combine(lSdkFolder, "System", "DriverKit", "usr");
-        else Path.Combine(lSdkFolder, "usr");
+      var lUsrLibFolder := case aName of
+        "UIKitForMac": Path.Combine(lSdkFolder, "System", "iOSSupport", "usr", "lib");
+        "DriverKit": Path.Combine(lSdkFolder, "System", "DriverKit", "usr", "lib");
+        else Path.Combine(lSdkFolder, "usr", "lib");
+      end;
+
+      var lUsrIncludeFolder := case aName of
+        //"UIKitForMac": Path.Combine(lSdkFolder, "System", "iOSSupport", "usr", "include");
+        "DriverKit": Path.Combine(lSdkFolder, "System", "DriverKit", "usr", "include");
+        else Path.Combine(lSdkFolder, "usr", "include");
       end;
 
       if not SkipDeploymentTargets then begin
@@ -135,7 +141,8 @@ type
 
                 RunHeaderImporterForSDK(lSdkFolder)
                       FrameworksFolders(lFrameworksFolders)
-                              UsrFolder(lUsrFolder)
+                           UsrLibFolder(lUsrLibFolder)
+                       UsrIncludeFolder(lUsrIncludeFolder)
                                 Version(lInternalVersion)
                           VersionString(aVersion+$" ({d})")
                            Architecture(a)
@@ -175,7 +182,8 @@ type
 
           RunHeaderImporterForSDK(lSdkFolder)
                 FrameworksFolders(lFrameworksFolders)
-                        UsrFolder(lUsrFolder)
+                     UsrLibFolder(lUsrLibFolder)
+                 UsrIncludeFolder(lUsrIncludeFolder)
                           Version(lInternalVersion)
                           RootSDK(if assigned(aRootSDKName) then aRootSDKName+" "+aRootSDKVersion else nil)
                     VersionString(aVersion)
@@ -256,7 +264,8 @@ type
 
     method RunHeaderImporterForSDK(aSDKFolder: String)
                  FrameworksFolders(aFrameworksFolders: List<String>)
-                         UsrFolder(aUsrFolder: String)
+                      UsrLibFolder(aUsrLibFolder: String)
+                  UsrIncludeFolder(aUsrIncludeFolder: String)
                            Version(aVersion: String)
                            RootSDK(aRootSDK: String := nil)
                      VersionString(aVersionString: String)
@@ -311,7 +320,7 @@ type
         end;
 
         if Darwin.Island then begin
-          var lSwiftPath := Path.Combine(aUsrFolder, "lib", "swift");
+          var lSwiftPath := Path.Combine(aUsrLibFolder, "swift");
           if lSwiftPath.FolderExists then begin
 
             var lPath := Path.Combine(lSwiftPath, $"{f}.swiftmodule");
@@ -386,7 +395,7 @@ type
       lArgs.Add($"--json={lJsonName}");
       lArgs.Add("-o", aOutputFolder);
 
-      lArgs.Add($"-i", Path.Combine(aUsrFolder, "include"));
+      lArgs.Add($"-i", aUsrIncludeFolder);
       for each f in aFrameworksFolders do
         lArgs.Add($"-f", f);
       lArgs.Add($"-i", SDKsBaseFolder);
@@ -407,7 +416,7 @@ type
       //if (more)
         //s += " "+more;
 
-      lArgs.Add($"--libpath="+Path.Combine(aUsrFolder, "lib"));
+      lArgs.Add($"--libpath="+aUsrLibFolder);
 
       if Debug then
         lArgs.Add("--debug");
