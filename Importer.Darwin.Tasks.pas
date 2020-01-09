@@ -38,7 +38,7 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode11_2;
+      ImportXcode11_3;
     end;
 
     method ImportAllXcodes;
@@ -72,6 +72,25 @@ type
 
       ////ImportDriverKitSDK();
     //end;
+
+    method ImportXcode11_3;
+    begin
+      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.3-GM.app/Contents/Developer";
+      Darwin.macOSVersion := "10.15";
+      Darwin.iOSVersion := "13.2";
+      Darwin.tvOSVersion := "13.2";
+      Darwin.watchOSVersion := "6.1";
+      Darwin.DriverKitVersion := "19.0";
+      Darwin.BetaSuffix := $"Xcode 11.3";
+
+      ImportMacOSSDK();
+      ImportIOSSDK();
+      ImportUIKitForMac();
+      ImportTvOSSDK();
+      ImportWatchOSSDK();
+
+      //ImportDriverKitSDK();
+    end;
 
     method ImportXcode11_2;
     begin
