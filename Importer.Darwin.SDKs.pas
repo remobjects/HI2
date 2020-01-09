@@ -113,9 +113,10 @@ type
         "DriverKit": lFrameworksFolders.ReplaceAt(0, Path.Combine(lSdkFolder, "System", "DriverKit", "System", "Library", "Frameworks"));
       end;
 
-      var lUsrFolder := Path.Combine(lSdkFolder, "usr");
-      case aName of
-        "DriverKit": lUsrFolder := Path.Combine(lSdkFolder, "System", "DriverKit", "usr");
+      var lUsrFolder := case aName of
+        "UIKitForMac": Path.Combine(lSdkFolder, "System", "iOSSupport", "usr");
+        "DriverKit": Path.Combine(lSdkFolder, "System", "DriverKit", "usr");
+        else Path.Combine(lSdkFolder, "usr");
       end;
 
       if not SkipDeploymentTargets then begin
@@ -276,9 +277,10 @@ type
 
       var lJsonImports := new JsonArray();
       for each f in aFrameworks do begin
+
         var lFrameworkJson := new JsonObject();
-        lFrameworkJson["Name"] := new JsonStringValue(f);
-        lFrameworkJson["Framework"] := new JsonBooleanValue(true);
+        lFrameworkJson["Name"] := f;
+        lFrameworkJson["Framework"] := true;
         lFrameworkJson["Prefix"] := "";
         if f = "Foundation" then
           lFrameworkJson["DropPrefixes"] := new JsonArray(["NS"]);
@@ -286,6 +288,47 @@ type
           lFrameworkJson["DepFx"] := new JsonArray(["Foundation", "AppKit", "CoreGraphics", "CoreFoundation"])
         else if f in ["AppKit", "UIKit"] then
           lFrameworkJson["DepFx"] := new JsonArray(["Foundation", "CoreGraphics", "CoreFoundation"]);
+
+        var lFrameworkFolder := aFrameworksFolders.Select(f2 -> Path.Combine(f2, f+".framework")).Where(f2 -> f2.FolderExists).FirstOrDefault;
+        if assigned(lFrameworkFolder) then begin
+          lFrameworkJson["FrameworkPath"] := lFrameworkFolder;
+          var lSwiftInterfaces := Folder.GetFiles(lFrameworkFolder, true).Where(f2 -> f2.PathExtension = ".swiftinterface").ToList;
+          if lSwiftInterfaces.Count > 0 then begin
+            if Darwin.Toffee then begin
+              writeLn($"Skipping {f.LastPathComponentWithoutExtension}, it's a Swift Framework");
+              continue;
+            end
+            else if Darwin.Island then begin
+              lFrameworkJson["Swift"] := true;
+              var lPath := Path.Combine(lFrameworkFolder, "Modules", $"{f}.swiftmodule");
+              if lPath.FolderExists then
+                lFrameworkJson["SwiftModule"] := lPath;
+              lPath := Path.Combine(lPath, $"{aArchitecture.Arch}.swiftinterface");
+              if lPath.FileExists then
+                lFrameworkJson["SwiftInterface"] := lPath;
+            end;
+          end;
+        end;
+
+        if Darwin.Island then begin
+          var lSwiftPath := Path.Combine(aUsrFolder, "lib", "swift");
+          if lSwiftPath.FolderExists then begin
+
+            var lPath := Path.Combine(lSwiftPath, $"{f}.swiftmodule");
+            if lPath.FolderExists then
+              lFrameworkJson["SwiftModule"] := lPath;
+
+            lPath := Path.Combine(lPath, $"{aArchitecture.Arch}.swiftinterface");
+            if lPath.FileExists then
+              lFrameworkJson["SwiftInterface"] := lPath;
+
+            lPath := Path.Combine(lSwiftPath, $"libswift{f}.tbd");
+            if lPath.FileExists then
+              lFrameworkJson["SwiftTbd"] := lPath;
+
+          end;
+        end;
+
         lJsonImports.Add(lFrameworkJson);
       end;
 
