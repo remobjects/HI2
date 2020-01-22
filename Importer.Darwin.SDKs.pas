@@ -328,32 +328,49 @@ type
         lJsonImports.Add(lFrameworkJson);
       end;
 
-      if Darwin.Island and (aFrameworks.Count > 5) then begin // skip for Deploymdent Targets?
-        var lSwiftPath := Path.Combine(aUsrLibFolder, "swift");
-        if lSwiftPath.FolderExists then begin
-          for each f in Folder.GetSubfolders(lSwiftPath).Where(f -> f.PathExtension = ".swiftmodule") do begin
+      if (aFrameworks.Count > 5) then begin // skip for Deploymdent Targets?
 
-            var lName := f.LastPathComponentWithoutExtension;
-            var lShadowFrameworkJson := new JsonObject();
-            lShadowFrameworkJson["Name"] := Path.Combine("Swift", lName);
-            lShadowFrameworkJson["SwiftShadowFramework"] := true;
-            if aFrameworks.Contains(lName) then
-              lShadowFrameworkJson["Shadows"] := lName;
-            lShadowFrameworkJson["Swift"] := "true";
-
-            lShadowFrameworkJson["SwiftModule"] := FixSSDKPath(f);
-
-            var lPath := Path.Combine(f, $"{aArchitecture.Arch}.swiftinterface");
-            if lPath.FileExists then
-              lShadowFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
-
-            lPath := Path.Combine(lSwiftPath, $"libswift{lName}.tbd");
-            if lPath.FileExists then
-              lShadowFrameworkJson["SwiftTbd"] := FixSSDKPath(lPath);
-
-            lJsonImports.Add(lShadowFrameworkJson);
+        var lDevFrameworksFolder := Path.GetFullPath(Path.Combine(aSDKFolder, "..", "..", "Library", "Frameworks"));
+        if lDevFrameworksFolder.FolderExists then begin
+          for each f in Folder.GetSubfolders(lDevFrameworksFolder).Where(f -> f.PathExtension = ".framework") do begin
+            var lFrameworkJson := new JsonObject();
+            lFrameworkJson["Name"] := f.LastPathComponentWithoutExtension;
+            lFrameworkJson["Framework"] := true;
+            lFrameworkJson["Prefix"] := "";
+            lFrameworkJson["FrameworkPath"] := FixSSDKPath(f);
+            // todo: duope Swift check from above
+            lJsonImports.Add(lFrameworkJson);
           end;
         end;
+
+        if Darwin.Island then begin
+          var lSwiftPath := Path.Combine(aUsrLibFolder, "swift");
+          if lSwiftPath.FolderExists then begin
+            for each f in Folder.GetSubfolders(lSwiftPath).Where(f -> f.PathExtension = ".swiftmodule") do begin
+
+              var lName := f.LastPathComponentWithoutExtension;
+              var lShadowFrameworkJson := new JsonObject();
+              lShadowFrameworkJson["Name"] := Path.Combine("Swift", lName);
+              lShadowFrameworkJson["SwiftShadowFramework"] := true;
+              if aFrameworks.Contains(lName) then
+                lShadowFrameworkJson["Shadows"] := lName;
+              lShadowFrameworkJson["Swift"] := "true";
+
+              lShadowFrameworkJson["SwiftModule"] := FixSSDKPath(f);
+
+              var lPath := Path.Combine(f, $"{aArchitecture.Arch}.swiftinterface");
+              if lPath.FileExists then
+                lShadowFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
+
+              lPath := Path.Combine(lSwiftPath, $"libswift{lName}.tbd");
+              if lPath.FileExists then
+                lShadowFrameworkJson["SwiftTbd"] := FixSSDKPath(lPath);
+
+              lJsonImports.Add(lShadowFrameworkJson);
+            end;
+          end;
+        end;
+
       end;
 
       var lRtlFramework := new JsonObject();
@@ -408,6 +425,7 @@ type
       var lArgs := new List<String>;
       lArgs.Add("import");
       lArgs.Add($"--json={lJsonName}");
+      lArgs.Add($"--sdk={aSDKFolder}");
       lArgs.Add("-o", aOutputFolder);
 
       lArgs.Add($"-i", aUsrIncludeFolder);
