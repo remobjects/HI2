@@ -283,11 +283,20 @@ type
       const ImportDefsJson_String = '[ {"Name": "dyld_stub_binder", "Library": "/usr/lib/libSystem.B.dylib", "Version": "81395766,65536" }, {"Name": "__Unwind_Resume", "Library": "/usr/lib/system/libunwind.dylib", "Version": "2294784,0"}, {"Name": "_stack_chk_fail", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "____toupper_l", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "____tolower_l", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "__DefaultRuneLocale", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_strtoul", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "__dyld_image_count", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "_abort", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "__dyld_bind_fully_image_containing_address", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "_pthread_atfork", "Library": "/usr/lib/system/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_pthread_setcancelstate", "Library": "/usr/lib/system/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "__setjmp", "Library": "/usr/lib/system/libsystem_platform.dylib", "Version": "11651079,0"}, {"Name": "_task_set_exception_ports", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_atoi", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_atol", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_sysctl", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_bcopy", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_pthread_get_stackaddr_np", "Library": "/usr/lib/system/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_get_end", "Library": "/usr/lib/system/libmacho.dylib", "Version": "59899904,0"}, {"Name": "_vm_protect", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_write", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_pthread_join", "Library": "/usr/lib/system/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_mach_task_self_", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_clock", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_thread_get_state", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_pthread_attr_getdetachstate", "Library": "/usr/lib/system/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_exc_server", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mach_port_allocate", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mach_port_insert_right", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_get_etext", "Library": "/usr/lib/system/libmacho.dylib", "Version": "59899904,0"}, {"Name": "_mach_thread_self", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_task_threads", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_exception_raise_state_identity", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_exception_raise", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_thread_resume", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "__dyld_register_func_for_add_image", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "__dyld_get_image_header", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "_thread_suspend", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mach_error_string", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_snprintf", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_exception_raise_state", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_pthread_attr_init", "Library": "/usr/lib/system/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_vm_deallocate", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_getpagesize", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_vsnprintf", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_signal", "Library": "/usr/lib/system/libsystem_c.dylib", "Version": "83413012,0"}, {"Name": "_pthread_attr_destroy", "Library": "/usr/lib/system/libsystem_pthread.dylib", "Version": "21678110,0"}, {"Name": "_thread_set_state", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_munmap", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_task_get_exception_ports", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mmap", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_mach_msg", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "__dyld_get_image_name", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "__dyld_register_func_for_remove_image", "Library": "/usr/lib/system/libdyld.dylib", "Version": "40633088,0"}, {"Name": "_thread_info", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_getsectbynamefromheader_64", "Library": "/usr/lib/system/libmacho.dylib", "Version": "59899904,0"}, {"Name": "_mach_port_deallocate", "Library": "/usr/lib/system/libsystem_kernel.dylib", "Version": "321374407,0"}, {"Name": "_pthread_attr_setdetachstate", "Library": "/usr/lib/system/libsystem_pthread.dylib", "Version": "21678110,0"}]';
       var lImportDefsJson := JsonDocument.FromString(ImportDefsJson_String).Root;
 
+      var lToolchainFolder := Path.GetFullPath(Path.Combine(aSDKFolder, "..", "..", "..",  "..", "..", "Toolchains", "XcodeDefault.xctoolchain"));
+
       method FixSSDKPath(aPath: String): String;
       begin
         result := aPath;
         if result.StartsWith(aSDKFolder) then
           result := "{sdk}/"+result.Substring(length(aSDKFolder)).TrimStart(['/','\']);
+      end;
+
+      method FixToolchainPath(aPath: String): String;
+      begin
+        result := aPath;
+        if result.StartsWith(lToolchainFolder) then
+          result := "{toolchain}/"+result.Substring(length(lToolchainFolder)).TrimStart(['/','\']);
       end;
 
       var lJsonImports := new JsonArray();
@@ -323,6 +332,9 @@ type
                 lFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
             end;
           end;
+          var lApiNotes := Path.Combine(lFrameworkFolder, "Headers", f.LastPathComponentWithoutExtension+".apinotes");
+          if lApiNotes.FileExists then
+            lFrameworkJson["APINotes"] := FixSSDKPath(lApiNotes);
         end;
 
         lJsonImports.Add(lFrameworkJson);
@@ -373,6 +385,13 @@ type
 
       end;
 
+      var lApiNotesJson := new JsonArray();
+      for each f in Folder.GetFiles(aUsrIncludeFolder, true).Where(f -> f.PathExtension = ".apinotes") do
+        lApiNotesJson.Add(FixSSDKPath(f));
+      if lToolchainFolder.FolderExists then
+        for each f in Folder.GetFiles(lToolchainFolder, true).Where(f -> f.PathExtension = ".apinotes") do
+          lApiNotesJson.Add(FixToolchainPath(f));
+
       var lRtlFramework := new JsonObject();
       lRtlFramework["Name"] := "rtl";
       lRtlFramework["Framework"] := false;
@@ -395,6 +414,8 @@ type
       lJson["Version"] := aVersion;
       lJson["SDKVersionString"] := aVersionString;
       lJson["Imports"] := lJsonImports;
+      if lApiNotesJson.Count > 0 then
+        lJson["APINotes"] := lApiNotesJson;
       lJson["Defines"] := new JsonArray(aDefines.Split(";", true));
       lJson["Blacklist"] := new JsonArray(lBlacklist);
       lJson["ForceInclude"] := Darwin.GetForceIncludeFiles(lShortVersion, aArchitecture);
@@ -426,6 +447,7 @@ type
       lArgs.Add("import");
       lArgs.Add($"--json={lJsonName}");
       lArgs.Add($"--sdk={aSDKFolder}");
+      lArgs.Add($"--toolchain={lToolchainFolder}");
       lArgs.Add("-o", aOutputFolder);
 
       lArgs.Add($"-i", aUsrIncludeFolder);
