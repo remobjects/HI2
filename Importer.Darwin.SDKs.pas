@@ -334,7 +334,7 @@ type
           end;
           var lApiNotes := Path.Combine(lFrameworkFolder, "Headers", f.LastPathComponentWithoutExtension+".apinotes");
           if lApiNotes.FileExists then
-            lFrameworkJson["APINotes"] := FixSSDKPath(lApiNotes);
+            lFrameworkJson["APINotes"] := new JsonArray(FixSSDKPath(lApiNotes));
         end;
 
         lJsonImports.Add(lFrameworkJson);
@@ -402,6 +402,8 @@ type
       lRtlFramework["Files"] := new JsonArray(Darwin.GetRTLFiles(lShortVersion, aArchitecture));
       lRtlFramework["IndirectFiles"] := new JsonArray(Darwin.GetIndirectRTLFiles(lShortVersion, aArchitecture));
       lRtlFramework["ImportDefs"] := lImportDefsJson;
+      if lApiNotesJson.Count > 0 then
+        lRtlFramework["APINotes"] := lApiNotesJson;
       lJsonImports.Add(lRtlFramework);
 
       var lBlacklist := Darwin.FilterBlacklist(Darwin.IncludeHeaderBlackList.ToList(), lShortVersion, aArchitecture);
@@ -414,8 +416,6 @@ type
       lJson["Version"] := aVersion;
       lJson["SDKVersionString"] := aVersionString;
       lJson["Imports"] := lJsonImports;
-      if lApiNotesJson.Count > 0 then
-        lJson["APINotes"] := lApiNotesJson;
       lJson["Defines"] := new JsonArray(aDefines.Split(";", true));
       lJson["Blacklist"] := new JsonArray(lBlacklist);
       lJson["ForceInclude"] := Darwin.GetForceIncludeFiles(lShortVersion, aArchitecture);
