@@ -13,6 +13,8 @@ type
     property SDKsBaseFolder: String read if Darwin.Island then Path.Combine(BaseFolder, "Darwin") else BaseFolder;
 
     property SkipDeploymentTargets := false;
+    property SkipSwift := false;
+    property SwiftOnly := false;
 
     method ImportMacOSSDK();
     begin
@@ -275,6 +277,7 @@ type
                       OutputFolder(aOutputFolder: String);
     begin
       var lShortVersion := Darwin.ShortVersion(aVersion);
+      var lDeploymentTargetsOnly := (aFrameworks.Count > 5); // bit of a hack, for now
 
       var lTargetString := aArchitecture.Triple;
       if length(aArchitecture.CpuType) > 0 then
@@ -322,6 +325,9 @@ type
               writeLn($"Skipping {f.LastPathComponentWithoutExtension}, it's a Swift Framework");
               continue;
             end
+            else if SkipSwift then begin
+              continue;
+            end
             else if Darwin.Island then begin
               lFrameworkJson["Swift"] := true;
               var lPath := Path.Combine(lFrameworkFolder, "Modules", $"{f}.swiftmodule");
@@ -331,6 +337,10 @@ type
               if lPath.FileExists then
                 lFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
             end;
+          end
+          else begin
+            if SwiftOnly then
+              continue;
           end;
           var lApiNotes := Path.Combine(lFrameworkFolder, "Headers", f.LastPathComponentWithoutExtension+".apinotes");
           if lApiNotes.FileExists then
@@ -340,20 +350,27 @@ type
         lJsonImports.Add(lFrameworkJson);
       end;
 
-      if (aFrameworks.Count > 5) then begin // skip for Deploymdent Targets?
+      if not SwiftOnly then begin
+        if not lDeploymentTargetsOnly then begin
 
-        var lDevFrameworksFolder := Path.GetFullPath(Path.Combine(aSDKFolder, "..", "..", "Library", "Frameworks"));
-        if lDevFrameworksFolder.FolderExists then begin
-          for each f in Folder.GetSubfolders(lDevFrameworksFolder).Where(f -> f.PathExtension = ".framework") do begin
-            var lFrameworkJson := new JsonObject();
-            lFrameworkJson["Name"] := f.LastPathComponentWithoutExtension;
-            lFrameworkJson["Framework"] := true;
-            lFrameworkJson["Prefix"] := "";
-            lFrameworkJson["FrameworkPath"] := FixSSDKPath(f);
-            // todo: duope Swift check from above
-            lJsonImports.Add(lFrameworkJson);
+          var lDevFrameworksFolder := Path.GetFullPath(Path.Combine(aSDKFolder, "..", "..", "Library", "Frameworks"));
+          if lDevFrameworksFolder.FolderExists then begin
+            for each f in Folder.GetSubfolders(lDevFrameworksFolder).Where(f -> f.PathExtension = ".framework") do begin
+              var lFrameworkJson := new JsonObject();
+              lFrameworkJson["Name"] := f.LastPathComponentWithoutExtension;
+              lFrameworkJson["Framework"] := true;
+              lFrameworkJson["Prefix"] := "";
+              lFrameworkJson["FrameworkPath"] := FixSSDKPath(f);
+              // todo: duope Swift check from above
+              lJsonImports.Add(lFrameworkJson);
+            end;
           end;
+
         end;
+
+      end;
+
+      if not SkipSwift then begin
 
         if Darwin.Island then begin
           var lSwiftPath := Path.Combine(aUsrLibFolder, "swift");
@@ -363,7 +380,6 @@ type
               var lName := f.LastPathComponentWithoutExtension;
               var lShadowFrameworkJson := new JsonObject();
               lShadowFrameworkJson["Name"] := Path.Combine("Swift", lName);
-              lShadowFrameworkJson["SwiftShadowFramework"] := true;
               if aFrameworks.Contains(lName) then
                 lShadowFrameworkJson["Shadows"] := lName;
               lShadowFrameworkJson["Swift"] := "true";
@@ -385,26 +401,30 @@ type
 
       end;
 
-      var lApiNotesJson := new JsonArray();
-      for each f in Folder.GetFiles(aUsrIncludeFolder, true).Where(f -> f.PathExtension = ".apinotes") do
-        lApiNotesJson.Add(FixSSDKPath(f));
-      if lToolchainFolder.FolderExists then
-        for each f in Folder.GetFiles(lToolchainFolder, true).Where(f -> f.PathExtension = ".apinotes") do
-          lApiNotesJson.Add(FixToolchainPath(f));
+      if not SwiftOnly then begin
 
-      var lRtlFramework := new JsonObject();
-      lRtlFramework["Name"] := "rtl";
-      lRtlFramework["Framework"] := false;
-      lRtlFramework["Prefix"] := "";
-      lRtlFramework["Core"] := true;
-      lRtlFramework["ForceNamespace"] := "rtl";
-      lRtlFramework["DropPrefixes"] := new JsonArray(["NS"]);
-      lRtlFramework["Files"] := new JsonArray(Darwin.GetRTLFiles(lShortVersion, aArchitecture));
-      lRtlFramework["IndirectFiles"] := new JsonArray(Darwin.GetIndirectRTLFiles(lShortVersion, aArchitecture));
-      lRtlFramework["ImportDefs"] := lImportDefsJson;
-      if lApiNotesJson.Count > 0 then
-        lRtlFramework["APINotes"] := lApiNotesJson;
-      lJsonImports.Add(lRtlFramework);
+        var lApiNotesJson := new JsonArray();
+        for each f in Folder.GetFiles(aUsrIncludeFolder, true).Where(f -> f.PathExtension = ".apinotes") do
+          lApiNotesJson.Add(FixSSDKPath(f));
+        if lToolchainFolder.FolderExists then
+          for each f in Folder.GetFiles(lToolchainFolder, true).Where(f -> f.PathExtension = ".apinotes") do
+            lApiNotesJson.Add(FixToolchainPath(f));
+
+        var lRtlFramework := new JsonObject();
+        lRtlFramework["Name"] := "rtl";
+        lRtlFramework["Framework"] := false;
+        lRtlFramework["Prefix"] := "";
+        lRtlFramework["Core"] := true;
+        lRtlFramework["ForceNamespace"] := "rtl";
+        lRtlFramework["DropPrefixes"] := new JsonArray(["NS"]);
+        lRtlFramework["Files"] := new JsonArray(Darwin.GetRTLFiles(lShortVersion, aArchitecture));
+        lRtlFramework["IndirectFiles"] := new JsonArray(Darwin.GetIndirectRTLFiles(lShortVersion, aArchitecture));
+        lRtlFramework["ImportDefs"] := lImportDefsJson;
+        if lApiNotesJson.Count > 0 then
+          lRtlFramework["APINotes"] := lApiNotesJson;
+        lJsonImports.Add(lRtlFramework);
+
+      end;
 
       var lBlacklist := Darwin.FilterBlacklist(Darwin.IncludeHeaderBlackList.ToList(), lShortVersion, aArchitecture);
       //if (options.headerBlackList)
@@ -436,7 +456,13 @@ type
       lJson["VirtualFiles"] := new JsonObject();
       lJson["VirtualFiles"]["os/availibility.h"] := "#include <os/availability.h>";
 
-      var lJsonName := $"import-{Darwin.Mode}-{aArchitecture.DisplaySDKName}{if aArchitecture.Simulator then "-Simulator"}-{aVersionString}-{aOutputFolder.LastPathComponent}.json";
+      var lSuffix := "";
+      if SkipSwift then
+        lSuffix := "noswift-"
+      else if SwiftOnly then
+        lSuffix := "swiftonly-";
+
+      var lJsonName := $"import-{Darwin.Mode}-{aArchitecture.DisplaySDKName}{if aArchitecture.Simulator then "-Simulator"}-{aVersionString}-{lSuffix}{aOutputFolder.LastPathComponent}.json";
       lJsonName := Path.Combine(SDKsBaseFolder, lJsonName);
       File.WriteText(lJsonName, lJsonDocument.ToString());
 
