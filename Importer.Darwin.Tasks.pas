@@ -11,7 +11,17 @@ type
 
     method ImportSDKs;
     begin
+      //SwiftOnly := true;
+      //SkipSwift := true;
+
       //SkipDeploymentTargets := true;
+      //SkipSimulator := true;
+      //SkipMacOS := true;
+      //SkipMacCatalyst := true;
+      //SkipIOS := true;
+      //SkipWatchOS := true;
+      //SkipTvOS := true;
+
       ImportToffeeSDKs;
       ImportIslandSDKs;
     end;
@@ -75,7 +85,7 @@ type
 
     method ImportXcode11_3;
     begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.3-GM.app/Contents/Developer";
+      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.3.1-GM.app/Contents/Developer";
       Darwin.macOSVersion := "10.15";
       Darwin.iOSVersion := "13.2";
       Darwin.tvOSVersion := "13.2";

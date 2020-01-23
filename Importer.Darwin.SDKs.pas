@@ -16,43 +16,66 @@ type
     property SkipSwift := false;
     property SwiftOnly := false;
 
+    property SkipMacOS := false;
+    property SkipMacCatalyst := false;
+    property SkipDriverKit := false;
+    property SkipIOS := false;
+    property SkipTvOS := false;
+    property SkipWatchOS := false;
+    property SkipSimulator := false;
+
     method ImportMacOSSDK();
     begin
-      ImportSDK("macOS", Darwin.macOSVersion);
-      CreateSDKZip("macOS", Darwin.macOSVersion);
+      if not SkipMacOS then begin
+        ImportSDK("macOS", Darwin.macOSVersion);
+        CreateSDKZip("macOS", Darwin.macOSVersion);
+      end;
     end;
 
     method ImportUIKitForMac();
     begin
-      ImportSDK("UIKitForMac", Darwin.iOSVersion) RootSDK("macOS", Darwin.macOSVersion);
-      CreateSDKZip("UIKitForMac", Darwin.iOSVersion);
+      if not SkipMacCatalyst then begin
+        ImportSDK("UIKitForMac", Darwin.iOSVersion) RootSDK("macOS", Darwin.macOSVersion);
+        CreateSDKZip("UIKitForMac", Darwin.iOSVersion);
+      end;
     end;
 
     method ImportDriverKitSDK();
     begin
-      ImportSDK("DriverKit", Darwin.DriverKitVersion);
-      CreateSDKZip("DriverKit", Darwin.DriverKitVersion);
+      if not SkipDriverKit then begin
+        ImportSDK("DriverKit", Darwin.DriverKitVersion);
+        CreateSDKZip("DriverKit", Darwin.DriverKitVersion);
+      end;
     end;
 
     method ImportIOSSDK();
     begin
-      ImportSDK("iOS", Darwin.iOSVersion, false);
-      ImportSDK("iOS", Darwin.iOSVersion, true);
-      CreateSDKZip("iOS", Darwin.iOSVersion);
+      if not SkipIOS then begin
+        ImportSDK("iOS", Darwin.iOSVersion, false);
+        if not SkipSimulator then
+          ImportSDK("iOS", Darwin.iOSVersion, true);
+        CreateSDKZip("iOS", Darwin.iOSVersion);
+      end;
     end;
 
     method ImportTvOSSDK();
     begin
-      ImportSDK("tvOS", Darwin.tvOSVersion, false);
-      ImportSDK("tvOS", Darwin.tvOSVersion, true);
-      CreateSDKZip("tvOS", Darwin.tvOSVersion);
+      if not SkipTvOS then begin
+        ImportSDK("tvOS", Darwin.tvOSVersion, false);
+        if not SkipSimulator then
+          ImportSDK("tvOS", Darwin.tvOSVersion, true);
+        CreateSDKZip("tvOS", Darwin.tvOSVersion);
+      end;
     end;
 
     method ImportWatchOSSDK();
     begin
-      ImportSDK("watchOS", Darwin.watchOSVersion, false);
-      ImportSDK("watchOS", Darwin.watchOSVersion, true);
-      CreateSDKZip("watchOS", Darwin.watchOSVersion);
+      if not SkipWatchOS then begin
+        ImportSDK("watchOS", Darwin.watchOSVersion, false);
+        if not SkipSimulator then
+          ImportSDK("watchOS", Darwin.watchOSVersion, true);
+        CreateSDKZip("watchOS", Darwin.watchOSVersion);
+      end;
     end;
 
     method ImportSDK(aName: String; aVersion: String; aSimulator: Boolean := false) RootSDK(aRootSDKName: String := nil; aRootSDKVersion: String := nil);
@@ -265,16 +288,16 @@ type
     //
 
     method RunHeaderImporterForSDK(aSDKFolder: String)
-                 FrameworksFolders(aFrameworksFolders: List<String>)
-                      UsrLibFolder(aUsrLibFolder: String)
-                  UsrIncludeFolder(aUsrIncludeFolder: String)
-                           Version(aVersion: String)
-                           RootSDK(aRootSDK: String := nil)
-                     VersionString(aVersionString: String)
-                      Architecture(aArchitecture: Architecture)
-                        Frameworks(aFrameworks: ImmutableList<String>)
-                           Defines(aDefines: String)
-                      OutputFolder(aOutputFolder: String);
+    FrameworksFolders(aFrameworksFolders: List<String>)
+    UsrLibFolder(aUsrLibFolder: String)
+    UsrIncludeFolder(aUsrIncludeFolder: String)
+    Version(aVersion: String)
+    RootSDK(aRootSDK: String := nil)
+    VersionString(aVersionString: String)
+    Architecture(aArchitecture: Architecture)
+    Frameworks(aFrameworks: ImmutableList<String>)
+    Defines(aDefines: String)
+    OutputFolder(aOutputFolder: String);
     begin
       var lShortVersion := Darwin.ShortVersion(aVersion);
       var lDeploymentTargetsOnly := (aFrameworks.Count > 5); // bit of a hack, for now
