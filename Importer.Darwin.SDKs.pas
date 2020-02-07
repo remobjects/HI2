@@ -24,8 +24,12 @@ type
     property SkipWatchOS := false;
     property SkipSimulator := false;
 
+    property GenerateCode := false;
+
     method ImportMacOSSDK();
     begin
+      //GenerateCode("macOS", Darwin.macOSVersion);
+      //exit;
       if not SkipMacOS then begin
         ImportSDK("macOS", Darwin.macOSVersion);
         CreateSDKZip("macOS", Darwin.macOSVersion);
@@ -221,6 +225,9 @@ type
 
       MergeOrFlatten(lTargetFolder, lArchitectures.Select(a -> a[0]).ToList());
       //codegen(targetFolder);
+
+      if GenerateCode then
+        GenerateCode(aName, aVersion);
 
       //var lForceIncldes := case aName of
         //"macOS": Darwin.forceIncludes_macOS
@@ -535,6 +542,22 @@ type
     //
     //
     //
+
+    method GenerateCode(aName: String; aVersion: String);
+    begin
+      var lShortVersion := Darwin.ShortVersion(aVersion);
+      var lTargetFolderName := aName+" "+lShortVersion;
+      var lTargetFolder := Path.Combine(SDKsBaseFolder, lTargetFolderName);
+
+      var lCodeFolder := Path.Combine(lTargetFolder, "Source");
+      Folder.Create(lCodeFolder);
+      for each f in Folder.GetFiles(lTargetFolder).Where(f -> f.PathExtension = ".fx") do begin
+        RunHI(new List<String>("codegen", f, Path.Combine(lCodeFolder, f.LastPathComponentWithoutExtension+".pas"), "Oxygene"));
+        RunHI(new List<String>("codegen", f, Path.Combine(lCodeFolder, f.LastPathComponentWithoutExtension+".cs"), "Hydrogene"));
+        RunHI(new List<String>("codegen", f, Path.Combine(lCodeFolder, f.LastPathComponentWithoutExtension+".swift"), "Silver"));
+        RunHI(new List<String>("codegen", f, Path.Combine(lCodeFolder, f.LastPathComponentWithoutExtension+".java"), "Iodine"));
+      end;
+    end;
 
     method CreateSDKZip(aName: String; aVersion: String);
     begin

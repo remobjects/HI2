@@ -8,6 +8,7 @@ type
                 "assert.h",
                 "copyfile.h",
                 "ctype.h",
+                "compression.h",
                 "cups/cups.h",
                 "cups/ppd.h",
                 "device/*.h",

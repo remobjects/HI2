@@ -143,6 +143,8 @@ type
                   // Deprecated and not supported on UIKit for Mac:
                   'x86_64-apple-ios-macabi:GLKit',
 
+                  'PCIDriverKit', //83882: HI: breakage with Xcode 11.4
+
                   'IOKit', // Error   IOKit/IORPC.h - IOKit/IORPC.h (5902) opening brace expected Identifier (IORPCMessage)
 
                   ].ToList; readonly;
