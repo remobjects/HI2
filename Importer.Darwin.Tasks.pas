@@ -13,7 +13,7 @@ type
     begin
       //GenerateCode := true;
 
-      SwiftOnly := true;
+      //SwiftOnly := true;
       SkipSwift := true;
 
       //SkipDeploymentTargets := true;
@@ -50,7 +50,7 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode11_4_Beta(1);
+      ImportXcode11_4_Beta(2);
     end;
 
     method ImportAllXcodes;
