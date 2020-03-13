@@ -164,7 +164,7 @@ type
                 // below code is "doProcessDeploymentTargetSDK(options.version, deploymentVersion, options.sdkFolder, architectures[a], defines, targetFolder, options.forceIncludes);"
 
                 var lTargetFolderForArch := Path.Combine(lTargetFolder, a.Arch);
-                Folder.create(lTargetFolderForArch);
+                Folder.Create(lTargetFolderForArch);
 
                 var lFrameworks := new List<String>("Foundation", "Security"); // iOS Simulator requires this from rtl/objc. We wont actually *use* the generated file
 
@@ -196,7 +196,7 @@ type
           // below code is "doProcessSDK(options.internalVersion, options.version, options.sdkFolder,  architectures[a], defines, targetFolder, options.forceIncludes);"
 
           var lTargetFolderForArch := Path.Combine(lTargetFolder, a.Arch);
-          Folder.create(lTargetFolderForArch);
+          Folder.Create(lTargetFolderForArch);
 
           var lFrameworks := new List<String>();
           for each f2 in lFrameworksFolders do begin
