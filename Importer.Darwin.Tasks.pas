@@ -50,11 +50,12 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode11_4_Beta(2);
+      ImportXcode11_4;
     end;
 
     method ImportAllXcodes;
     begin
+      ImportXcode11_4;
       ImportXcode10_3;
       ImportXcode10_2;
       ImportXcode10_1;
@@ -75,6 +76,26 @@ type
       Darwin.watchOSVersion := "6.2";
       Darwin.DriverKitVersion := "19.0";
       Darwin.BetaSuffix := $"Xcode 11.4 Beta {aBeta}";
+
+      ImportMacOSSDK();
+      ImportIOSSDK();
+      ImportUIKitForMac();
+      ImportTvOSSDK();
+      ImportWatchOSSDK();
+
+      //ImportDriverKitSDK();
+    end;
+
+
+    method ImportXcode11_4;
+    begin
+      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.4-GM.app/Contents/Developer";
+      Darwin.macOSVersion := "10.15";
+      Darwin.iOSVersion := "13.4";
+      Darwin.tvOSVersion := "13.4";
+      Darwin.watchOSVersion := "6.2";
+      Darwin.DriverKitVersion := "19.0";
+      Darwin.BetaSuffix := $"Xcode 11.4";
 
       ImportMacOSSDK();
       ImportIOSSDK();
