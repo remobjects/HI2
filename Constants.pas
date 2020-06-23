@@ -79,13 +79,14 @@ type
     const tvOSEnvironmentVersionDefine    = '__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__';
     const watchOSEnvironmentVersionDefine = '__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__';
 
-    const UIKitForMacDeploymentTargets =   "13.0";
-    const macOSDeploymentTargets =   "10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
-    const iOSDeploymentTargets =     "13.0;12.0;11.0;10.0;9.0;8.0";
-    const tvOSDeploymentTargets =    "13.0;12.0;11.0;10.0;9.0";
-    const watchOSDeploymentTargets = "6.0;5.0;4.0;3.0;2.0";
+    const UIKitForMacDeploymentTargets =   "14.0;13.0";
+    const macOSDeploymentTargets =   "11.0;10.16;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
+    const iOSDeploymentTargets =     "14.0;13.0;12.0;11.0;10.0;9.0;8.0";
+    const tvOSDeploymentTargets =    "14.0;13.0;12.0;11.0;10.0;9.0";
+    const watchOSDeploymentTargets = "7.0;6.0;5.0;4.0;3.0;2.0";
 
     const MIN_MACOS_VERSION_FOR_ARM64   = "11.0";
+    const MAX_MACOS_VERSION_FOR_X86_64  = "1000.0";
 
     const MIN_IOS_VERSION_FOR_ARMV7S    = "6.0";
     const MIN_IOS_VERSION_FOR_ARM64     = "7.0";
@@ -119,6 +120,9 @@ type
 
     property iOS32: Boolean read Toffee or (iOSVersion.CompareVersionTripleTo(MAX_IOS_VERSION_FOR_ARM_32BIT) ≤ 0);
     property iOS64: Boolean read iOSVersion.CompareVersionTripleTo(MIN_IOS_VERSION_FOR_ARM64) ≥ 0;
+
+    property macOS_Intel: Boolean read macOSVersion.CompareVersionTripleTo(MAX_MACOS_VERSION_FOR_X86_64) ≤ 0;
+    property macOS_ARM: Boolean read macOSVersion.CompareVersionTripleTo(MIN_MACOS_VERSION_FOR_ARM64) ≥ 0;
 
     method CalculateIntegerVersion(aName: String; aVersion: String): String;
     begin
@@ -215,9 +219,10 @@ type
 
     method macOSArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
-      if (macOSVersion.CompareVersionTripleTo(MIN_MACOS_VERSION_FOR_ARM64) ≥ 0) and iOS32 then
+      if macOS_ARM then
         yield (Architecture_macOS_arm64, macOSVersion);
-      yield (Architecture_macOS_x86_64, macOSVersion);
+      if macOS_Intel then
+        yield (Architecture_macOS_x86_64, macOSVersion);
     end;
 
     method iOSArchitectures: sequence of tuple of (Architecture, String); iterator;
