@@ -27,20 +27,22 @@ type
   private
 
     const _definesShared = "_USE_EXTENDED_LOCALES_;__LITTLE_ENDIAN__;__APPLE__;__APPLE_CC__;__MACH__;__GNUC__=4;__GNUC_MINOR__=2;__OBJC__;__OBJC2__;__STDC__=1;JSC_OBJC_API_ENABLED;WK_API_ENABLED;OS_OBJECT_USE_OBJC;OS_OBJECT_HAVE_OBJC_SUPPORT";
-    const _macOSdefines64 =        _definesShared+";__x86_64__;__LP64__=1;__SSE__;__SSE2__;IOKIT;CPU64";
+    const _macOSdefines_x64 =      _definesShared+";__x86_64__;__LP64__=1;__SSE__;__SSE2__;IOKIT;CPU64";
+    const _macOSdefines_arm64 =    _definesShared+";__arm__;__arm64__;__LP64__=1;ARM;ARM64;CPU64"; {$HINT GUESSWORK}
     const _iOSDefines32 =          _definesShared+";__arm__;ARM;CPU32;";
     const _iOSDefines64 =          _definesShared+";__arm__;__arm64__;__LP64__=1;ARM;ARM64;CPU64";
     const _watchOSDefines64 =      _definesShared+";__arm__;__arm64_32__;ARM;ARM64;";
     const _iOSDefinesSimulator32 = _definesShared+";__i386__;__SSE__;__SSE2__;CPU32";
-    const _iOSDefinesSimulator64 = _macOSdefines64;
+    const _iOSDefinesSimulator64 = _macOSdefines_x64;
 
     const cpuType_Penryn = "penryn";
 
   public
     const AVAILABILITY_HACK = ";__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_13=;__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_14=;__AVAILABILITY_INTERNAL__MAC_10_4_DEP__MAC_10_15=";
 
-    const macOSDefines64 =            _macOSdefines64+";OSX;MACOS;MAC;DEVICE";//+AVAILABILITY_HACK;
-    const UIKitForMacDefines64 =      _macOSdefines64+";IOS;DEVICE;UIKITFORMAC;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
+    const macOSDefines_x64 =          _macOSdefines_x64+";OSX;MACOS;MAC;DEVICE";//+AVAILABILITY_HACK;
+    const macOSDefines_arm64 =        _macOSdefines_arm64+";OSX;MACOS;MAC;DEVICE";//+AVAILABILITY_HACK;
+    const UIKitForMacDefines64 =      _macOSdefines_x64+";IOS;DEVICE;UIKITFORMAC;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
     const iOSDefines32 =              _iOSDefines32+";IOS;DEVICE;";
     const iOSDefines64 =              _iOSDefines64+";IOS;DEVICE;";
     const watchOSDefines32 =          _iOSDefines32+";WATCHOS;DEVICE";
@@ -56,8 +58,9 @@ type
     const ExtraDefinesIsland = ";DARWIN;__ELEMENTS;__ISLAND__;POSIX";
 
     property Architecture_UIKitForMac_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-ios-macabi", Defines := UIKitForMacDefines64,      SDKName := "iOS",                        Environment := "macabi",     CpuType := cpuType_Penryn);
-    property Architecture_DriverKit_x86_64        : Architecture read new Architecture(Triple := "x86_64-apple-macosx",     Defines := macOSDefines64,            SDKName := "macOS", OS := "DriverKit",                                CpuType := cpuType_Penryn);
-    property Architecture_macOS_x86_64            : Architecture read new Architecture(Triple := "x86_64-apple-macosx",     Defines := macOSDefines64,            SDKName := "macOS",                                                   CpuType := cpuType_Penryn);
+    property Architecture_DriverKit_x86_64        : Architecture read new Architecture(Triple := "x86_64-apple-macosx",     Defines := macOSDefines_x64,          SDKName := "macOS", OS := "DriverKit",                                CpuType := cpuType_Penryn);
+    property Architecture_macOS_x86_64            : Architecture read new Architecture(Triple := "x86_64-apple-macosx",     Defines := macOSDefines_x64,          SDKName := "macOS",                                                   CpuType := cpuType_Penryn);
+    property Architecture_macOS_arm64             : Architecture read new Architecture(Triple := "arm64-apple-macosx",      Defines := macOSDefines_arm64,        SDKName := "macOS"); {$HINT GUESSWORK}
     property Architecture_iOS_armv7               : Architecture read new Architecture(Triple := "armv7-apple-ios",         Defines := iOSDefines32,              SDKName := "iOS");
     property Architecture_iOS_armv7s              : Architecture read new Architecture(Triple := "armv7s-apple-ios",        Defines := iOSDefines32,              SDKName := "iOS",                                                                                MinimumTargetSDK := "6.0");
     property Architecture_iOS_arm64               : Architecture read new Architecture(Triple := "arm64-apple-ios",         Defines := iOSDefines64,              SDKName := "iOS",                                                                                MinimumTargetSDK := "6.0",  MinimumDeploymentTarget := "6.0");
@@ -81,6 +84,8 @@ type
     const iOSDeploymentTargets =     "13.0;12.0;11.0;10.0;9.0;8.0";
     const tvOSDeploymentTargets =    "13.0;12.0;11.0;10.0;9.0";
     const watchOSDeploymentTargets = "6.0;5.0;4.0;3.0;2.0";
+
+    const MIN_MACOS_VERSION_FOR_ARM64   = "11.0";
 
     const MIN_IOS_VERSION_FOR_ARMV7S    = "6.0";
     const MIN_IOS_VERSION_FOR_ARM64     = "7.0";
@@ -182,6 +187,7 @@ type
 
     method AllIslandDarwinArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
+      yield (Architecture_macOS_arm64, macOSVersion);
       yield (Architecture_macOS_x86_64, macOSVersion);
       yield (Architecture_UIKitForMac_x86_64, iOSVersion);
       //yield (Architecture_iOS_armv7, iOSVersion);
@@ -209,6 +215,8 @@ type
 
     method macOSArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
+      if (macOSVersion.CompareVersionTripleTo(MIN_MACOS_VERSION_FOR_ARM64) ≥ 0) and iOS32 then
+        yield (Architecture_macOS_arm64, macOSVersion);
       yield (Architecture_macOS_x86_64, macOSVersion);
     end;
 

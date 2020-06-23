@@ -16,7 +16,7 @@ type
       //SwiftOnly := true;
       SkipSwift := true;
 
-      //SkipDeploymentTargets := true;
+      SkipDeploymentTargets := true;
       //SkipSimulator := true;
       //SkipMacOS := true;
       //SkipMacCatalyst := true;
@@ -25,7 +25,7 @@ type
       //SkipWatchOS := true;
 
       ImportToffeeSDKs;
-      ImportIslandSDKs;
+      //ImportIslandSDKs;
     end;
 
     //
@@ -50,7 +50,8 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode11_5/*_Beta(1)*/;
+      //ImportXcode11_5/*_Beta(1)*/;
+      ImportXcode12_0_BetaWithArm(1);
     end;
 
     method ImportAllXcodes;
@@ -66,6 +67,25 @@ type
     //
     //
     //
+
+    method ImportXcode12_0_BetaWithArm(aBeta: Integer);
+    begin
+      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-12-Beta{aBeta}-with-ARM.app/Contents/Developer";
+      Darwin.macOSVersion := "11.0";
+      Darwin.iOSVersion := "14.0";
+      Darwin.tvOSVersion := "14.0";
+      Darwin.watchOSVersion := "7.0";
+      Darwin.DriverKitVersion := "20.0";
+      Darwin.BetaSuffix := $"Xcode 12 Beta {aBeta}";
+
+      ImportMacOSSDK();
+      ImportIOSSDK();
+      ImportUIKitForMac();
+      ImportTvOSSDK();
+      ImportWatchOSSDK();
+
+      //ImportDriverKitSDK();
+    end;
 
     method ImportXcode12_0_Beta(aBeta: Integer);
     begin
