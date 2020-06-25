@@ -13,6 +13,7 @@ type
     property SDKsBaseFolder: String read if Darwin.Island then Path.Combine(BaseFolder, "Darwin") else BaseFolder;
 
     property SkipDeploymentTargets := false;
+    property SkipNonEssentialFrameworks := false;
     property SkipSwift := false;
     property SwiftOnly := false;
 
@@ -100,14 +101,6 @@ type
         "watchOS": if aSimulator then Darwin.watchOSSimulatorArchitectures else Darwin.watchOSArchitectures;
       end;
 
-      var lDeploymentTargets := case aName of
-        "macOS": Darwin.macOSDeploymentTargets;
-        "UIKitForMac": Darwin.UIKitForMacDeploymentTargets;
-        "iOS": Darwin.iOSDeploymentTargets;
-        "tvOS": Darwin.tvOSDeploymentTargets;
-        "watchOS": Darwin.watchOSDeploymentTargets;
-      end;
-
       method DefinesForVersion(v: String): String;
       begin
         var lEnvironmentVersionDefine := case aName of
@@ -155,9 +148,9 @@ type
       end;
 
       if not SkipDeploymentTargets then begin
-        for each d in lDeploymentTargets:Split(";") do begin
-          if d.CompareVersionTripleTo(aVersion) < 0 then begin
-            for each (a, nil) in lArchitectures do begin
+        for each (a, nil) in lArchitectures do begin
+          for each d in Darwin.DeploymentTargets(aName, a.Arch):Split(";") do begin
+            if d.CompareVersionTripleTo(aVersion) < 0 then begin
               if not assigned(a.MinimumDeploymentTarget) or (a.MinimumDeploymentTarget.CompareVersionTripleTo(d) ≤ 0) then begin
                 var lDefines := a.Defines+";"+DefinesForVersion(d);
 
@@ -203,6 +196,12 @@ type
             for each f in Folder.GetSubfolders(f2) do begin
               if f.PathExtension = ".framework" then begin
                 var lFrameworkName := f.LastPathComponentWithoutExtension;
+
+                if SkipNonEssentialFrameworks and (lFrameworkName not in Darwin.EssentialFrameworks) then begin
+                  writeLn($"Skipping {lFrameworkName}, it's non-essential");
+                  continue;
+                end;
+
                 if not lFrameworks.Contains(lFrameworkName) and not Darwin.IsInBlacklist(Darwin.FrameworksBlackList, lFrameworkName, lShortVersion, a) then
                   lFrameworks.Add(lFrameworkName);
               end;

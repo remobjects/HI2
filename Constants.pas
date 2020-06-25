@@ -80,10 +80,25 @@ type
     const watchOSEnvironmentVersionDefine = '__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__';
 
     const UIKitForMacDeploymentTargets =   "14.0;13.0";
-    const macOSDeploymentTargets =   "11.0;10.16;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
+    const macOSDeploymentTargets_x86_64 =   "11.0;10.16;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
+    const macOSDeploymentTargets_arm64 =   "11.0";
     const iOSDeploymentTargets =     "14.0;13.0;12.0;11.0;10.0;9.0;8.0";
     const tvOSDeploymentTargets =    "14.0;13.0;12.0;11.0;10.0;9.0";
     const watchOSDeploymentTargets = "7.0;6.0;5.0;4.0;3.0;2.0";
+
+    method DeploymentTargets(aSDK: String; aArchitecture: String): String;
+    begin
+      result := case aSDK of
+        "macOS": case aArchitecture of
+            "arm64": macOSDeploymentTargets_arm64;
+            "x86_64": macOSDeploymentTargets_x86_64;
+          end;
+        "UIKitForMac": UIKitForMacDeploymentTargets;
+        "iOS": iOSDeploymentTargets;
+        "tvOS": tvOSDeploymentTargets;
+        "watchOS": watchOSDeploymentTargets;
+      end;
+    end;
 
     const MIN_MACOS_VERSION_FOR_ARM64   = "11.0";
     const MAX_MACOS_VERSION_FOR_X86_64  = "1000.0";
@@ -95,13 +110,13 @@ type
 
     const MIN_WATCHOS_VERSION_FOR_ARM64 = "5.0";
 
-    const macOSCurrentVersion = "10.15";
-    const iOSCurrentVersion = "13.0";
-    const tvOSCurrentVersion = "13.0";
-    const watchOSCurrentVersion = "6.0";
+    const macOSCurrentVersion = "11.0";
+    const iOSCurrentVersion = "13.5";
+    const tvOSCurrentVersion = "13.4";
+    const watchOSCurrentVersion = "6.2";
     const driverKitCurrentVersion = "19.0";
 
-    const xcodeCurrentVersion = "10.0"; // 2018
+    const xcodeCurrentVersion = "12.0"; // 2018
 
     // Ovverride these values to control what Xcode ansd SDK Versions to use
     property macOSVersion: String := macOSCurrentVersion;

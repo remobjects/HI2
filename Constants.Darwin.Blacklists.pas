@@ -6,6 +6,13 @@ type
   protected
   public
 
+    property EssentialFrameworks := ["CoreFoundation",
+                                     "Foundation",
+
+                                     "AppKit",
+
+                                     "UIKit"];
+
     property IncludeHeaderBlackList := [
                 "sys/_symbol_aliasing.h",
                 "sys/_posix_availability.h",
@@ -146,6 +153,13 @@ type
                   'PCIDriverKit', //83882: HI: breakage with Xcode 11.4
 
                   'IOKit', // Error   IOKit/IORPC.h - IOKit/IORPC.h (5902) opening brace expected Identifier (IORPCMessage)
+
+                  // macOS 11
+                  'GameController',     //GameController.h - GameController/GCPhysicalInputProfile.h (89277) One of semicolon, comma, (eof) expected Identifier (GCControllerButtonInput)
+                  'GameKit',            //GameKit.h - GameController/GCPhysicalInputProfile.h (89758) One of semicolon, comma, (eof) expected Identifier (GCControllerButtonInput)
+                  'Hypervisor',         //Hypervisor.h - Hypervisor/hv_vm.h (5435) Declaration expected Identifier (hv_vm_config_t)
+                  'MetalPerformanceShadersGraph', // guessing...
+
 
                   ].ToList; readonly;
 
