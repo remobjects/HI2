@@ -16,7 +16,7 @@ type
       //SwiftOnly := true;
       SkipSwift := true;
 
-      SkipDeploymentTargets := true;
+      //SkipDeploymentTargets := true;
       //SkipNonEssentialFrameworks := true;
       //SkipSimulator := true;
       //SkipMacOS := true;
@@ -27,6 +27,13 @@ type
 
       ImportToffeeSDKs;
       ImportIslandSDKs;
+    end;
+
+    method ImportCurrentXcode;
+    begin
+      //ImportXcode11_5/*_Beta(1)*/;
+      ImportXcode12_0_BetaWithArm(2);
+      ImportXcode12_0_Beta(2);
     end;
 
     //
@@ -47,12 +54,6 @@ type
       Darwin.Island := true;
       BaseFolder := Path.Combine(FrameworksFolder, "Island");
       ImportCurrentXcode();
-    end;
-
-    method ImportCurrentXcode;
-    begin
-      //ImportXcode11_5/*_Beta(1)*/;
-      ImportXcode12_0_BetaWithArm(1);
     end;
 
     method ImportAllXcodes;
