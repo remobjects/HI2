@@ -78,7 +78,12 @@ type
                 "Accelerate/vecLib/LinearAlgebra/linear_systems.h",
                 "Accelerate/vecLib/LinearAlgebra/norms.h",
 
-                "Foundation/FoundationLegacySwiftCompatibility.h"
+                "Foundation/FoundationLegacySwiftCompatibility.h",
+
+                // these three we import as separate .fx; not blacklisting them here will confuse HI later.
+                "sqlite3.h",
+                "zlib.h",
+                "zconf.h",
 
                 //"10.6:xpc/xpc.h"
                 ].ToList; readonly;
