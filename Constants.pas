@@ -117,12 +117,11 @@ type
     const MIN_WATCHOS_VERSION_FOR_ARM64 = "5.0";
 
     const macOSCurrentVersion = "11.0";
-    const iOSCurrentVersion = "13.5";
-    const tvOSCurrentVersion = "13.4";
-    const watchOSCurrentVersion = "6.2";
-    const driverKitCurrentVersion = "19.0";
-
-    const xcodeCurrentVersion = "12.0"; // 2018
+    const iOSCurrentVersion = "14.0";
+    const tvOSCurrentVersion = "14.0";
+    const watchOSCurrentVersion = "7.0";
+    const driverKitCurrentVersion = "20.0";
+    const xcodeCurrentVersion = "12.0";
 
     // Ovverride these values to control what Xcode ansd SDK Versions to use
     property macOSVersion: String := macOSCurrentVersion;
