@@ -78,7 +78,7 @@ type
       Darwin.BetaSuffix := $"Xcode 12 Beta {aBeta}";
       ImportMacOSSDK();
       ImportIOSSDK();
-      ImportUIKitForMac();
+      ImportMacCatalyst();
     end;
 
     method ImportXcode12_0_Beta(aBeta: Integer);
@@ -110,7 +110,7 @@ type
 
       //ImportMacOSSDK();
       //ImportIOSSDK();
-      //ImportUIKitForMac();
+      //ImportMacCatalyst();
       //ImportTvOSSDK();
       //ImportWatchOSSDK();
 
@@ -129,7 +129,7 @@ type
 
       ImportMacOSSDK();
       ImportIOSSDK();
-      ImportUIKitForMac();
+      ImportMacCatalyst();
       ImportTvOSSDK();
       ImportWatchOSSDK();
 
@@ -148,7 +148,7 @@ type
 
       ImportMacOSSDK();
       ImportIOSSDK();
-      ImportUIKitForMac();
+      ImportMacCatalyst();
       ImportTvOSSDK();
       ImportWatchOSSDK();
 
@@ -167,7 +167,7 @@ type
 
       ImportMacOSSDK();
       ImportIOSSDK();
-      ImportUIKitForMac();
+      ImportMacCatalyst();
       ImportTvOSSDK();
       ImportWatchOSSDK();
 
@@ -186,7 +186,7 @@ type
 
       ImportMacOSSDK();
       ImportIOSSDK();
-      ImportUIKitForMac();
+      ImportMacCatalyst();
       ImportTvOSSDK();
       ImportWatchOSSDK();
 
@@ -205,7 +205,7 @@ type
 
       ImportMacOSSDK();
       ImportIOSSDK();
-      ImportUIKitForMac();
+      ImportMacCatalyst();
       ImportTvOSSDK();
       ImportWatchOSSDK();
 
@@ -224,7 +224,7 @@ type
 
       ImportMacOSSDK();
       ImportIOSSDK();
-      ImportUIKitForMac();
+      ImportMacCatalyst();
       ImportTvOSSDK();
       ImportWatchOSSDK();
 

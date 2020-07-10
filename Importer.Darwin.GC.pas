@@ -71,7 +71,7 @@ type
         lSDK := lSDK+" Simulator";
         lSDKName := lSDKName+" Simulator";
       end
-      else if aArchitecture.UIKitForMac then begin
+      else if aArchitecture.MacCatalyst then begin
         //lSDK := "UIKit for Mac "+aVersion;
         lSDKName := "UIKit for Mac";
       end;

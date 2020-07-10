@@ -37,7 +37,7 @@ type
       end;
     end;
 
-    method ImportUIKitForMac();
+    method ImportMacCatalyst();
     begin
       if not SkipMacCatalyst then begin
         ImportSDK("Mac Catalyst", Darwin.iOSVersion) RootSDK("macOS", Darwin.macOSVersion);
@@ -94,7 +94,7 @@ type
 
       var lArchitectures := case aName of
         "macOS": Darwin.macOSArchitectures;
-        "Mac Catalyst": Darwin.UIKitForMacArchitectures;
+        "Mac Catalyst": Darwin.MacCatalystArchitectures;
         "DriverKit": Darwin.DriverKitArchitectures;
         "iOS": if aSimulator then Darwin.iOSSimulatorArchitectures else Darwin.iOSArchitectures;
         "tvOS": if aSimulator then Darwin.tvOSSimulatorArchitectures else Darwin.tvOSArchitectures;

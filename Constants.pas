@@ -20,7 +20,7 @@ type
     Environment: String;
 
     property DisplaySDKName: String read if OS = "DriverKit" then OS else if Environment = "macabi" then "Mac Catalyst" else SDKName;
-    property UIKitForMac: Boolean read Environment = "macabi";
+    property MacCatalyst: Boolean read Environment = "macabi";
   end;
 
   Darwin = public static partial class
@@ -42,8 +42,8 @@ type
 
     const macOSDefines_x64 =          _macOSdefines_x64+";OSX;MACOS;MAC;DEVICE";//+AVAILABILITY_HACK;
     const macOSDefines_arm64 =        _macOSdefines_arm64+";OSX;MACOS;MAC;DEVICE";//+AVAILABILITY_HACK;
-    const UIKitForMacDefines_x64 =    _macOSdefines_x64+";IOS;DEVICE;UIKITFORMAC;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
-    const UIKitForMacDefines_arm64 =  _macOSdefines_arm64+";IOS;DEVICE;UIKITFORMAC;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
+    const MacCatalystDefines_x64 =    _macOSdefines_x64+";IOS;DEVICE;UIKITFORMAC;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
+    const MacCatalystDefines_arm64 =  _macOSdefines_arm64+";IOS;DEVICE;UIKITFORMAC;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
     const iOSDefines32 =              _iOSDefines32+";IOS;DEVICE;";
     const iOSDefines64 =              _iOSDefines64+";IOS;DEVICE;";
     const watchOSDefines32 =          _iOSDefines32+";WATCHOS;DEVICE";
@@ -58,8 +58,8 @@ type
     const ExtraDefinesToffee = ";DARWIN;__ELEMENTS;__TOFFEE__";
     const ExtraDefinesIsland = ";DARWIN;__ELEMENTS;__ISLAND__;POSIX";
 
-    property Architecture_UIKitForMac_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-ios-macabi", Defines := UIKitForMacDefines_x64,    SDKName := "iOS",                        Environment := "macabi",     CpuType := cpuType_Penryn);
-    property Architecture_UIKitForMac_arm64       : Architecture read new Architecture(Triple := "arm64-apple-ios-macabi",  Defines := UIKitForMacDefines_arm64,  SDKName := "iOS",                        Environment := "macabi");
+    property Architecture_MacCatalyst_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-ios-macabi", Defines := MacCatalystDefines_x64,    SDKName := "iOS",                        Environment := "macabi",     CpuType := cpuType_Penryn);
+    property Architecture_MacCatalyst_arm64       : Architecture read new Architecture(Triple := "arm64-apple-ios-macabi",  Defines := MacCatalystDefines_arm64,  SDKName := "iOS",                        Environment := "macabi");
     property Architecture_DriverKit_x86_64        : Architecture read new Architecture(Triple := "x86_64-apple-macosx",     Defines := macOSDefines_x64,          SDKName := "macOS", OS := "DriverKit",                                CpuType := cpuType_Penryn);
     property Architecture_macOS_x86_64            : Architecture read new Architecture(Triple := "x86_64-apple-macosx",     Defines := macOSDefines_x64,          SDKName := "macOS",                                                   CpuType := cpuType_Penryn);
     property Architecture_macOS_arm64             : Architecture read new Architecture(Triple := "arm64-apple-macosx",      Defines := macOSDefines_arm64,        SDKName := "macOS");
@@ -215,7 +215,7 @@ type
     begin
       yield (Architecture_macOS_arm64, macOSVersion);
       yield (Architecture_macOS_x86_64, macOSVersion);
-      yield (Architecture_UIKitForMac_x86_64, iOSVersion);
+      yield (Architecture_MacCatalyst_x86_64, iOSVersion);
       //yield (Architecture_iOS_armv7, iOSVersion);
       //yield (Architecture_iOS_armv7s, iOSVersion);
       yield (Architecture_iOS_arm64, iOSVersion);
@@ -229,12 +229,12 @@ type
       yield (Architecture_watchOSSimulator_x86_64, watchOSVersion);
     end;
 
-    method UIKitForMacArchitectures: sequence of tuple of (Architecture, String); iterator;
+    method MacCatalystArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
       if macCatalyst_ARM then
-        yield (Architecture_UIKitForMac_arm64, macOSVersion);
+        yield (Architecture_MacCatalyst_arm64, macOSVersion);
       if macCatalyst_Intel then
-        yield (Architecture_UIKitForMac_x86_64, macOSVersion);
+        yield (Architecture_MacCatalyst_x86_64, macOSVersion);
     end;
 
     method DriverKitArchitectures: sequence of tuple of (Architecture, String); iterator;
