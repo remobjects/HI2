@@ -216,6 +216,7 @@ type
       yield (Architecture_macOS_arm64, macOSVersion);
       yield (Architecture_macOS_x86_64, macOSVersion);
       yield (Architecture_MacCatalyst_x86_64, iOSVersion);
+      yield (Architecture_MacCatalyst_arm64, iOSVersion);
       //yield (Architecture_iOS_armv7, iOSVersion);
       //yield (Architecture_iOS_armv7s, iOSVersion);
       yield (Architecture_iOS_arm64, iOSVersion);
