@@ -19,7 +19,7 @@ type
     OS: String;
     Environment: String;
 
-    property DisplaySDKName: String read if OS = "DriverKit" then OS else if Environment = "macabi" then "UIKitForMac" else SDKName;
+    property DisplaySDKName: String read if OS = "DriverKit" then OS else if Environment = "macabi" then "Mac Catalyst" else SDKName;
     property UIKitForMac: Boolean read Environment = "macabi";
   end;
 
@@ -42,7 +42,8 @@ type
 
     const macOSDefines_x64 =          _macOSdefines_x64+";OSX;MACOS;MAC;DEVICE";//+AVAILABILITY_HACK;
     const macOSDefines_arm64 =        _macOSdefines_arm64+";OSX;MACOS;MAC;DEVICE";//+AVAILABILITY_HACK;
-    const UIKitForMacDefines64 =      _macOSdefines_x64+";IOS;DEVICE;UIKITFORMAC;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
+    const UIKitForMacDefines_x64 =    _macOSdefines_x64+";IOS;DEVICE;UIKITFORMAC;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
+    const UIKitForMacDefines_arm64 =  _macOSdefines_arm64+";IOS;DEVICE;UIKITFORMAC;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
     const iOSDefines32 =              _iOSDefines32+";IOS;DEVICE;";
     const iOSDefines64 =              _iOSDefines64+";IOS;DEVICE;";
     const watchOSDefines32 =          _iOSDefines32+";WATCHOS;DEVICE";
@@ -57,10 +58,11 @@ type
     const ExtraDefinesToffee = ";DARWIN;__ELEMENTS;__TOFFEE__";
     const ExtraDefinesIsland = ";DARWIN;__ELEMENTS;__ISLAND__;POSIX";
 
-    property Architecture_UIKitForMac_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-ios-macabi", Defines := UIKitForMacDefines64,      SDKName := "iOS",                        Environment := "macabi",     CpuType := cpuType_Penryn);
+    property Architecture_UIKitForMac_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-ios-macabi", Defines := UIKitForMacDefines_x64,    SDKName := "iOS",                        Environment := "macabi",     CpuType := cpuType_Penryn);
+    property Architecture_UIKitForMac_arm64       : Architecture read new Architecture(Triple := "arm64-apple-ios-macabi",  Defines := UIKitForMacDefines_arm64,  SDKName := "iOS",                        Environment := "macabi");
     property Architecture_DriverKit_x86_64        : Architecture read new Architecture(Triple := "x86_64-apple-macosx",     Defines := macOSDefines_x64,          SDKName := "macOS", OS := "DriverKit",                                CpuType := cpuType_Penryn);
     property Architecture_macOS_x86_64            : Architecture read new Architecture(Triple := "x86_64-apple-macosx",     Defines := macOSDefines_x64,          SDKName := "macOS",                                                   CpuType := cpuType_Penryn);
-    property Architecture_macOS_arm64             : Architecture read new Architecture(Triple := "arm64-apple-macosx",      Defines := macOSDefines_arm64,        SDKName := "macOS"); {$HINT GUESSWORK}
+    property Architecture_macOS_arm64             : Architecture read new Architecture(Triple := "arm64-apple-macosx",      Defines := macOSDefines_arm64,        SDKName := "macOS");
     property Architecture_iOS_armv7               : Architecture read new Architecture(Triple := "armv7-apple-ios",         Defines := iOSDefines32,              SDKName := "iOS");
     property Architecture_iOS_armv7s              : Architecture read new Architecture(Triple := "armv7s-apple-ios",        Defines := iOSDefines32,              SDKName := "iOS",                                                                                MinimumTargetSDK := "6.0");
     property Architecture_iOS_arm64               : Architecture read new Architecture(Triple := "arm64-apple-ios",         Defines := iOSDefines64,              SDKName := "iOS",                                                                                MinimumTargetSDK := "6.0",  MinimumDeploymentTarget := "6.0");
@@ -79,9 +81,10 @@ type
     const tvOSEnvironmentVersionDefine    = '__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__';
     const watchOSEnvironmentVersionDefine = '__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__';
 
-    const UIKitForMacDeploymentTargets =   "14.0;13.0";
+    const macCatalystDeploymentTargets_x86_64 =   "14.0;13.0";
+    const macCatalystDeploymentTargets_arm64  =   "14.0";
     const macOSDeploymentTargets_x86_64 =   "11.0;10.16;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
-    const macOSDeploymentTargets_arm64 =   "11.0";
+    const macOSDeploymentTargets_arm64 =    "11.0";
     const iOSDeploymentTargets =     "14.0;13.0;12.0;11.0;10.0;9.0;8.0";
     const tvOSDeploymentTargets =    "14.0;13.0;12.0;11.0;10.0;9.0";
     const watchOSDeploymentTargets = "7.0;6.0;5.0;4.0;3.0;2.0";
@@ -93,7 +96,10 @@ type
             "arm64": macOSDeploymentTargets_arm64;
             "x86_64": macOSDeploymentTargets_x86_64;
           end;
-        "UIKitForMac": UIKitForMacDeploymentTargets;
+        "Mac Catalyst": case aArchitecture of
+            "arm64": macCatalystDeploymentTargets_arm64;
+            "x86_64": macCatalystDeploymentTargets_x86_64;
+          end;
         "iOS": iOSDeploymentTargets;
         "tvOS": tvOSDeploymentTargets;
         "watchOS": watchOSDeploymentTargets;
@@ -135,9 +141,10 @@ type
 
     property iOS32: Boolean read Toffee or (iOSVersion.CompareVersionTripleTo(MAX_IOS_VERSION_FOR_ARM_32BIT) ≤ 0);
     property iOS64: Boolean read iOSVersion.CompareVersionTripleTo(MIN_IOS_VERSION_FOR_ARM64) ≥ 0;
-
     property macOS_Intel: Boolean read macOSVersion.CompareVersionTripleTo(MAX_MACOS_VERSION_FOR_X86_64) ≤ 0;
     property macOS_ARM: Boolean read macOSVersion.CompareVersionTripleTo(MIN_MACOS_VERSION_FOR_ARM64) ≥ 0;
+    property macCatalyst_Intel: Boolean read macOS_Intel;
+    property macCatalyst_ARM: Boolean read macOS_ARM;
 
     method CalculateIntegerVersion(aName: String; aVersion: String): String;
     begin
@@ -172,7 +179,7 @@ type
     begin
       result := case aName of
         "macOS": "MacOSX";
-        "UIKitForMac": "MacOSX";
+        "Mac Catalyst": "MacOSX";
         "DriverKit": "MacOSX";
         "iOS": if aSimulator then "iPhoneSimulator" else "iPhoneOS";
         "tvOS": if aSimulator then "AppleTVSimulator" else "AppleTVOS";
@@ -184,7 +191,7 @@ type
     begin
       result := case aName of
         "macOS": "MacOSX";
-        "UIKitForMac": "MacOSX";
+        "Mac Catalyst": "MacOSX";
         "DriverKit": "DriverKit";
         "iOS": if aSimulator then "iPhoneSimulator" else "iPhoneOS";
         "tvOS": if aSimulator then "AppleTVSimulator" else "AppleTVOS";
@@ -224,7 +231,10 @@ type
 
     method UIKitForMacArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
-      yield (Architecture_UIKitForMac_x86_64, macOSVersion);
+      if macCatalyst_ARM then
+        yield (Architecture_UIKitForMac_arm64, macOSVersion);
+      if macCatalyst_Intel then
+        yield (Architecture_UIKitForMac_x86_64, macOSVersion);
     end;
 
     method DriverKitArchitectures: sequence of tuple of (Architecture, String); iterator;
@@ -381,7 +391,7 @@ type
     begin
       var lPerPlatformString := case aArchitecture.SDKName of
         "macOS": forceIncludes_macOS;
-        "UIKitForMac": forceIncludes_macOS;
+        "Mac Catalyst": forceIncludes_macOS;
         "iOS": forceIncludes_iOS;
         "watchOS": forceIncludes_watchOS;
         "tvOS": forceIncludes_tvOS;

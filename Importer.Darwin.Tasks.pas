@@ -74,8 +74,11 @@ type
     begin
       Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-12-Beta{aBeta}-with-ARM.app/Contents/Developer";
       Darwin.macOSVersion := "11.0";
+      Darwin.iOSVersion := "14.0";
       Darwin.BetaSuffix := $"Xcode 12 Beta {aBeta}";
       ImportMacOSSDK();
+      ImportIOSSDK();
+      ImportUIKitForMac();
     end;
 
     method ImportXcode12_0_Beta(aBeta: Integer);
@@ -89,8 +92,6 @@ type
       Darwin.BetaSuffix := $"Xcode 12 Beta {aBeta}";
 
       ImportMacOSSDK();
-      ImportIOSSDK();
-      ImportUIKitForMac();
       ImportTvOSSDK();
       ImportWatchOSSDK();
 

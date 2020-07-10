@@ -40,8 +40,8 @@ type
     method ImportUIKitForMac();
     begin
       if not SkipMacCatalyst then begin
-        ImportSDK("UIKitForMac", Darwin.iOSVersion) RootSDK("macOS", Darwin.macOSVersion);
-        CreateSDKZip("UIKitForMac", Darwin.iOSVersion);
+        ImportSDK("Mac Catalyst", Darwin.iOSVersion) RootSDK("macOS", Darwin.macOSVersion);
+        CreateSDKZip("Mac Catalyst", Darwin.iOSVersion);
       end;
     end;
 
@@ -94,7 +94,7 @@ type
 
       var lArchitectures := case aName of
         "macOS": Darwin.macOSArchitectures;
-        "UIKitForMac": Darwin.UIKitForMacArchitectures;
+        "Mac Catalyst": Darwin.UIKitForMacArchitectures;
         "DriverKit": Darwin.DriverKitArchitectures;
         "iOS": if aSimulator then Darwin.iOSSimulatorArchitectures else Darwin.iOSArchitectures;
         "tvOS": if aSimulator then Darwin.tvOSSimulatorArchitectures else Darwin.tvOSArchitectures;
@@ -105,7 +105,7 @@ type
       begin
         var lEnvironmentVersionDefine := case aName of
           "macOS": Darwin.macOSEnvironmentVersionDefine;
-          "UIKitForMac": Darwin.iOSEnvironmentVersionDefine;
+          "Mac Catalyst": Darwin.iOSEnvironmentVersionDefine;
           "iOS": Darwin.iOSEnvironmentVersionDefine;
           "tvOS": Darwin.tvOSEnvironmentVersionDefine;
           "watchOS": Darwin.watchOSEnvironmentVersionDefine;
@@ -131,18 +131,18 @@ type
 
       var lFrameworksFolders := new List<String>(Path.Combine(lSdkFolder, "System", "Library", "Frameworks"));
       case aName of
-        "UIKitForMac": lFrameworksFolders.Insert(0, Path.Combine(lSdkFolder, "System", "iOSSupport", "System", "Library", "Frameworks"));
+        "Mac Catalyst": lFrameworksFolders.Insert(0, Path.Combine(lSdkFolder, "System", "iOSSupport", "System", "Library", "Frameworks"));
         "DriverKit": lFrameworksFolders.ReplaceAt(0, Path.Combine(lSdkFolder, "System", "DriverKit", "System", "Library", "Frameworks"));
       end;
 
       var lUsrLibFolder := case aName of
-        "UIKitForMac": Path.Combine(lSdkFolder, "System", "iOSSupport", "usr", "lib");
+        "Mac Catalyst": Path.Combine(lSdkFolder, "System", "iOSSupport", "usr", "lib");
         "DriverKit": Path.Combine(lSdkFolder, "System", "DriverKit", "usr", "lib");
         else Path.Combine(lSdkFolder, "usr", "lib");
       end;
 
       var lUsrIncludeFolder := case aName of
-        //"UIKitForMac": Path.Combine(lSdkFolder, "System", "iOSSupport", "usr", "include");
+        //"Mac Catalyst": Path.Combine(lSdkFolder, "System", "iOSSupport", "usr", "include");
         "DriverKit": Path.Combine(lSdkFolder, "System", "DriverKit", "usr", "include");
         else Path.Combine(lSdkFolder, "usr", "include");
       end;
@@ -585,7 +585,7 @@ type
         var lTargetZipName2 := Path.Combine(SDKsBaseFolder, "__Public", lTargetFolderName)+lSuffix+".zip";
         writeLn($"Creating {lTargetZipName}");
         CreateZip(lTargetFolder, lTargetZipName);
-        if aName in ["macOS", "UIKitForMac"] then begin
+        if aName in ["macOS", "Mac Catalyst"] then begin
           File.CopyTo(lTargetZipName, lTargetZipName2);
         end
         else begin
