@@ -42,8 +42,8 @@ type
 
     const macOSDefines_x64 =          _macOSdefines_x64+";OSX;MACOS;MAC;DEVICE";//+AVAILABILITY_HACK;
     const macOSDefines_arm64 =        _macOSdefines_arm64+";OSX;MACOS;MAC;DEVICE";//+AVAILABILITY_HACK;
-    const MacCatalystDefines_x64 =    _macOSdefines_x64+";IOS;UIKITFORMAC;MACCATALYST;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
-    const MacCatalystDefines_arm64 =  _macOSdefines_arm64+";IOS;UIKITFORMAC;MACCATALYST;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
+    const MacCatalystDefines_x64 =    _macOSdefines_x64+";IOS;MACOS;MAC;UIKITFORMAC;MACCATALYST;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
+    const MacCatalystDefines_arm64 =  _macOSdefines_arm64+";IOS;MACOS;MAC;UIKITFORMAC;MACCATALYST;!TARGET_OS_IPHONE=1";//+AVAILABILITY_HACK;
     const iOSDefines32 =              _iOSDefines32+";IOS;DEVICE;";
     const iOSDefines64 =              _iOSDefines64+";IOS;DEVICE;";
     const watchOSDefines32 =          _iOSDefines32+";WATCHOS;DEVICE";
