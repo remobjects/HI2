@@ -175,6 +175,8 @@ type
                 File.Move(Path.Combine(lTargetFolderForArch, "rtl.fx"), Path.Combine(lTargetFolderForArch, $"rtl-{d}.fx"));
                 File.Delete(Path.Combine(lTargetFolderForArch, "Foundation.fx"));
                 File.Delete(Path.Combine(lTargetFolderForArch, "Security.fx"));
+                File.Delete(Path.Combine(lTargetFolderForArch, "StoreKitTest.fx"));
+                File.Delete(Path.Combine(lTargetFolderForArch, "XCTest.fx"));
               end;
             end;
           end;
@@ -249,9 +251,14 @@ type
 
     method Merge(aTargetFolder: String; aArchitectures: ImmutableList<Architecture>);
     begin
-      var fx := Folder.GetFiles(Path.Combine(aTargetFolder, aArchitectures.First.Arch)).Where(f -> f.PathExtension = ".fx").Select(f -> f.LastPathComponent).ToList();
 
-      for each f in fx do begin
+      var lKnownFiles := new List<String>;
+      for each a in aArchitectures do begin
+        var fx := Folder.GetFiles(Path.Combine(aTargetFolder, a.Arch)).Where(f -> f.PathExtension = ".fx").Select(f -> f.LastPathComponent).ToList();
+        lKnownFiles.Add(fx);
+      end;
+
+      for each f in lKnownFiles.Distinct.ToSortedList do begin
         var lArgs := new List<String>;
         lArgs.Add("combine");
         lArgs.Add(Path.Combine(aTargetFolder, f));
