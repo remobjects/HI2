@@ -258,7 +258,7 @@ type
         lKnownFiles.Add(fx);
       end;
 
-      for each f in lKnownFiles.Distinct.ToSortedList do begin
+      for each f in lKnownFiles.Distinct do begin
         var lArgs := new List<String>;
         lArgs.Add("combine");
         lArgs.Add(Path.Combine(aTargetFolder, f));
@@ -278,8 +278,10 @@ type
         else begin
           for each a in aArchitectures do begin
             var f2 := Path.Combine(aTargetFolder, a.Arch, f);
-            if f2.FileExists then
+            if f2.FileExists then begin
               File.CopyTo(f2, Path.Combine(aTargetFolder, f2.LastPathComponent));
+              writeLn($"Copy {f2}");
+            end;
           end;
         end;
       end;
@@ -539,6 +541,7 @@ type
         lArgs.Add("--debug");
 
       RunHI(lArgs);
+      File.Delete(lJsonName);
 
       //if (doDeleteJsonFiles)
         //file.remove(jsonName);
