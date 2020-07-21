@@ -173,10 +173,9 @@ type
                            OutputFolder(lTargetFolderForArch);
 
                 File.Move(Path.Combine(lTargetFolderForArch, "rtl.fx"), Path.Combine(lTargetFolderForArch, $"rtl-{d}.fx"));
-                File.Delete(Path.Combine(lTargetFolderForArch, "Foundation.fx"));
-                File.Delete(Path.Combine(lTargetFolderForArch, "Security.fx"));
-                File.Delete(Path.Combine(lTargetFolderForArch, "StoreKitTest.fx"));
-                File.Delete(Path.Combine(lTargetFolderForArch, "XCTest.fx"));
+                for each f in Folder.GetFiles(lTargetFolderForArch) do
+                  if (f.PathExtension = ".fx") and (not f.LastPathComponent.StartsWith("rtl")) then
+                    File.Delete(f);
               end;
             end;
           end;
