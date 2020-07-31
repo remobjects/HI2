@@ -144,6 +144,7 @@ type
 
                   // Review for Xcode 9.4 (and retest for 10?) Still broken in 11
                   'MetalPerformanceShaders',
+                  'MetalPerformanceShadersGraph', // pulls in MetalPerformanceShaders
 
                   // 10.15 and later, these are C++ so we cannot support them
                   'DriverKit',
@@ -164,8 +165,6 @@ type
                   'GameController',     //GameController.h - GameController/GCPhysicalInputProfile.h (89277) One of semicolon, comma, (eof) expected Identifier (GCControllerButtonInput)
                   'GameKit',            //GameKit.h - GameController/GCPhysicalInputProfile.h (89758) One of semicolon, comma, (eof) expected Identifier (GCControllerButtonInput)
                   'Hypervisor',         //Hypervisor.h - Hypervisor/hv_vm.h (5435) Declaration expected Identifier (hv_vm_config_t)
-                  'MetalPerformanceShadersGraph', // guessing...
-
 
                   ].ToList; readonly;
 

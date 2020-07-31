@@ -61,6 +61,7 @@ type
     property Architecture_MacCatalyst_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-ios-macabi", Defines := MacCatalystDefines_x64,    SDKName := "iOS",                        Environment := "macabi",     CpuType := cpuType_Penryn);
     property Architecture_MacCatalyst_arm64       : Architecture read new Architecture(Triple := "arm64-apple-ios-macabi",  Defines := MacCatalystDefines_arm64,  SDKName := "iOS",                        Environment := "macabi");
     property Architecture_DriverKit_x86_64        : Architecture read new Architecture(Triple := "x86_64-apple-macosx",     Defines := macOSDefines_x64,          SDKName := "macOS", OS := "DriverKit",                                CpuType := cpuType_Penryn);
+    property Architecture_DriverKit_arm64         : Architecture read new Architecture(Triple := "arm64-apple-macosx" ,     Defines := macOSDefines_arm64,        SDKName := "macOS", OS := "DriverKit");
     property Architecture_macOS_x86_64            : Architecture read new Architecture(Triple := "x86_64-apple-macosx",     Defines := macOSDefines_x64,          SDKName := "macOS",                                                   CpuType := cpuType_Penryn);
     property Architecture_macOS_arm64             : Architecture read new Architecture(Triple := "arm64-apple-macosx",      Defines := macOSDefines_arm64,        SDKName := "macOS");
     property Architecture_iOS_armv7               : Architecture read new Architecture(Triple := "armv7-apple-ios",         Defines := iOSDefines32,              SDKName := "iOS");
@@ -83,9 +84,9 @@ type
 
     const macCatalystDeploymentTargets_x86_64 =   "14.0;13.0";
     const macCatalystDeploymentTargets_arm64  =   "14.0";
-    const macOSDeploymentTargets_x86_64 =   "11.0;10.16;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
+    const macOSDeploymentTargets_x86_64 =   "11.0;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
     const macOSDeploymentTargets_arm64 =    "11.0";
-    const iOSDeploymentTargets =     "14.0;13.0;12.0;11.0;10.0;9.0;8.0";
+    const iOSDeploymentTargets =     "14.0;13.0;12.0;11.0;10.0;9.0";
     const tvOSDeploymentTargets =    "14.0;13.0;12.0;11.0;10.0;9.0";
     const watchOSDeploymentTargets = "7.0;6.0;5.0;4.0;3.0;2.0";
 
