@@ -176,7 +176,8 @@ type
             { 'Key': 'SafariServices/SafariServices.h', 'Value': ['UIKit/UIActivity.h'] },
             { 'Key': 'IOKit/hid/IOHIDBase.h', 'Value': [ 'CoreFoundation/CFBase.h'] },
             { 'Key': 'Foundation/NSItemProvider.h', 'Value': [ 'Foundation/NSError.h'] },
-            { 'Key': 'CoreServices/OSServices/Power.h', 'Value': [ 'availability.h','os/availability.h'] }
+            { 'Key': 'CoreServices/OSServices/Power.h', 'Value': [ 'availability.h','os/availability.h'] },
+            { 'Key': 'IOBluetoothUI/IOBluetoothUI.h', 'Value': [ 'availability.h','os/availability.h'] },
             ]".Replace("'",'"');
     var forceIncludes_iOS := "[
             { 'Key': 'GameKit/GameKit.h', 'Value': ['UIKit/UIKit.h', 'OpenGLES/gltypes.h']},
