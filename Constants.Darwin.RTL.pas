@@ -42,6 +42,7 @@ type
                 "sys/ioctl.h",
                 "sys/mount.h",
                 "sys/stat.h",
+                "sys/sysctl.h",
                 "sys/utsname.h",
                 "TargetConditionals.h",
                 "time.h",
