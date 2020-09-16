@@ -32,8 +32,7 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode11_7;
-      //ImportXcode11_7_Beta(1);
+      ImportXcode12_0_GM;
       //ImportXcode12_0_Beta(6);
     end;
 
@@ -81,6 +80,25 @@ type
       //ImportIOSSDK();
       //ImportMacCatalyst();
     //end;
+
+    method ImportXcode12_0_GM;
+    begin
+      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-12-GM.app/Contents/Developer";
+      Darwin.macOSVersion := "10.15";
+      Darwin.iOSVersion := "14.0";
+      Darwin.tvOSVersion := "14.0";
+      Darwin.watchOSVersion := "7.0";
+      Darwin.DriverKitVersion := "20.0";
+      Darwin.BetaSuffix := $"Xcode 12.0";
+
+      ImportMacOSSDK();
+      //ImportMacCatalyst();
+      ImportIOSSDK();
+      ImportTvOSSDK();
+      ImportWatchOSSDK();
+
+      //ImportDriverKitSDK();
+    end;
 
     method ImportXcode12_0_Beta(aBeta: Integer);
     begin
