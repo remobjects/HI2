@@ -13,8 +13,12 @@ type
       writeLn();
 
       var lImporter := new Importer();
-      lImporter.HI := "/Users/mh/Code/Elements/Source/HeaderImporter/Bin/Debug/HeaderImporter.exe";
-      lImporter.FrameworksFolder := "/Users/mh/Code/Elements/Frameworks/";
+      lImporter.CodeFolder := Path.Combine(Environment.UserHomeFolder, "Code/");
+      lImporter.HI := Path.Combine(lImporter.CodeFolder, "Elements/Source/HeaderImporter/Bin/Debug/HeaderImporter.exe");
+      lImporter.FrameworksFolder := Path.Combine(lImporter.CodeFolder, "Elements/Frameworks");
+      lImporter.ApplicationsFolder := Path.Combine(Environment.UserHomeFolder, "Applications");
+      if not lImporter.ApplicationsFolder.FolderExists then
+        lImporter.ApplicationsFolder := "/Applications";
 
       //lImporter.Debug := true;
 

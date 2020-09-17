@@ -7,6 +7,9 @@ type
   Importer = public partial class
   public
 
+    property CodeFolder: String;
+    property ApplicationsFolder: String;
+
     property BaseFolder: String;
     property HI: String;
     property Mono: String;

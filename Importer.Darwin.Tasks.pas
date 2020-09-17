@@ -32,8 +32,8 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode12_0_GM;
-      //ImportXcode12_0_Beta(6);
+      ImportXcode12_2_Beta(1);
+      //ImportXcode12_0_GM;
     end;
 
     //
@@ -70,20 +70,28 @@ type
     //
     //
 
-    //method ImportXcode12_0_BetaWithArm(aBeta: Integer);
-    //begin
-      //Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-12-Beta{aBeta}-with-ARM.app/Contents/Developer";
-      //Darwin.macOSVersion := "11.0";
-      //Darwin.iOSVersion := "14.0";
-      //Darwin.BetaSuffix := $"Xcode 12 Beta {aBeta}";
-      //ImportMacOSSDK();
-      //ImportIOSSDK();
-      //ImportMacCatalyst();
-    //end;
+    method ImportXcode12_2_Beta(aBeta: Integer);
+    begin
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.2-Beta{aBeta}.app/Contents/Developer";
+      Darwin.macOSVersion := "11.0";
+      //Darwin.iOSVersion := "14.2";
+      //Darwin.tvOSVersion := "14.2";
+      //Darwin.watchOSVersion := "7.1";
+      //Darwin.DriverKitVersion := "20.0";
+      Darwin.BetaSuffix := $"Xcode 12.2 Beta {aBeta}";
+
+      ImportMacOSSDK();
+      ImportMacCatalyst();
+      ImportIOSSDK();
+      ImportTvOSSDK();
+      ImportWatchOSSDK();
+
+      //ImportDriverKitSDK();
+    end;
 
     method ImportXcode12_0_GM;
     begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-12-GM.app/Contents/Developer";
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12-GM.app/Contents/Developer";
       Darwin.macOSVersion := "10.15";
       Darwin.iOSVersion := "14.0";
       Darwin.tvOSVersion := "14.0";
@@ -100,28 +108,43 @@ type
       //ImportDriverKitSDK();
     end;
 
-    method ImportXcode12_0_Beta(aBeta: Integer);
-    begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-12-Beta{aBeta}.app/Contents/Developer";
-      Darwin.macOSVersion := "11.0";
-      Darwin.iOSVersion := "14.0";
-      Darwin.tvOSVersion := "14.0";
-      Darwin.watchOSVersion := "7.0";
-      Darwin.DriverKitVersion := "20.0";
-      Darwin.BetaSuffix := $"Xcode 12 Beta {aBeta}";
+    //
+    //
+    //
 
-      ImportMacOSSDK();
-      ImportMacCatalyst();
-      ImportIOSSDK();
-      ImportTvOSSDK();
-      ImportWatchOSSDK();
+    //method ImportXcode12_0_BetaWithArm(aBeta: Integer);
+    //begin
+      //Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12-Beta{aBeta}-with-ARM.app/Contents/Developer";
+      //Darwin.macOSVersion := "11.0";
+      //Darwin.iOSVersion := "14.0";
+      //Darwin.BetaSuffix := $"Xcode 12 Beta {aBeta}";
+      //ImportMacOSSDK();
+      //ImportIOSSDK();
+      //ImportMacCatalyst();
+    //end;
 
-      //ImportDriverKitSDK();
-    end;
+    //method ImportXcode12_0_Beta(aBeta: Integer);
+    //begin
+      //Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12-Beta{aBeta}.app/Contents/Developer";
+      //Darwin.macOSVersion := "11.0";
+      //Darwin.iOSVersion := "14.0";
+      //Darwin.tvOSVersion := "14.0";
+      //Darwin.watchOSVersion := "7.0";
+      //Darwin.DriverKitVersion := "20.0";
+      //Darwin.BetaSuffix := $"Xcode 12 Beta {aBeta}";
+
+      //ImportMacOSSDK();
+      //ImportMacCatalyst();
+      //ImportIOSSDK();
+      //ImportTvOSSDK();
+      //ImportWatchOSSDK();
+
+      ////ImportDriverKitSDK();
+    //end;
 
     method ImportXcode11_7;
     begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.7-GM.app/Contents/Developer";
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-11.7-GM.app/Contents/Developer";
       Darwin.macOSVersion := "10.15";
       Darwin.iOSVersion := "13.7";
       Darwin.tvOSVersion := "13.4";
@@ -138,28 +161,28 @@ type
       //ImportDriverKitSDK();
     end;
 
-    method ImportXcode11_7_Beta(aBeta: Integer);
-    begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.7-Beta{aBeta}.app/Contents/Developer";
-      Darwin.macOSVersion := "10.15";
-      Darwin.iOSVersion := "13.7";
-      Darwin.tvOSVersion := "13.4";
-      Darwin.watchOSVersion := "6.2";
-      Darwin.DriverKitVersion := "19.0";
-      Darwin.BetaSuffix := $"Xcode 11.7 Beta {aBeta}";
+    //method ImportXcode11_7_Beta(aBeta: Integer);
+    //begin
+      //Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-11.7-Beta{aBeta}.app/Contents/Developer";
+      //Darwin.macOSVersion := "10.15";
+      //Darwin.iOSVersion := "13.7";
+      //Darwin.tvOSVersion := "13.4";
+      //Darwin.watchOSVersion := "6.2";
+      //Darwin.DriverKitVersion := "19.0";
+      //Darwin.BetaSuffix := $"Xcode 11.7 Beta {aBeta}";
 
-      //ImportMacOSSDK();
-      ImportMacCatalyst();
-      ImportIOSSDK();
-      //ImportTvOSSDK();
-      //ImportWatchOSSDK();
+      ////ImportMacOSSDK();
+      //ImportMacCatalyst();
+      //ImportIOSSDK();
+      ////ImportTvOSSDK();
+      ////ImportWatchOSSDK();
 
-      //ImportDriverKitSDK();
-    end;
+      ////ImportDriverKitSDK();
+    //end;
 
     method ImportXcode11_6;
     begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.6-GM.app/Contents/Developer";
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-11.6-GM.app/Contents/Developer";
       Darwin.macOSVersion := "10.15";
       Darwin.iOSVersion := "13.6";
       Darwin.tvOSVersion := "13.4";
@@ -178,7 +201,7 @@ type
 
     method ImportXcode11_5;
     begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.5-GM.app/Contents/Developer";
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-11.5-GM.app/Contents/Developer";
       Darwin.macOSVersion := "10.15";
       Darwin.iOSVersion := "13.5";
       Darwin.tvOSVersion := "13.4";
@@ -197,7 +220,7 @@ type
 
     method ImportXcode11_4;
     begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.4-GM.app/Contents/Developer";
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-11.4-GM.app/Contents/Developer";
       Darwin.macOSVersion := "10.15";
       Darwin.iOSVersion := "13.4";
       Darwin.tvOSVersion := "13.4";
@@ -216,7 +239,7 @@ type
 
     method ImportXcode11_3;
     begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.3.1-GM.app/Contents/Developer";
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-11.3.1-GM.app/Contents/Developer";
       Darwin.macOSVersion := "10.15";
       Darwin.iOSVersion := "13.2";
       Darwin.tvOSVersion := "13.2";
@@ -235,7 +258,7 @@ type
 
     method ImportXcode11_2;
     begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.2.1-GM.app/Contents/Developer";
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-11.2.1-GM.app/Contents/Developer";
       Darwin.macOSVersion := "10.15";
       Darwin.iOSVersion := "13.2";
       Darwin.tvOSVersion := "13.2";
@@ -254,7 +277,7 @@ type
 
     method ImportXcode11_1;
     begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.1-GM.app/Contents/Developer";
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-11.1-GM.app/Contents/Developer";
       Darwin.macOSVersion := "10.15";
       Darwin.iOSVersion := "13.1";
       Darwin.tvOSVersion := "13.0";
@@ -273,7 +296,7 @@ type
 
     method ImportXcode11;
     begin
-      Darwin.DeveloperFolder := $"/Users/mh/Applications/Xcode-11.1-GM.app/Contents/Developer";
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-11.1-GM.app/Contents/Developer";
       Darwin.macOSVersion := "10.15";
       Darwin.iOSVersion := "13.0";
       Darwin.tvOSVersion := "13.0";
@@ -292,7 +315,7 @@ type
 
     method ImportXcode10_3;
     begin
-      Darwin.DeveloperFolder := "/Users/mh/Applications/Xcode-10.3.app/Contents/Developer";
+      Darwin.DeveloperFolder := "{ApplicationsFolder}/Xcode-10.3.app/Contents/Developer";
       Darwin.macOSVersion := "10.14.6";
       Darwin.iOSVersion := "12.4";
       Darwin.tvOSVersion := "12.4";
@@ -307,7 +330,7 @@ type
 
     method ImportXcode10_2;
     begin
-      Darwin.DeveloperFolder := "/Users/mh/Applications/Xcode-10.2.app/Contents/Developer";
+      Darwin.DeveloperFolder := "{ApplicationsFolder}/Xcode-10.2.app/Contents/Developer";
       Darwin.macOSVersion := "10.14.4";
       Darwin.iOSVersion := "12.2";
       Darwin.tvOSVersion := "12.2";
@@ -322,7 +345,7 @@ type
 
     method ImportXcode10_1;
     begin
-      Darwin.DeveloperFolder := "/Users/mh/Applications/Xcode-10.1.app/Contents/Developer";
+      Darwin.DeveloperFolder := "{ApplicationsFolder}/Xcode-10.1.app/Contents/Developer";
       Darwin.macOSVersion := "10.14.1";
       Darwin.iOSVersion := "12.1";
       Darwin.tvOSVersion := "12.1";
@@ -337,7 +360,7 @@ type
 
     method ImportXcode10_0;
     begin
-      Darwin.DeveloperFolder := "/Users/mh/Applications/Xcode-10.app/Contents/Developer";
+      Darwin.DeveloperFolder := "{ApplicationsFolder}/Xcode-10.app/Contents/Developer";
       Darwin.macOSVersion := "10.14.0";
       Darwin.iOSVersion := "12.0";
       Darwin.tvOSVersion := "12.0";
@@ -352,7 +375,7 @@ type
 
     method ImportXcode9_4;
     begin
-      Darwin.DeveloperFolder := "/Users/mh/Applications/Xcode-9.4.app/Contents/Developer";
+      Darwin.DeveloperFolder := "{ApplicationsFolder}/Xcode-9.4.app/Contents/Developer";
       Darwin.macOSVersion := "10.13.5";
       Darwin.iOSVersion := "11.4";
       Darwin.tvOSVersion := "11.4";
