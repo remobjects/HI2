@@ -131,14 +131,15 @@ type
 
       var lFrameworksFolders := new List<String>(Path.Combine(lSdkFolder, "System", "Library", "Frameworks"));
       case aName of
-        "Mac Catalyst": lFrameworksFolders.Insert(0, Path.Combine(lSdkFolder, "System", "iOSSupport", "System", "Library", "Frameworks"));
+        "Mac Catalyst": lFrameworksFolders.Insert(0, Path.Combine(lSdkFolder, "System", "iOSSupport", "System", "Library", "Frameworks")); // add as first!!
         "DriverKit": lFrameworksFolders.ReplaceAt(0, Path.Combine(lSdkFolder, "System", "DriverKit", "System", "Library", "Frameworks"));
       end;
 
-      var lUsrLibFolder := case aName of
-        "Mac Catalyst": Path.Combine(lSdkFolder, "System", "iOSSupport", "usr", "lib");
-        "DriverKit": Path.Combine(lSdkFolder, "System", "DriverKit", "usr", "lib");
-        else Path.Combine(lSdkFolder, "usr", "lib");
+      var lUsrLibFolders :=  new List<String>(Path.Combine(lSdkFolder, "usr", "lib"));
+      case aName of
+        "Mac Catalyst": lUsrLibFolders.Add(      Path.Combine(lSdkFolder, "System", "iOSSupport", "usr", "lib")); // add as second!!!
+        "DriverKit": lUsrLibFolders.ReplaceAt(0, Path.Combine(lSdkFolder, "System", "DriverKit", "usr", "lib"));
+        else ;
       end;
 
       var lUsrIncludeFolder := case aName of
@@ -163,7 +164,7 @@ type
 
                 RunHeaderImporterForSDK(lSdkFolder)
                       FrameworksFolders(lFrameworksFolders)
-                           UsrLibFolder(lUsrLibFolder)
+                          UsrLibFolders(lUsrLibFolders)
                        UsrIncludeFolder(lUsrIncludeFolder)
                                 Version(lInternalVersion)
                           VersionString(aVersion+$" ({d})")
@@ -211,7 +212,7 @@ type
 
           RunHeaderImporterForSDK(lSdkFolder)
                 FrameworksFolders(lFrameworksFolders)
-                     UsrLibFolder(lUsrLibFolder)
+                    UsrLibFolders(lUsrLibFolders)
                  UsrIncludeFolder(lUsrIncludeFolder)
                           Version(lInternalVersion)
                           RootSDK(if assigned(aRootSDKName) then aRootSDKName+" "+aRootSDKVersion else nil)
@@ -302,16 +303,16 @@ type
     //
 
     method RunHeaderImporterForSDK(aSDKFolder: String)
-    FrameworksFolders(aFrameworksFolders: List<String>)
-    UsrLibFolder(aUsrLibFolder: String)
-    UsrIncludeFolder(aUsrIncludeFolder: String)
-    Version(aVersion: String)
-    RootSDK(aRootSDK: String := nil)
-    VersionString(aVersionString: String)
-    Architecture(aArchitecture: Architecture)
-    Frameworks(aFrameworks: ImmutableList<String>)
-    Defines(aDefines: String)
-    OutputFolder(aOutputFolder: String);
+                 FrameworksFolders(aFrameworksFolders: List<String>)
+                     UsrLibFolders(aUsrLibFolders: List<String>)
+                  UsrIncludeFolder(aUsrIncludeFolder: String)
+                           Version(aVersion: String)
+                           RootSDK(aRootSDK: String := nil)
+                     VersionString(aVersionString: String)
+                      Architecture(aArchitecture: Architecture)
+                        Frameworks(aFrameworks: ImmutableList<String>)
+                           Defines(aDefines: String)
+                      OutputFolder(aOutputFolder: String);
     begin
       var lShortVersion := Darwin.ShortVersion(aVersion);
       var lDeploymentTargetsOnly := (aFrameworks.Count > 5); // bit of a hack, for now
@@ -359,10 +360,11 @@ type
           var lSwiftInterfaces := Folder.GetFiles(lFrameworkFolder, true).Where(f2 -> f2.PathExtension = ".swiftinterface").ToList;
           if lSwiftInterfaces.Count > 0 then begin
             if Darwin.Toffee then begin
-              writeLn($"Skipping {f.LastPathComponentWithoutExtension}, it's a Swift Framework");
+              writeLn($"Skipping {f.LastPathComponentWithoutExtension} for Toffee, it's a Swift Framework");
               continue;
             end
             else if SkipSwift then begin
+              writeLn($"Skipping {f.LastPathComponentWithoutExtension}, it's a Swift Framework");
               continue;
             end
             else if Darwin.Island then begin
@@ -410,28 +412,35 @@ type
       if not SkipSwift then begin
 
         if Darwin.Island then begin
-          var lSwiftPath := Path.Combine(aUsrLibFolder, "swift");
-          if lSwiftPath.FolderExists then begin
-            for each f in Folder.GetSubfolders(lSwiftPath).Where(f -> f.PathExtension = ".swiftmodule") do begin
+          var lKnownShadowFrameworks := new List<String>;
+          for each ul in aUsrLibFolders.Reverse do begin // for Mac Catalyst, iOSSupport is last, so check that first
+            var lSwiftPath := Path.Combine(ul, "swift");
+            if lSwiftPath.FolderExists then begin
+              for each f in Folder.GetSubfolders(lSwiftPath).Where(f -> f.PathExtension = ".swiftmodule") do begin
 
-              var lName := f.LastPathComponentWithoutExtension;
-              var lShadowFrameworkJson := new JsonObject();
-              lShadowFrameworkJson["Name"] := Path.Combine("Swift", lName);
-              if aFrameworks.Contains(lName) then
-                lShadowFrameworkJson["Shadows"] := lName;
-              lShadowFrameworkJson["Swift"] := "true";
+                var lName := f.LastPathComponentWithoutExtension;
+                if lKnownShadowFrameworks.Contains(lName) then // untested logic, only keep one of each, for Mac Cataltsy;
+                  continue;
+                lKnownShadowFrameworks.Add(lName);
 
-              lShadowFrameworkJson["SwiftModule"] := FixSSDKPath(f);
+                var lShadowFrameworkJson := new JsonObject();
+                lShadowFrameworkJson["Name"] := Path.Combine("Swift", lName);
+                if aFrameworks.Contains(lName) then
+                  lShadowFrameworkJson["Shadows"] := lName;
+                lShadowFrameworkJson["Swift"] := "true";
 
-              var lPath := Path.Combine(f, $"{aArchitecture.Arch}.swiftinterface");
-              if lPath.FileExists then
-                lShadowFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
+                lShadowFrameworkJson["SwiftModule"] := FixSSDKPath(f);
 
-              lPath := Path.Combine(lSwiftPath, $"libswift{lName}.tbd");
-              if lPath.FileExists then
-                lShadowFrameworkJson["SwiftTbd"] := FixSSDKPath(lPath);
+                var lPath := Path.Combine(f, $"{aArchitecture.Arch}.swiftinterface");
+                if lPath.FileExists then
+                  lShadowFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
 
-              lJsonImports.Add(lShadowFrameworkJson);
+                lPath := Path.Combine(lSwiftPath, $"libswift{lName}.tbd");
+                if lPath.FileExists then
+                  lShadowFrameworkJson["SwiftTbd"] := FixSSDKPath(lPath);
+
+                lJsonImports.Add(lShadowFrameworkJson);
+              end;
             end;
           end;
         end;
@@ -534,7 +543,8 @@ type
       //if (more)
         //s += " "+more;
 
-      lArgs.Add($"--libpath="+aUsrLibFolder);
+      for each f in aUsrLibFolders do
+      lArgs.Add($"--libpath="+f);
 
       if Debug then
         lArgs.Add("--debug");
