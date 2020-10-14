@@ -170,6 +170,8 @@ type
                   'arm64-apple-macosx:ClockKit',
                   //'arm64-apple-macosx:Carbon',
 
+                  'Accelerate',
+
                   ].ToList; readonly;
 
   end;

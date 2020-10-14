@@ -41,11 +41,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="RemObjects.Elements.Basics">
-      <HintPath>..\EBuild\Bin\RemObjects.Elements.Basics.dll</HintPath>
+      <HintPath>..\elements\Bin\RemObjects.Elements.Basics.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="RemObjects.Elements.CrossBox">
-      <HintPath>..\EBuild\Bin\RemObjects.Elements.CrossBox.dll</HintPath>
+      <HintPath>..\elements\Bin\RemObjects.Elements.CrossBox.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
