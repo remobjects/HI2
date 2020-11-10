@@ -128,11 +128,11 @@ type
     const MIN_TVOS_VERSION_FOR_ARM64E_SIMULATOR = MIN_IOS_VERSION_FOR_ARM64E_SIMULATOR;
 
     const macOSCurrentVersion = "11.0";
-    const iOSCurrentVersion = "14.0";
-    const tvOSCurrentVersion = "14.0";
-    const watchOSCurrentVersion = "7.0";
+    const iOSCurrentVersion = "14.2";
+    const tvOSCurrentVersion = "14.2";
+    const watchOSCurrentVersion = "7.1";
     const driverKitCurrentVersion = "20.0";
-    const xcodeCurrentVersion = "12.0";
+    const xcodeCurrentVersion = "12.2";
 
     // Ovverride these values to control what Xcode ansd SDK Versions to use
     property macOSVersion: String := macOSCurrentVersion;
@@ -238,12 +238,12 @@ type
       yield (Architecture_iOSSimulator_arm64, iOSVersion);
       yield (Architecture_tvOS_arm64, tvOSVersion);
       yield (Architecture_tvOSSimulator_x86_64, tvOSVersion);
-      yield (Architecture_tvOSSimulator_arm64, iOSVersion);
+      yield (Architecture_tvOSSimulator_arm64, tvOSVersion);
       yield (Architecture_watchOS_armv7k, watchOSVersion);
       yield (Architecture_watchOS_arm64_32, watchOSVersion);
       yield (Architecture_watchOSSimulator_i386, watchOSVersion);
       yield (Architecture_watchOSSimulator_x86_64, watchOSVersion);
-      yield (Architecture_watchOSSimulator_arm64, iOSVersion);
+      yield (Architecture_watchOSSimulator_arm64, watchOSVersion);
     end;
 
     method MacCatalystArchitectures: sequence of tuple of (Architecture, String); iterator;
@@ -298,7 +298,7 @@ type
     begin
       yield (Architecture_tvOSSimulator_x86_64, tvOSVersion);
       if tvOSSimulatorArm then
-        yield (Architecture_tvOSSimulator_arm64, iOSVersion);
+        yield (Architecture_tvOSSimulator_arm64, tvOSVersion);
     end;
 
     method watchOSArchitectures: sequence of tuple of (Architecture, String); iterator;
@@ -314,7 +314,7 @@ type
       if watchOSVersion.CompareVersionTripleTo(MIN_WATCHOS_VERSION_FOR_ARM64) ≥ 0 then
         yield (Architecture_watchOSSimulator_x86_64, watchOSVersion);
       if watchOSSimulatorArm then
-        yield (Architecture_watchOSSimulator_arm64, iOSVersion);
+        yield (Architecture_watchOSSimulator_arm64, watchOSVersion);
     end;
 
     //
