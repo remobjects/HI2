@@ -281,8 +281,8 @@ type
 
     method iOSSimulatorArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
-      if iOS32 then
-        yield (Architecture_iOSSimulator_i386, iOSVersion);
+      //if iOS32 then
+        //yield (Architecture_iOSSimulator_i386, iOSVersion);
       if iOS64 then
         yield (Architecture_iOSSimulator_x86_64, iOSVersion);
       if iOSSimulatorArm then
@@ -310,7 +310,7 @@ type
 
     method watchOSSimulatorArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
-      yield (Architecture_watchOSSimulator_i386, watchOSVersion);
+      //yield (Architecture_watchOSSimulator_i386, watchOSVersion);
       if watchOSVersion.CompareVersionTripleTo(MIN_WATCHOS_VERSION_FOR_ARM64) ≥ 0 then
         yield (Architecture_watchOSSimulator_x86_64, watchOSVersion);
       if watchOSSimulatorArm then
