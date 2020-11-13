@@ -32,8 +32,10 @@ type
 
     method ImportCurrentXcode;
     begin
+      ImportXcode12_3_Beta(1);
+      //ImportXcode12_2;
       //ImportXcode12_2_Beta(3);
-      ImportXcode12_1_GM;
+      //ImportXcode12_1_1_GM;
     end;
 
     //
@@ -70,6 +72,44 @@ type
     //
     //
 
+    method ImportXcode12_3_Beta(aBeta: Integer);
+    begin
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.3-Beta{aBeta}.app/Contents/Developer";
+      Darwin.macOSVersion := "11.1";
+      Darwin.iOSVersion := "14.3";
+      Darwin.tvOSVersion := "14.3";
+      Darwin.watchOSVersion := "7.2";
+      Darwin.DriverKitVersion := "20.0";
+      Darwin.BetaSuffix := $"Xcode 12.3 Beta {aBeta}";
+
+      ImportMacOSSDK();
+      ImportMacCatalyst();
+      ImportIOSSDK();
+      ImportTvOSSDK();
+      ImportWatchOSSDK();
+
+      //ImportDriverKitSDK();
+    end;
+
+    method ImportXcode12_2;
+    begin
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.2-GM.app/Contents/Developer";
+      Darwin.macOSVersion := "11.0";
+      Darwin.iOSVersion := "14.2";
+      Darwin.tvOSVersion := "14.2";
+      Darwin.watchOSVersion := "7.1";
+      Darwin.DriverKitVersion := "20.0";
+      Darwin.BetaSuffix := $"Xcode 12.2";
+
+      ImportMacOSSDK();
+      ImportMacCatalyst();
+      ImportIOSSDK();
+      ImportTvOSSDK();
+      ImportWatchOSSDK();
+
+      //ImportDriverKitSDK();
+    end;
+
     method ImportXcode12_2_Beta(aBeta: Integer);
     begin
       Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.2-Beta{aBeta}.app/Contents/Developer";
@@ -82,6 +122,25 @@ type
 
       ImportMacOSSDK();
       ImportMacCatalyst();
+      ImportIOSSDK();
+      ImportTvOSSDK();
+      ImportWatchOSSDK();
+
+      //ImportDriverKitSDK();
+    end;
+
+    method ImportXcode12_1_1_GM;
+    begin
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.1.1-GM.app/Contents/Developer";
+      Darwin.macOSVersion := "10.15";
+      Darwin.iOSVersion := "14.2";
+      Darwin.tvOSVersion := "14.2";
+      Darwin.watchOSVersion := "7.1";
+      Darwin.DriverKitVersion := "19.0";
+      Darwin.BetaSuffix := $"Xcode 12.1.1";
+
+      ImportMacOSSDK();
+      //ImportMacCatalyst();
       ImportIOSSDK();
       ImportTvOSSDK();
       ImportWatchOSSDK();
