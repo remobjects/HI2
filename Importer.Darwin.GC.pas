@@ -88,18 +88,25 @@ type
       RunHI(lArgs);
 
       if GCBinariesFolder:FolderExists then begin
-        var lBinary := Path.Combine(GCBinariesFolder, "gc-"+aArchitecture.Triple+".a");
-        if lBinary.FileExists then begin
-          writeLn($'lBinary {lBinary}');
-          File.CopyTo(lBinary, Path.Combine(lOutPath, "libgc.a"));
-        end
-        else begin
-          lBinary := Path.Combine(GCBinariesFolder, lSDKName, aArchitecture.Arch, "libgc.a");
+        //var lBinary := Path.Combine(GCBinariesFolder, "gc-"+aArchitecture.OS.ToLower+"-"+(if aArchitecture.Simulator then "-simulator" else "")+aArchitecture.Triple+".a");
+        //writeLn($"checking {lBinary}");
+        //if lBinary.FileExists then begin
+          //writeLn($'lBinary {lBinary}');
+          //File.CopyTo(lBinary, Path.Combine(lOutPath, "libgc.a"));
+        //end
+        /*else*/ begin
+          var lBinary := Path.Combine(GCBinariesFolder, lSDKName, aArchitecture.Arch, "libgc.a");
           if lBinary.FileExists then begin
             File.CopyTo(lBinary, Path.Combine(lOutPath, "libgc.a"));
           end
           else begin
-            writeLn("No binary at "+lBinary);
+            lBinary := Path.Combine(GCBinariesFolder, lSDKName, aArchitecture.Arch, "libgc.a");
+            if lBinary.FileExists then begin
+              File.CopyTo(lBinary, Path.Combine(lOutPath, "libgc.a"));
+            end
+            else begin
+              writeLn("No binary at "+lBinary);
+            end;
           end;
         end;
       end;

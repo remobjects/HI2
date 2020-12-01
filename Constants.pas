@@ -241,7 +241,7 @@ type
       yield (Architecture_tvOSSimulator_arm64, tvOSVersion);
       yield (Architecture_watchOS_armv7k, watchOSVersion);
       yield (Architecture_watchOS_arm64_32, watchOSVersion);
-      yield (Architecture_watchOSSimulator_i386, watchOSVersion);
+      //yield (Architecture_watchOSSimulator_i386, watchOSVersion);
       yield (Architecture_watchOSSimulator_x86_64, watchOSVersion);
       yield (Architecture_watchOSSimulator_arm64, watchOSVersion);
     end;

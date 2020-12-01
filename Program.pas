@@ -26,7 +26,7 @@ type
       begin
         lImporter.GCSourceFolder := "/Users/mh/Code/RemObjects/gc";
         lImporter.GCBinariesFolder := "/Users/mh/Code/Elements/Bin/References/Island";
-        //lImporter.GCBinariesFolder := "/Users/mh/Downloads/gc";
+        //lImporter.GCBinariesFolder := lImporter.GCSourceFolder;
         //lImporter.BaseFolder := Path.Combine(lImporter.FrameworksFolder, "Island");
         lImporter.BaseFolder := Path.Combine("/Users/mh/Code/Elements/Bin/Island SDKs/");
         lImporter.ImportGC();
