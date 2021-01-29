@@ -508,7 +508,7 @@ type
       else if SwiftOnly then
         lSuffix := "swiftonly-";
 
-      var lJsonName := $"import-{Darwin.Mode}-{aArchitecture.DisplaySDKName}{if aArchitecture.Simulator then "-Simulator"}-{aVersionString}-{lSuffix}{aOutputFolder.LastPathComponent}.json";
+      var lJsonName := $"import-{Darwin.Mode}-{aArchitecture.DisplaySDKName}{if aArchitecture.Simulator then "-Simulator" else ""}-{aVersionString}-{lSuffix}{aOutputFolder.LastPathComponent}.json";
       lJsonName := Path.Combine(SDKsBaseFolder, lJsonName);
       File.WriteText(lJsonName, lJsonDocument.ToString());
 
