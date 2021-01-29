@@ -75,12 +75,8 @@ type
     method ImportXcode12_4;
     begin
       Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.4-GM.app/Contents/Developer";
-      Darwin.macOSVersion := "11.1";
-      Darwin.iOSVersion := "14.4";
-      Darwin.tvOSVersion := "14.3";
-      Darwin.watchOSVersion := "7.3";
-      Darwin.DriverKitVersion := "20.2";
       Darwin.BetaSuffix := $"Xcode 12.3";
+      Darwin.LoadVersionsFromXcode();
 
       ImportMacOSSDK();
       ImportMacCatalyst();

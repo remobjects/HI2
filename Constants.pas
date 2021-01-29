@@ -1,6 +1,7 @@
 ﻿namespace RemObjects.Elements.HI2;
 
 uses
+  RemObjects.Elements.RTL,
   RemObjects.Elements.Basics;
 
 type
@@ -459,6 +460,41 @@ type
 
       end;
       result := lResult;
+    end;
+
+    //
+    //
+    //
+
+    method LoadVersionsFromXcode;
+    begin
+
+      method FindVersion(aPrettyName: not nullable String; aName: not nullable String; aParentName: nullable String := nil): String;
+      begin
+        aParentName := coalesce(aParentName, aName);
+        var lPath := Path.Combine(DeveloperFolder, "Platforms", aParentName+".platform", "Developer", "SDKs");
+        if not assigned(lPath) then
+          raise new Exception($"Cannot find any {aPrettyName} SDKs in '{DeveloperFolder}'");
+        var lCandidates := Folder.GetSubfolders(lPath).Where(f -> f.LastPathComponent.StartsWith(aName) and (f.PathExtension = ".sdk"));
+        for each c in lCandidates do begin
+          var v := c.LastPathComponentWithoutExtension;
+          if length(v) > length(aName) then begin
+            v := v.Substring(length(aName));
+            writeLn($"{aPrettyName} {v} in {c}");
+            exit v;
+          end;
+        end;
+        if not assigned(lPath) then
+          raise new Exception($"Cannot determine a {aPrettyName} SDK version in '{lPath}'");
+      end;
+
+      BetaSuffix := $"Xcode 12.3";
+      macOSVersion := FindVersion("macOS", "MacOSX");
+      iOSVersion := FindVersion("iOS", "iPhoneOS");
+      tvOSVersion := FindVersion("tvOS", "AppleTVOS");
+      watchOSVersion := FindVersion("watchOS", "WatchOS");
+      DriverKitVersion := FindVersion("DriverKit", "DriverKit", "MacOSX");
+
     end;
 
   end;
