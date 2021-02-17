@@ -20,10 +20,10 @@ type
       //SkipDeploymentTargets := true;
       //SkipNonEssentialFrameworks := true;
       //SkipSimulator := true;
-      //SkipMacOS := true;
-      //SkipMacCatalyst := true;
-      //SkipIOS := true;
-      //SkipTvOS := true;
+      SkipMacOS := true;
+      SkipMacCatalyst := true;
+      SkipIOS := true;
+      SkipTvOS := true;
       //SkipWatchOS := true;
 
       ImportToffeeSDKs;
@@ -32,10 +32,8 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode12_4;
-      //ImportXcode12_2;
-      //ImportXcode12_2_Beta(3);
-      //ImportXcode12_1_1_GM;
+      // ImportXcode("12.5") Beta(1);
+      ImportXcode("12.4");
     end;
 
     //
@@ -72,10 +70,46 @@ type
     //
     //
 
+    method ImportXcode(aVersion: String) Beta(aBeta: nullable Integer := nil);
+    begin
+      if assigned(aBeta) then begin
+        Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.5-Beta{aBeta}.app/Contents/Developer";
+        Darwin.BetaSuffix := $"Xcode {aVersion} Beta {aBeta}";
+      end
+      else begin
+        Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-{aVersion}.app/Contents/Developer";
+        Darwin.BetaSuffix := $"Xcode {aVersion}";
+      end;
+      Darwin.LoadVersionsFromXcode();
+
+      ImportMacOSSDK();
+      ImportMacCatalyst();
+      ImportIOSSDK();
+      ImportTvOSSDK();
+      ImportWatchOSSDK();
+
+      //ImportDriverKitSDK();
+    end;
+
+    method ImportXcode12_5_Beta(aBeta: Integer);
+    begin
+      Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.5-Beta{aBeta}.app/Contents/Developer";
+      Darwin.BetaSuffix := $"Xcode 12.5 Beta {aBeta}";
+      Darwin.LoadVersionsFromXcode();
+
+      ImportMacOSSDK();
+      ImportMacCatalyst();
+      ImportIOSSDK();
+      ImportTvOSSDK();
+      ImportWatchOSSDK();
+
+      //ImportDriverKitSDK();
+    end;
+
     method ImportXcode12_4;
     begin
       Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.4-GM.app/Contents/Developer";
-      Darwin.BetaSuffix := $"Xcode 12.3";
+      Darwin.BetaSuffix := $"Xcode 12.4";
       Darwin.LoadVersionsFromXcode();
 
       ImportMacOSSDK();
