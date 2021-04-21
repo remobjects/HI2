@@ -20,10 +20,10 @@ type
       //SkipDeploymentTargets := true;
       //SkipNonEssentialFrameworks := true;
       //SkipSimulator := true;
-      SkipMacOS := true;
-      SkipMacCatalyst := true;
-      SkipIOS := true;
-      SkipTvOS := true;
+      //SkipMacOS := true;
+      //SkipMacCatalyst := true;
+      //SkipIOS := true;
+      //SkipTvOS := true;
       //SkipWatchOS := true;
 
       ImportToffeeSDKs;
@@ -32,8 +32,9 @@ type
 
     method ImportCurrentXcode;
     begin
-      // ImportXcode("12.5") Beta(1);
-      ImportXcode("12.4");
+      ImportXcode("12.5") Name("RC");
+      //ImportXcode("12.5") Beta(3);
+      //ImportXcode("12.4");
     end;
 
     //
@@ -70,15 +71,18 @@ type
     //
     //
 
-    method ImportXcode(aVersion: String) Beta(aBeta: nullable Integer := nil);
+    method ImportXcode(aVersion: String) Beta(aBeta: nullable Integer := nil) Name(aName: nullable String:= nil);
     begin
       if assigned(aBeta) then begin
         Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.5-Beta{aBeta}.app/Contents/Developer";
         Darwin.BetaSuffix := $"Xcode {aVersion} Beta {aBeta}";
       end
+      else if assigned(aName) then begin
+        Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.5-{aName}.app/Contents/Developer";
+        Darwin.BetaSuffix := $"Xcode {aVersion} {aName}";
+      end
       else begin
         Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-{aVersion}.app/Contents/Developer";
-        Darwin.BetaSuffix := $"Xcode {aVersion}";
       end;
       Darwin.LoadVersionsFromXcode();
 
