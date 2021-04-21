@@ -187,6 +187,7 @@ type
             { 'Key': 'SceneKit/SceneKit.h', 'Value': [ 'CoreImage/CoreImage.h' ] },
             { 'Key': 'Social/Social.h', 'Value': ['UIKit/UITextView.h']},
             { 'Key': 'ImageCaptureCore/ICDevice.h', 'Value': ['availability.h']}
+            { 'Key': 'SystemConfiguration/SystemConfiguration.h', 'Value': ['SystemConfiguration/CaptiveNetwork.h']}
             ]".Replace("'",'"');
     var forceIncludes_watchOS := forceIncludes_iOS;
     var forceIncludes_tvOS := forceIncludes_iOS;
