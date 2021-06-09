@@ -17,6 +17,8 @@ type
     property SkipSwift := false;
     property SwiftOnly := false;
 
+    property SkipHI := false;
+
     property SkipMacOS := false;
     property SkipMacCatalyst := false;
     property SkipDriverKit := false;
@@ -341,7 +343,7 @@ type
       end;
 
       var lJsonImports := new JsonArray();
-      for each f in aFrameworks do begin
+      for each f in aFrameworks.OrderBy(f -> f.ToLowerInvariant) do begin
 
         var lFrameworkJson := new JsonObject();
         lFrameworkJson["Name"] := f;
@@ -359,7 +361,13 @@ type
           lFrameworkJson["FrameworkPath"] := FixSSDKPath(lFrameworkFolder);
           var lSwiftInterfaces := Folder.GetFiles(lFrameworkFolder, true).Where(f2 -> f2.PathExtension = ".swiftinterface").ToList;
           if lSwiftInterfaces.Count > 0 then begin
-            if Darwin.Toffee then begin
+
+            if f.StartsWith("_") /*and f.EndsWith("_SwiftUI")*/ then begin
+              lFrameworkJson["SwiftHelperFramework"] := true;
+              if Darwin.Toffee or SkipSwift then
+                continue;
+            end
+            else if Darwin.Toffee then begin
               writeLn($"Skipping {f.LastPathComponentWithoutExtension} for Toffee, it's a Swift Framework");
               continue;
             end
@@ -384,6 +392,19 @@ type
           var lApiNotes := Path.Combine(lFrameworkFolder, "Headers", f.LastPathComponentWithoutExtension+".apinotes");
           if lApiNotes.FileExists then
             lFrameworkJson["APINotes"] := new JsonArray(FixSSDKPath(lApiNotes));
+
+          var lHelperFrameworks := aFrameworks.Where(f2 -> f2.StartsWith($"_{f}_")).ToList;
+          if lHelperFrameworks.Count > 0 then begin
+            var lSwiftHelperFrameworks := new JsonArray;
+            for each h in lHelperFrameworks do begin
+              lFrameworkFolder := aFrameworksFolders.Select(f2 -> Path.Combine(f2, h+".framework")).Where(f2 -> f2.FolderExists).FirstOrDefault;
+              if assigned(lFrameworkFolder) then
+                lSwiftHelperFrameworks.Add(new JsonStringValue(FixSSDKPath(lFrameworkFolder)));
+            end;
+            if lSwiftHelperFrameworks.Count > 0 then
+            lFrameworkJson["SwiftHelperFrameworks"] := lSwiftHelperFrameworks;
+          end;
+
         end;
 
         lJsonImports.Add(lFrameworkJson);
@@ -512,6 +533,11 @@ type
       lJsonName := Path.Combine(SDKsBaseFolder, lJsonName);
       File.WriteText(lJsonName, lJsonDocument.ToString());
 
+      if SkipHI then begin
+        writeLn(lJsonDocument);
+        exit;
+      end;
+
       if Debug then
         writeLn(lJsonDocument);
 
@@ -579,6 +605,8 @@ type
 
     method CreateSDKZip(aName: String; aVersion: String);
     begin
+      if SkipHI then
+        exit;
       //aName := if aName = "macOS" then Darwin.NameForMacOS(aVersion) else aName;
 
       var lShortVersion := Darwin.ShortVersion(aVersion);

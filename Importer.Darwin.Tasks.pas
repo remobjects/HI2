@@ -16,6 +16,7 @@ type
       //SwiftOnly := true;
       SkipSwift := true;
       //Debug := true;
+      //SkipHI := true;
 
       //SkipDeploymentTargets := true;
       //SkipNonEssentialFrameworks := true;
@@ -32,7 +33,9 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode("12.5") Name("RC");
+      ImportXcode("13.0") Beta(1);
+      //ImportXcode("12.5");
+      //ImportXcode("12.5") Name("RC");
       //ImportXcode("12.5") Beta(3);
       //ImportXcode("12.4");
     end;
@@ -74,11 +77,11 @@ type
     method ImportXcode(aVersion: String) Beta(aBeta: nullable Integer := nil) Name(aName: nullable String:= nil);
     begin
       if assigned(aBeta) then begin
-        Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.5-Beta{aBeta}.app/Contents/Developer";
+        Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-{aVersion}-Beta{aBeta}.app/Contents/Developer";
         Darwin.BetaSuffix := $"Xcode {aVersion} Beta {aBeta}";
       end
       else if assigned(aName) then begin
-        Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-12.5-{aName}.app/Contents/Developer";
+        Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-{aVersion}-{aName}.app/Contents/Developer";
         Darwin.BetaSuffix := $"Xcode {aVersion} {aName}";
       end
       else begin
