@@ -4,6 +4,9 @@ uses
   RemObjects.Elements.RTL;
 
 type
+  HIException = public class(Exception)
+  end;
+
   Importer = public partial class
   public
 
@@ -28,8 +31,7 @@ type
         writeLn(aLine);
     end;
 
-
-    method RunHI(aArgs: ImmutableList<String>);
+    method RunHI(aArgs: ImmutableList<String>) SDKFolder(aSDKFolder: nullable String := nil);
     begin
       Log(Process.StringForCommand("HeaderImporter") Parameters(aArgs));
       var lOutput := new StringBuilder();
@@ -54,7 +56,12 @@ type
       if lExitCode ≠ 0 then begin
         if not (Debug or assigned(LoggingCallback)) then
           Log(lOutput.ToString);
-        raise new Exception("HeaderImporter failed with {0}", lExitCode);
+        if assigned(aSDKFolder) then begin
+          writeLn($"Header Importer failed");
+          writeLn($"SDK Folder: {aSDKFolder}");
+          writeLn($"Command Line: {Process.StringForCommand("HeaderImporter.exe") Parameters(aArgs)}");
+        end;
+        raise new HIException("HeaderImporter failed with {0}");
       end;
     end;
 

@@ -29,9 +29,9 @@ type
 
     const _definesShared = "_USE_EXTENDED_LOCALES_;__LITTLE_ENDIAN__;__APPLE__;__APPLE_CC__;__MACH__;__GNUC__=4;__GNUC_MINOR__=2;__OBJC__;__OBJC2__;__STDC__=1;JSC_OBJC_API_ENABLED;WK_API_ENABLED;OS_OBJECT_USE_OBJC;OS_OBJECT_HAVE_OBJC_SUPPORT";
     const _macOSdefines_x64 =      _definesShared+";__x86_64__;__LP64__=1;__SSE__;__SSE2__;IOKIT;CPU64";
-    const _macOSdefines_arm64 =    _definesShared+";__arm64__;__LP64__=1;ARM;ARM64;CPU64"; {$HINT GUESSWORK}
+    const _macOSdefines_arm64 =    _definesShared+";__arm64__;__ARM_FP;__ARM_NEON;__LP64__=1;ARM;ARM64;CPU64"; {$HINT GUESSWORK}
     const _iOSDefines32 =          _definesShared+";__arm__;ARM;CPU32;";
-    const _iOSDefines64 =          _definesShared+";__arm64__;__LP64__=1;ARM;ARM64;CPU64";
+    const _iOSDefines64 =          _definesShared+";__arm64__;__LP64__=1;__ARM_FP;__ARM_NEON;ARM;ARM64;CPU64";
     const _watchOSDefines64 =      _definesShared+";__arm__;__arm64_32__;ARM;ARM64;";
     const _iOSDefinesSimulator32 = _definesShared+";__i386__;__SSE__;__SSE2__;CPU32";
     const _iOSDefinesSimulator64 = _macOSdefines_x64;
