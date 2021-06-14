@@ -541,6 +541,17 @@ type
       if Debug then
         writeLn(lJsonDocument);
 
+      var aClangIncludeFolder: String;
+      var aClangBaseFolder := Path.Combine(Darwin.DeveloperFolder, "Toolchains/XcodeDefault.xctoolchain/usr/lib/clang");
+      if aClangBaseFolder.FolderExists then begin
+        for each f in Folder.GetSubfolders(aClangBaseFolder) do begin
+          if Path.Combine(f, "include").FolderExists then begin
+            aClangIncludeFolder := Path.Combine(f, "include");
+            break;
+          end;
+        end;
+      end;
+
       var lArgs := new List<String>;
       lArgs.Add("import");
       lArgs.Add($"--json={lJsonName}");
@@ -549,6 +560,8 @@ type
       lArgs.Add("-o", aOutputFolder);
 
       lArgs.Add($"-i", aUsrIncludeFolder);
+      if assigned(aClangIncludeFolder) then
+        lArgs.Add($"-i", aClangIncludeFolder);
       for each f in aFrameworksFolders do
         lArgs.Add($"-f", f);
       lArgs.Add($"-i", SDKsBaseFolder);
@@ -575,7 +588,7 @@ type
       if Debug then
         lArgs.Add("--debug");
 
-      RunHI(lArgs);
+      RunHI(lArgs) SDKFolder(aSDKFolder);
       File.Delete(lJsonName);
 
       //if (doDeleteJsonFiles)
