@@ -9,6 +9,9 @@ type
     property EssentialFrameworks := ["CoreFoundation",
                                      "Foundation",
 
+                                     "Combine",
+                                     "SwiftUI",
+
                                      "AppKit",
 
                                      "UIKit"];
@@ -77,6 +80,9 @@ type
                 "Accelerate/vecLib/LinearAlgebra/arithmetic.h",
                 "Accelerate/vecLib/LinearAlgebra/linear_systems.h",
                 "Accelerate/vecLib/LinearAlgebra/norms.h",
+
+                "arm64-apple-macosx:Accelerate/vecLib/LinearAlgebra/vBasicOps.h",
+                "arm64-apple-macosx:Accelerate/vecLib/LinearAlgebra/vecLibTypes.h",
 
                 "Foundation/FoundationLegacySwiftCompatibility.h",
 
@@ -170,7 +176,10 @@ type
                   'arm64-apple-macosx:ClockKit',
                   //'arm64-apple-macosx:Carbon',
 
-                  'Accelerate',
+                  '15.0:CoreThreadCommissionerService',
+                  //'15.0:i386-apple-ios:CoreThreadCommissionerService',
+                  //'15.0:x86_64-apple-ios:CoreThreadCommissionerService',
+                  //'15.0:arm64-apple-ios:CoreThreadCommissionerService',
 
                   ].ToList; readonly;
 
