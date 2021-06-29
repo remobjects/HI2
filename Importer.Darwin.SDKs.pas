@@ -161,6 +161,8 @@ type
 
                 var lTargetFolderForArch := Path.Combine(lTargetFolder, a.Arch);
                 Folder.Create(lTargetFolderForArch);
+                if not Darwin.Toffee and not SkipSwift then
+                  Folder.Create(Path.Combine(lTargetFolderForArch, "Swift"));
 
                 var lFrameworks := new List<String>("Foundation", "Security"); // iOS Simulator requires this from rtl/objc. We wont actually *use* the generated file
 
@@ -194,6 +196,8 @@ type
 
           var lTargetFolderForArch := Path.Combine(lTargetFolder, a.Arch);
           Folder.Create(lTargetFolderForArch);
+          if not Darwin.Toffee and not SkipSwift then
+            Folder.Create(Path.Combine(lTargetFolderForArch, "Swift"));
 
           var lFrameworks := new List<String>();
           for each f2 in lFrameworksFolders do begin
@@ -227,6 +231,7 @@ type
       end;
 
       MergeOrFlatten(lTargetFolder, lArchitectures.Select(a -> a[0]).ToList());
+      MergeSwift(lTargetFolder);
       //codegen(targetFolder);
 
       if GenerateCode then
@@ -258,6 +263,12 @@ type
       for each a in aArchitectures do begin
         var fx := Folder.GetFiles(Path.Combine(aTargetFolder, a.Arch)).Where(f -> f.PathExtension = ".fx").Select(f -> f.LastPathComponent).ToList();
         lKnownFiles.Add(fx);
+
+        if Path.Combine(aTargetFolder, a.Arch, "Swift").FolderExists then begin
+          Folder.Create(Path.Combine(aTargetFolder, "Swift"));
+          fx := Folder.GetFiles(Path.Combine(aTargetFolder, a.Arch, "Swift")).Where(f -> f.PathExtension = ".fx").Select(f -> Path.Combine("Swift", f.LastPathComponent)).ToList();
+          lKnownFiles.Add(fx);
+        end;
       end;
 
       for each f in lKnownFiles.Distinct do begin
@@ -297,7 +308,28 @@ type
       var lSubfolder := Path.Combine(aTargetFolder, aArchitecture.Arch);
       for each f in Folder.GetFiles(lSubfolder).Where(f -> f.PathExtension = ".fx") do
         File.Move(f, Path.Combine(aTargetFolder, f.LastPathComponent));
+
+      var lSwiftSubfolder := Path.Combine(lSubfolder, "Swift");
+      if lSwiftSubfolder.FolderExists then begin
+        Folder.Create(Path.Combine(aTargetFolder, "Swift"));
+        for each f in Folder.GetFiles(lSwiftSubfolder).Where(f -> f.PathExtension = ".fx") do
+          File.Move(f, Path.Combine(aTargetFolder, "Swift", f.LastPathComponent));
+      end;
+
       Folder.Delete(lSubfolder);
+    end;
+
+    method MergeSwift(aTargetFolder: String);
+    begin
+      var lSwiftFolder := Path.Combine(aTargetFolder, "Swift");
+      if lSwiftFolder.FolderExists then begin
+        for each f in Folder.GetFiles(lSwiftFolder) do begin
+          if Path.Combine(aTargetFolder, f.LastPathComponent).FileExists then
+            {no-op, real merge will happen later}
+          else
+            File.Move(f, Path.Combine(aTargetFolder, f.LastPathComponent));
+        end;
+      end;
     end;
 
     //
@@ -570,15 +602,26 @@ type
         //lArgs.Add($"-x", lBaseFXFolder);
       //end;
 
-      if SwiftOnly then begin
+      if not Darwin.Toffee and not SkipSwift then begin
         var lBaseFXFolder := Path.GetParentDirectory(aOutputFolder);
-        var lDownloadsSDKs := Path.Combine(Environment.UserApplicationSupportFolder, "RemObjects Software", "EBuild", "SDKs", "Island", "Darwin");
-        if Path.Combine(lBaseFXFolder, "rtl.fx").FileExists then
-          lArgs.Add($"-x", lBaseFXFolder)
-        else if Path.Combine(IslandPaths.Instance.SdkFolder, "Darwin", lBaseFXFolder.LastPathComponent).FolderExists then
-          lArgs.Add($"-x", Path.Combine(IslandPaths.Instance.SdkFolder, "Darwin", lBaseFXFolder.LastPathComponent))
-        else if Path.Combine(lDownloadsSDKs, lBaseFXFolder.LastPathComponent).FolderExists then
-          lArgs.Add($"-x", Path.Combine(lDownloadsSDKs, lBaseFXFolder.LastPathComponent));
+        var lSdkName := lBaseFXFolder.LastPathComponent;
+
+        if SwiftOnly then begin
+          var lDownloadsSDKs := Path.Combine(Environment.UserApplicationSupportFolder, "RemObjects Software", "EBuild", "SDKs", "Island", "Darwin");
+          if Path.Combine(lBaseFXFolder, "rtl.fx").FileExists then
+            lArgs.Add($"-x", lBaseFXFolder)
+          else if Path.Combine(IslandPaths.Instance.SdkFolder, "Darwin", lSdkName).FolderExists then
+            lArgs.Add($"-x", Path.Combine(IslandPaths.Instance.SdkFolder, "Darwin", lSdkName))
+          else if Path.Combine(lDownloadsSDKs, lSdkName).FolderExists then
+            lArgs.Add($"-x", Path.Combine(lDownloadsSDKs, lSdkName));
+        end;
+
+        // Island.fx is always needed for Swift
+        var lReferenceFolder := Path.Combine(ElementsPaths.Instance.ElementsBinFolder, "References", "Island", lSdkName.SubstringToLastOccurrenceOf(" "), aOutputFolder.LastPathComponent);
+        if lReferenceFolder.FolderExists then
+          lArgs.Add($"-x", lReferenceFolder)
+        else
+          writeLn("WARNING! path to matching Island.fx file was not found.");
       end;
 
       //for each n in options.includepaths do
