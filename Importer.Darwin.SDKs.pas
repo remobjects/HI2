@@ -361,13 +361,12 @@ type
           lFrameworkJson["FrameworkPath"] := FixSSDKPath(lFrameworkFolder);
           var lSwiftInterfaces := Folder.GetFiles(lFrameworkFolder, true).Where(f2 -> f2.PathExtension = ".swiftinterface").ToList;
           if lSwiftInterfaces.Count > 0 then begin
-
             if f.StartsWith("_") /*and f.EndsWith("_SwiftUI")*/ then begin
               lFrameworkJson["SwiftHelperFramework"] := true;
               if Darwin.Toffee or SkipSwift then
                 continue;
-            end
-            else if Darwin.Toffee then begin
+            end;
+            if Darwin.Toffee then begin
               writeLn($"Skipping {f.LastPathComponentWithoutExtension} for Toffee, it's a Swift Framework");
               continue;
             end
@@ -394,7 +393,7 @@ type
             lFrameworkJson["APINotes"] := new JsonArray(FixSSDKPath(lApiNotes));
 
           var lHelperFrameworks := aFrameworks.Where(f2 -> f2.StartsWith($"_{f}_")).ToList;
-          if lHelperFrameworks.Count > 0 then begin
+          if not SwiftOnly and (lHelperFrameworks.Count > 0) then begin
             var lSwiftHelperFrameworks := new JsonArray;
             for each h in lHelperFrameworks do begin
               lFrameworkFolder := aFrameworksFolders.Select(f2 -> Path.Combine(f2, h+".framework")).Where(f2 -> f2.FolderExists).FirstOrDefault;
@@ -570,6 +569,17 @@ type
         //var lBaseFXFolder := Path.Combine(Path.GetParentDirectory(Path.GetParentDirectory(aOutputFolder)), aRootSDK);
         //lArgs.Add($"-x", lBaseFXFolder);
       //end;
+
+      if SwiftOnly then begin
+        var lBaseFXFolder := Path.GetParentDirectory(aOutputFolder);
+        var lDownloadsSDKs := Path.Combine(Environment.UserApplicationSupportFolder, "RemObjects Software", "EBuild", "SDKs", "Island", "Darwin");
+        if Path.Combine(lBaseFXFolder, "rtl.fx").FileExists then
+          lArgs.Add($"-x", lBaseFXFolder)
+        else if Path.Combine(IslandPaths.Instance.SdkFolder, "Darwin", lBaseFXFolder.LastPathComponent).FolderExists then
+          lArgs.Add($"-x", Path.Combine(IslandPaths.Instance.SdkFolder, "Darwin", lBaseFXFolder.LastPathComponent))
+        else if Path.Combine(lDownloadsSDKs, lBaseFXFolder.LastPathComponent).FolderExists then
+          lArgs.Add($"-x", Path.Combine(lDownloadsSDKs, lBaseFXFolder.LastPathComponent));
+      end;
 
       //for each n in options.includepaths do
         //lArgs.Add("-i", n);
