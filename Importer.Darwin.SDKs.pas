@@ -27,6 +27,7 @@ type
     property SkipWatchOS := false;
     property SkipSimulator := false;
 
+    property DontClean := false;
     property GenerateCode := false;
 
     method ImportMacOSSDK();
@@ -128,7 +129,7 @@ type
         lTargetFolderName := lTargetFolderName+" Simulator";
 
       var lTargetFolder := Path.Combine(SDKsBaseFolder, lTargetFolderName);
-      if lTargetFolder.FolderExists then
+      if lTargetFolder.FolderExists and not DontClean then
         Folder.Delete(lTargetFolder);
 
       var lFrameworksFolders := new List<String>(Path.Combine(lSdkFolder, "System", "Library", "Frameworks"));
@@ -329,6 +330,8 @@ type
           else
             File.Move(f, Path.Combine(aTargetFolder, f.LastPathComponent));
         end;
+        if Folder.GetFiles(lSwiftFolder).Count = 0 then
+          Folder.Delete(lSwiftFolder);
       end;
     end;
 
@@ -602,11 +605,11 @@ type
         //lArgs.Add($"-x", lBaseFXFolder);
       //end;
 
-      if not Darwin.Toffee and not SkipSwift then begin
+      if Darwin.Island then begin
         var lBaseFXFolder := Path.GetParentDirectory(aOutputFolder);
         var lSdkName := lBaseFXFolder.LastPathComponent;
 
-        if SwiftOnly then begin
+        if not SkipSwift and not SwiftOnly then begin
           var lDownloadsSDKs := Path.Combine(Environment.UserApplicationSupportFolder, "RemObjects Software", "EBuild", "SDKs", "Island", "Darwin");
           if Path.Combine(lBaseFXFolder, "rtl.fx").FileExists then
             lArgs.Add($"-x", lBaseFXFolder)
