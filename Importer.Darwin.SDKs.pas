@@ -25,6 +25,7 @@ type
     property SkipIOS := false;
     property SkipTvOS := false;
     property SkipWatchOS := false;
+    property SkipDevice := false;
     property SkipSimulator := false;
 
     property DontClean := false;
@@ -59,7 +60,8 @@ type
     method ImportIOSSDK();
     begin
       if not SkipIOS then begin
-        ImportSDK("iOS", Darwin.iOSVersion, false);
+        if not SkipDevice then
+          ImportSDK("iOS", Darwin.iOSVersion, false);
         if not SkipSimulator then
           ImportSDK("iOS", Darwin.iOSVersion, true);
         CreateSDKZip("iOS", Darwin.iOSVersion);
@@ -69,7 +71,8 @@ type
     method ImportTvOSSDK();
     begin
       if not SkipTvOS then begin
-        ImportSDK("tvOS", Darwin.tvOSVersion, false);
+        if not SkipDevice then
+          ImportSDK("tvOS", Darwin.tvOSVersion, false);
         if not SkipSimulator then
           ImportSDK("tvOS", Darwin.tvOSVersion, true);
         CreateSDKZip("tvOS", Darwin.tvOSVersion);
@@ -79,7 +82,8 @@ type
     method ImportWatchOSSDK();
     begin
       if not SkipWatchOS then begin
-        ImportSDK("watchOS", Darwin.watchOSVersion, false);
+        if not SkipDevice then
+          ImportSDK("watchOS", Darwin.watchOSVersion, false);
         if not SkipSimulator then
           ImportSDK("watchOS", Darwin.watchOSVersion, true);
         CreateSDKZip("watchOS", Darwin.watchOSVersion);
@@ -327,8 +331,6 @@ type
       var lSwiftFolder := Path.Combine(aTargetFolder, "Swift");
       if lSwiftFolder.FolderExists then begin
         for each f in Folder.GetFiles(lSwiftFolder) do begin
-          if f.LastPathComponent.StartsWith("_") then
-            continue;
           if Path.Combine(aTargetFolder, f.LastPathComponent).FileExists then
             {no-op, real merge will happen later}
           else
@@ -644,7 +646,12 @@ type
         end;
 
         // Island.fx is always needed for Swift
-        var lReferenceFolder := Path.Combine(ElementsPaths.Instance.ElementsBinFolder, "References", "Island", lSdkName.SubstringToLastOccurrenceOf(" "), aOutputFolder.LastPathComponent);
+        var lIsSimulator := lSdkName.EndsWith("Simulator");
+        lSdkName := lSdkName.SubstringToFirstOccurrenceOf(" ");
+        if lIsSimulator then
+          lSdkName := lSdkName+" Simulator";
+
+        var lReferenceFolder := Path.Combine(ElementsPaths.Instance.ElementsBinFolder, "References", "Island", lSdkName, aOutputFolder.LastPathComponent);
         if lReferenceFolder.FolderExists then
           lArgs.Add($"-x", lReferenceFolder)
         else
