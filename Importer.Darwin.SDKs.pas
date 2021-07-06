@@ -168,6 +168,7 @@ type
                 var lFrameworks := new List<String>("Foundation", "Security"); // iOS Simulator requires this from rtl/objc. We wont actually *use* the generated file
 
                 RunHeaderImporterForSDK(lSdkFolder)
+                                   Name(aName)
                       FrameworksFolders(lFrameworksFolders)
                           UsrLibFolders(lUsrLibFolders)
                        UsrIncludeFolder(lUsrIncludeFolder)
@@ -218,6 +219,7 @@ type
           end;
 
           RunHeaderImporterForSDK(lSdkFolder)
+                             Name(aName)
                 FrameworksFolders(lFrameworksFolders)
                     UsrLibFolders(lUsrLibFolders)
                  UsrIncludeFolder(lUsrIncludeFolder)
@@ -325,6 +327,8 @@ type
       var lSwiftFolder := Path.Combine(aTargetFolder, "Swift");
       if lSwiftFolder.FolderExists then begin
         for each f in Folder.GetFiles(lSwiftFolder) do begin
+          if f.LastPathComponent.StartsWith("_") then
+            continue;
           if Path.Combine(aTargetFolder, f.LastPathComponent).FileExists then
             {no-op, real merge will happen later}
           else
@@ -340,6 +344,7 @@ type
     //
 
     method RunHeaderImporterForSDK(aSDKFolder: String)
+                              Name(aName: String)
                  FrameworksFolders(aFrameworksFolders: List<String>)
                      UsrLibFolders(aUsrLibFolders: List<String>)
                   UsrIncludeFolder(aUsrIncludeFolder: String)
@@ -482,13 +487,32 @@ type
                 lShadowFrameworkJson["Name"] := Path.Combine("Swift", lName);
                 if aFrameworks.Contains(lName) then
                   lShadowFrameworkJson["Shadows"] := lName;
-                lShadowFrameworkJson["Swift"] := "true";
+                lShadowFrameworkJson["Swift"] := true;
 
                 lShadowFrameworkJson["SwiftModule"] := FixSSDKPath(f);
 
                 var lPath := Path.Combine(f, $"{aArchitecture.Arch}.swiftinterface");
-                if lPath.FileExists then
+                if lPath.FileExists then begin
                   lShadowFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
+                end
+                else begin
+                  var lArch := aArchitecture.Arch;
+                  if aArchitecture.Arch = "arm64" then
+                    lArch := lArch+"e";
+                  lPath := Path.Combine(f, $"{lArch}.swiftinterface");
+                  if lPath.FileExists then begin
+                    lShadowFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
+                  end
+                  else begin
+                    var lOsName := case aName of
+                      "Mac Catalyst": "ios-macabi";
+                      else aName.ToLower;
+                    end;
+                    lPath := Path.Combine(f, $"{lArch}-apple-{lOsName}.swiftinterface");
+                    if lPath.FileExists then
+                      lShadowFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
+                  end;
+                end;
 
                 lPath := Path.Combine(lSwiftPath, $"libswift{lName}.tbd");
                 if lPath.FileExists then

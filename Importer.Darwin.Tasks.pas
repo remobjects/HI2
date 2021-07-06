@@ -29,6 +29,17 @@ type
 
       ImportToffeeSDKs;
       ImportIslandSDKs;
+
+      //exit;
+
+      //
+      // Do Swift Import
+      //
+
+      DontClean := true;
+      SwiftOnly := true;
+      SkipSwift := false;
+      ImportIslandSDKs;
     end;
 
     method ImportCurrentXcode;
