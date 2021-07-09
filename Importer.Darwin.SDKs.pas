@@ -631,7 +631,7 @@ type
         //lArgs.Add($"-x", lBaseFXFolder);
       //end;
 
-      if Darwin.Island then begin
+      if Darwin.Island and SwiftOnly then begin
         var lBaseFXFolder := Path.GetParentDirectory(aOutputFolder);
         var lSdkName := lBaseFXFolder.LastPathComponent;
 
@@ -647,9 +647,14 @@ type
 
         // Island.fx is always needed for Swift
         var lIsSimulator := lSdkName.EndsWith("Simulator");
-        lSdkName := lSdkName.SubstringToFirstOccurrenceOf(" ");
-        if lIsSimulator then
-          lSdkName := lSdkName+" Simulator";
+        if lSdkName.StartsWith("Mac Catalyst") then begin
+          lSdkName := lSdkName.SubstringToLastOccurrenceOf(" ");
+        end
+        else begin
+          lSdkName := lSdkName.SubstringToFirstOccurrenceOf(" ");
+          if lIsSimulator then
+            lSdkName := lSdkName+" Simulator";
+        end;
 
         var lReferenceFolder := Path.Combine(ElementsPaths.Instance.ElementsBinFolder, "References", "Island", lSdkName, aOutputFolder.LastPathComponent);
         if lReferenceFolder.FolderExists then
