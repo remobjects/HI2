@@ -89,13 +89,13 @@ type
     const tvOSEnvironmentVersionDefine    = '__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__';
     const watchOSEnvironmentVersionDefine = '__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__';
 
-    const macCatalystDeploymentTargets_x86_64 =   "14.0;13.0";
-    const macCatalystDeploymentTargets_arm64  =   "14.0";
-    const macOSDeploymentTargets_x86_64 =   "11.0;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
-    const macOSDeploymentTargets_arm64 =    "11.0";
-    const iOSDeploymentTargets =     "14.2;14.0;13.0;12.0;11.0;10.0;9.0";
-    const tvOSDeploymentTargets =    "14.0;13.0;12.0;11.0;10.0;9.0";
-    const watchOSDeploymentTargets = "7.0;6.0;5.0;4.0;3.0;2.0";
+    const macCatalystDeploymentTargets_x86_64 =   "15.0;14.0;13.0";
+    const macCatalystDeploymentTargets_arm64  =   "15.0;14.0";
+    const macOSDeploymentTargets_x86_64 =   "12.0;11.0;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
+    const macOSDeploymentTargets_arm64 =    "12.0;11.0";
+    const iOSDeploymentTargets =     "15.0;14.2;14.0;13.0;12.0;11.0;10.0;9.0";
+    const tvOSDeploymentTargets =    "15.0;14.0;13.0;12.0;11.0;10.0;9.0";
+    const watchOSDeploymentTargets = "8.0;7.0;6.0;5.0;4.0;3.0;2.0";
 
     method DeploymentTargets(aSDK: String; aArchitecture: String): String;
     begin
