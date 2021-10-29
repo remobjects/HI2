@@ -27,7 +27,6 @@ type
       //SkipTvOS := true;
       //SkipWatchOS := true;
 
-      ImportToffeeSDKs;
       ImportIslandSDKs;
 
       //exit;
@@ -37,6 +36,7 @@ type
       //
 
       DontClean := true;
+      SkipDeploymentTargets := true;
       SwiftOnly := true;
       SkipSwift := false;
       ImportIslandSDKs;
@@ -44,7 +44,8 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode("13.0") Beta(1);
+      ImportXcode("13.2") Beta(1);
+      //ImportXcode("13.1");// Name("RC");
       //ImportXcode("12.5");
       //ImportXcode("12.5") Name("RC");
       //ImportXcode("12.5") Beta(3);
@@ -97,6 +98,7 @@ type
       end
       else begin
         Darwin.DeveloperFolder := $"{ApplicationsFolder}/Xcode-{aVersion}.app/Contents/Developer";
+        Darwin.BetaSuffix := $"Xcode {aVersion}";
       end;
       Darwin.LoadVersionsFromXcode();
 
