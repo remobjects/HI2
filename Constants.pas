@@ -488,6 +488,9 @@ type
           raise new Exception($"Cannot determine a {aPrettyName} SDK version in '{lPath}'");
       end;
 
+      if not DeveloperFolder:FolderExists then
+        raise new Exception($"Xcodefolder {DeveloperFolder} does not exist.");
+
       macOSVersion := FindVersion("macOS", "MacOSX");
       iOSVersion := FindVersion("iOS", "iPhoneOS");
       tvOSVersion := FindVersion("tvOS", "AppleTVOS");
