@@ -36,9 +36,12 @@ type
       // Do Swift Import
       //
 
+      // do not chnage these!
       DontClean := true;
+      SkipDeploymentTargets := true;
       SwiftOnly := true;
       SkipSwift := false;
+
       ImportIslandSDKs;
     end;
 
