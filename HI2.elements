@@ -48,6 +48,12 @@
       <HintPath>..\elements\Bin\RemObjects.Elements.CrossBox.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <ProjectReference Include="..\Elements\Source\HeaderImporter\HeaderImporter.elements">
+      <HintPath>..\Elements\Source\HeaderImporter\bin\Debug\HeaderImporter.exe</HintPath>
+      <Project>{EDD5844B-07EA-4D7C-86A7-24D2C6270B85}</Project>
+      <ProjectFile>..\Elements\Source\HeaderImporter\HeaderImporter.elements</ProjectFile>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.pas" />
