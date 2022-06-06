@@ -401,8 +401,9 @@ type
         var lFrameworkFolder := aFrameworksFolders.Select(f2 -> Path.Combine(f2, f+".framework")).Where(f2 -> f2.FolderExists).FirstOrDefault;
         if assigned(lFrameworkFolder) then begin
           lFrameworkJson["FrameworkPath"] := FixSSDKPath(lFrameworkFolder);
+          var lHeaderFiles := Folder.GetFiles(Path.Combine(lFrameworkFolder, "Headers"), true).Where(f2 -> f2.PathExtension = ".h").ToList;
           var lSwiftInterfaces := Folder.GetFiles(lFrameworkFolder, true).Where(f2 -> f2.PathExtension = ".swiftinterface").ToList;
-          if lSwiftInterfaces.Count > 0 then begin
+          if (lSwiftInterfaces.Count > 0) and (lHeaderFiles.Count ≤ 1) then begin
             if f.StartsWith("_") /*and f.EndsWith("_SwiftUI")*/ then begin
               lFrameworkJson["SwiftHelperFramework"] := true;
               if Darwin.Toffee or SkipSwift then

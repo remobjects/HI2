@@ -19,6 +19,8 @@ type
     property Debug := false;
     property CreateZips := true;
 
+    property HIRunsEmbedded := false;
+
 //    property FXBaseFolder: String; // MUST BE SET!
 
     property LoggingCallback: block(aLine: String);
@@ -44,14 +46,21 @@ type
         lExe := Mono;
       end;
 
-      var lExitCode := Process.Run(lExe, aArgs.ToArray, nil, nil, s -> begin
-        lOutput.AppendLine(s);
-        if Debug or assigned(LoggingCallback) then
+      var lExitCode: Integer;
+
+      if defined("ECHOES") and HIRunsEmbedded then begin
+        lExitCode := HeaderImporter.HeaderImporterConsoleApp.Main(aArgs.ToArray);
+      end
+      else begin
+        lExitCode := Process.Run(lExe, aArgs.ToArray, nil, nil, s -> begin
+          lOutput.AppendLine(s);
+          if Debug or assigned(LoggingCallback) then
+            Log("  "+s);
+        end, s -> begin
+          lOutput.AppendLine(s);
           Log("  "+s);
-      end, s -> begin
-        lOutput.AppendLine(s);
-        Log("  "+s);
-      end);
+        end);
+      end;
 
       if lExitCode ≠ 0 then begin
         if not (Debug or assigned(LoggingCallback)) then
@@ -61,7 +70,7 @@ type
           writeLn($"SDK Folder: {aSDKFolder}");
           writeLn($"Command Line: {Process.StringForCommand("HeaderImporter.exe") Parameters(aArgs)}");
         end;
-        raise new HIException("HeaderImporter failed with {0}");
+        raise new HIException("HeaderImporter failed");
       end;
     end;
 
