@@ -399,11 +399,13 @@ type
           lFrameworkJson["DepFx"] := new JsonArray(["Foundation", "CoreGraphics", "CoreFoundation"]);
 
         var lFrameworkFolder := aFrameworksFolders.Select(f2 -> Path.Combine(f2, f+".framework")).Where(f2 -> f2.FolderExists).FirstOrDefault;
+        var lHeadersFolder := Path.Combine(lFrameworkFolder, "Headers");
         if assigned(lFrameworkFolder) then begin
           lFrameworkJson["FrameworkPath"] := FixSSDKPath(lFrameworkFolder);
-          var lHeaderFiles := Folder.GetFiles(Path.Combine(lFrameworkFolder, "Headers"), true).Where(f2 -> f2.PathExtension = ".h").ToList;
+          var lHeaderFilesCount := if lHeadersFolder.FolderExists then Folder.GetFiles(lHeadersFolder, true).Where(f2 -> f2.PathExtension = ".h").Count else 0;
           var lSwiftInterfaces := Folder.GetFiles(lFrameworkFolder, true).Where(f2 -> f2.PathExtension = ".swiftinterface").ToList;
-          if (lSwiftInterfaces.Count > 0) and (lHeaderFiles.Count ≤ 1) then begin
+
+          if (lSwiftInterfaces.Count > 0) and (lHeaderFilesCount ≤ 1) then begin
             if f.StartsWith("_") /*and f.EndsWith("_SwiftUI")*/ then begin
               lFrameworkJson["SwiftHelperFramework"] := true;
               if Darwin.Toffee or SkipSwift then
@@ -431,7 +433,7 @@ type
             if SwiftOnly then
               continue;
           end;
-          var lApiNotes := Path.Combine(lFrameworkFolder, "Headers", f.LastPathComponentWithoutExtension+".apinotes");
+          var lApiNotes := Path.Combine(lHeadersFolder, f.LastPathComponentWithoutExtension+".apinotes");
           if lApiNotes.FileExists then
             lFrameworkJson["APINotes"] := new JsonArray(FixSSDKPath(lApiNotes));
 
