@@ -72,6 +72,8 @@ type
                 "watchOS:11.0:Accelerate/vImage/vImage_CVUtilities.h", // watchOS 4.0 doesn't have CoreVideo (yet?)
                 "watchOS:11.0:Accelerate/vImage/vImage_Utilities.h", // watchOS 4.0 doesn't have CoreVideo (yet?)
 
+                //"Accelerate/vecLib/Sparse/SolveImplementation.h",
+                //"Accelerate/vecLib/Sparse/SolveImplementationTyped.h",
                 //"Accelerate/vecLib/LinearAlgebra/base.h",
                 //"Accelerate/vecLib/LinearAlgebra/object.h",
                 //"Accelerate/vecLib/LinearAlgebra/matrix.h",
@@ -108,7 +110,7 @@ type
                   'Tk',             /* An error occurred: Tk/tkMacOSX.h (31:61 pp: 662943) Declaration expected; current token: Identifier  TkRegion */
 
                   'QuickTime',         /* only 4.3 and below, anyways */
-                  //'vecLib',           /* it's in Accelerate, now */
+                  'vecLib',           /* it's in Accelerate, now */
 
                   /* review later: */
                   'AudioVideoBridging',           /* AudioVideoBridging/AVBConstants.h (16:27 pp: 770) Declaration expected; current token: Identifier  AVB17221ADPEntityCapabilities */
@@ -162,6 +164,16 @@ type
                   // Deprecated and not supported on UIKit for Mac:
                   'x86_64-apple-ios-macabi:GLKit',
                   'arm64-apple-ios-macabi:GLKit',
+
+                  //'x86_64-apple-ios:Accelerate',
+                  //'arm64-apple-ios:Accelerate',
+                  //'x86_64-apple-ios-simulator:Accelerate',
+                  //'i386-apple-ios-simulator:Accelerate',
+                  //'arm64-apple-ios-simulator:Accelerate',
+                  'ios:Accelerate',
+                  'ios-simulator:Accelerate',
+                  'tvos:Accelerate',
+                  'tvos-simulator:Accelerate',
 
                   'PCIDriverKit', //83882: HI: breakage with Xcode 11.4
 
