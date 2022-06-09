@@ -91,11 +91,11 @@ type
 
     const macCatalystDeploymentTargets_x86_64 =   "15.0;14.0;13.0";
     const macCatalystDeploymentTargets_arm64  =   "15.0;14.0";
-    const macOSDeploymentTargets_x86_64 =   "12.0;11.0;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
-    const macOSDeploymentTargets_arm64 =    "12.0;11.0";
-    const iOSDeploymentTargets =     "15.0;14.2;14.0;13.0;12.0;11.0;10.0;9.0";
-    const tvOSDeploymentTargets =    "15.0;14.0;13.0;12.0;11.0;10.0;9.0";
-    const watchOSDeploymentTargets = "8.0;7.0;6.0;5.0;4.0;3.0;2.0";
+    const macOSDeploymentTargets_x86_64 =   "13.0;12.0;11.0;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
+    const macOSDeploymentTargets_arm64 =    "13.0;12.0;11.0";
+    const iOSDeploymentTargets =     "16.0;15.0;14.2;14.0;13.0;12.0;11.0;10.0;9.0"; // keep 14.2 for Catalyst
+    const tvOSDeploymentTargets =    "16.0;15.0;14.0;13.0;12.0;11.0;10.0;9.0";
+    const watchOSDeploymentTargets = "9.0;8.0;7.0;6.0;5.0;4.0;3.0;2.0";
 
     method DeploymentTargets(aSDK: String; aArchitecture: String): String;
     begin
@@ -336,6 +336,12 @@ type
 
       if aBlacklist.Contains(aArchitecture.Triple + ":" + aName) then begin
         writeLn("Skipping " + aName + ", blacklisted for " + aArchitecture.Triple);
+        exit true;
+      end;
+
+      var lTripleOS := aArchitecture.Triple.Split("-").Skip(2).JoinedString("-");
+      if aBlacklist.Contains(lTripleOS + ":" + aName) then begin
+        writeLn("Skipping " + aName + ", blacklisted for " + lTripleOS);
         exit true;
       end;
 
