@@ -402,25 +402,31 @@ type
         var lHeadersFolder := Path.Combine(lFrameworkFolder, "Headers");
         if assigned(lFrameworkFolder) then begin
           lFrameworkJson["FrameworkPath"] := FixSSDKPath(lFrameworkFolder);
+
           var lHeaderFilesCount := if lHeadersFolder.FolderExists then Folder.GetFiles(lHeadersFolder, true).Where(f2 -> f2.PathExtension = ".h").Count else 0;
           var lSwiftInterfaces := Folder.GetFiles(lFrameworkFolder, true).Where(f2 -> f2.PathExtension = ".swiftinterface").ToList;
+          var lSwift := lSwiftInterfaces.Count > 0;
+          var lTreatAsSwiftOnly := lSwift and (lHeaderFilesCount ≤ 1);
 
-          if (lSwiftInterfaces.Count > 0) and (lHeaderFilesCount ≤ 1) then begin
+          if lSwift then begin
             if f.StartsWith("_") /*and f.EndsWith("_SwiftUI")*/ then begin
               lFrameworkJson["SwiftHelperFramework"] := true;
               if Darwin.Toffee or SkipSwift then
                 continue;
             end;
-            if Darwin.Toffee then begin
+            if Darwin.Toffee and lTreatAsSwiftOnly then begin
               writeLn($"Skipping {f.LastPathComponentWithoutExtension} for Toffee, it's a Swift Framework");
               continue;
             end
-            else if SkipSwift then begin
+            else if SkipSwift and lTreatAsSwiftOnly then begin
               writeLn($"Skipping {f.LastPathComponentWithoutExtension}, it's a Swift Framework");
               continue;
             end
             else if Darwin.Island then begin
-              lFrameworkJson["Swift"] := true;
+              if not lTreatAsSwiftOnly then
+                lFrameworkJson["SwiftAndCocoa"] := true
+              else
+                lFrameworkJson["Swift"] := true;
               var lPath := Path.Combine(lFrameworkFolder, "Modules", $"{f}.swiftmodule");
               if lPath.FolderExists then
                 lFrameworkJson["SwiftModule"] := FixSSDKPath(lPath);
