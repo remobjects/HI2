@@ -41,15 +41,15 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="RemObjects.Elements.Basics">
-      <HintPath>..\elements\Bin\RemObjects.Elements.Basics.dll</HintPath>
+      <HintPath>$(ElementsBinFolder)\RemObjects.Elements.Basics.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="RemObjects.Elements.CrossBox">
-      <HintPath>..\elements\Bin\RemObjects.Elements.CrossBox.dll</HintPath>
+      <HintPath>$(ElementsBinFolder)\RemObjects.Elements.CrossBox.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <ProjectReference Include="..\Elements\Source\HeaderImporter\HeaderImporter.elements">
-      <HintPath>..\Elements\Source\HeaderImporter\bin\Debug\HeaderImporter.exe</HintPath>
+      <HintPath>$(ElementsBinFolder)\HeaderImporter.exe</HintPath>
       <Project>{EDD5844B-07EA-4D7C-86A7-24D2C6270B85}</Project>
       <ProjectFile>..\Elements\Source\HeaderImporter\HeaderImporter.elements</ProjectFile>
       <Private>True</Private>
