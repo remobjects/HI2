@@ -20,6 +20,7 @@ type
 
       //SkipDeploymentTargets := true;
       //SkipNonEssentialFrameworks := true;
+      //SkipDevice := true;
       //SkipSimulator := true;
       //SkipMacOS := true;
       //SkipMacCatalyst := true;
