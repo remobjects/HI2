@@ -64,7 +64,7 @@ type
                 "Kernel/*.h",
                 "libkern/OSKextLib.h",
                 "OpenAL/oalMacOSX_OALExtensions.h",
-                "vecLib/*",
+                //"vecLib/*",
                 "WebKit/WebCore/MicroTask.h",
 
                 "10.8:sys/_types/*.h",
@@ -72,17 +72,17 @@ type
                 "watchOS:11.0:Accelerate/vImage/vImage_CVUtilities.h", // watchOS 4.0 doesn't have CoreVideo (yet?)
                 "watchOS:11.0:Accelerate/vImage/vImage_Utilities.h", // watchOS 4.0 doesn't have CoreVideo (yet?)
 
-                "Accelerate/vecLib/LinearAlgebra/base.h",
-                "Accelerate/vecLib/LinearAlgebra/object.h",
-                "Accelerate/vecLib/LinearAlgebra/matrix.h",
-                "Accelerate/vecLib/LinearAlgebra/vector.h",
-                "Accelerate/vecLib/LinearAlgebra/splat.h",
-                "Accelerate/vecLib/LinearAlgebra/arithmetic.h",
-                "Accelerate/vecLib/LinearAlgebra/linear_systems.h",
-                "Accelerate/vecLib/LinearAlgebra/norms.h",
+                //"Accelerate/vecLib/LinearAlgebra/base.h",
+                //"Accelerate/vecLib/LinearAlgebra/object.h",
+                //"Accelerate/vecLib/LinearAlgebra/matrix.h",
+                //"Accelerate/vecLib/LinearAlgebra/vector.h",
+                //"Accelerate/vecLib/LinearAlgebra/splat.h",
+                //"Accelerate/vecLib/LinearAlgebra/arithmetic.h",
+                //"Accelerate/vecLib/LinearAlgebra/linear_systems.h",
+                //"Accelerate/vecLib/LinearAlgebra/norms.h",
 
-                "arm64-apple-macosx:Accelerate/vecLib/LinearAlgebra/vBasicOps.h",
-                "arm64-apple-macosx:Accelerate/vecLib/LinearAlgebra/vecLibTypes.h",
+                //"arm64-apple-macosx:Accelerate/vecLib/LinearAlgebra/vBasicOps.h",
+                //"arm64-apple-macosx:Accelerate/vecLib/LinearAlgebra/vecLibTypes.h",
 
                 "Foundation/FoundationLegacySwiftCompatibility.h",
 
@@ -108,7 +108,7 @@ type
                   'Tk',             /* An error occurred: Tk/tkMacOSX.h (31:61 pp: 662943) Declaration expected; current token: Identifier  TkRegion */
 
                   'QuickTime',         /* only 4.3 and below, anyways */
-                  'vecLib',           /* it's in Accelerate, now */
+                  //'vecLib',           /* it's in Accelerate, now */
 
                   /* review later: */
                   'AudioVideoBridging',           /* AudioVideoBridging/AVBConstants.h (16:27 pp: 770) Declaration expected; current token: Identifier  AVB17221ADPEntityCapabilities */
