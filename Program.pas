@@ -1,5 +1,8 @@
 ﻿namespace RemObjects.Elements.HI2;
 
+uses
+  RemObjects.Elements.Basics;
+
 type
   Program = class
   public
@@ -15,8 +18,8 @@ type
 
         var lImporter := new Importer();
         lImporter.CodeFolder := Path.Combine(Environment.UserHomeFolder, "Code/");
-        lImporter.HI := Path.Combine(lImporter.CodeFolder, "Elements/Source/HeaderImporter/Bin/Debug/HeaderImporter.exe");
-        lImporter.FrameworksFolder := Path.Combine(lImporter.CodeFolder, "Elements/Frameworks");
+        lImporter.HI := Path.Combine(ElementsPaths.Instance.ElementsBinFolder, "HeaderImporter.exe");
+        lImporter.FrameworksFolder := Path.Combine(ElementsPaths.Instance.ElementsBinFolder, "..", "Frameworks");
         lImporter.ApplicationsFolder := Path.Combine(Environment.UserHomeFolder, "Applications");
         if not lImporter.ApplicationsFolder.FolderExists then
           lImporter.ApplicationsFolder := "/Applications";
