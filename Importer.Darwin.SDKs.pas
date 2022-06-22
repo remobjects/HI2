@@ -28,6 +28,7 @@ type
     property SkipDevice := false;
     property SkipSimulator := false;
 
+    property DontDeleteJson  := false;
     property DontClean := false;
     property GenerateCode := false;
 
@@ -423,6 +424,8 @@ type
               continue;
             end
             else if Darwin.Island then begin
+              if SwiftOnly then
+                lFrameworkJson["Swift"] := true;
               if not lTreatAsSwiftOnly then
                 lFrameworkJson["SwiftAndCocoa"] := true
               else
@@ -690,7 +693,8 @@ type
         lArgs.Add("--debug");
 
       RunHI(lArgs) SDKFolder(aSDKFolder);
-      File.Delete(lJsonName);
+      if not DontDeleteJson then
+        File.Delete(lJsonName);
 
       //if (doDeleteJsonFiles)
         //file.remove(jsonName);

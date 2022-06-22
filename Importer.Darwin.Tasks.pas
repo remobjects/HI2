@@ -18,6 +18,7 @@ type
       //Debug := true;
       //SkipHI := true;
 
+      //DontDeleteJson := true;
       //SkipDeploymentTargets := true;
       //SkipNonEssentialFrameworks := true;
       //SkipDevice := true;
