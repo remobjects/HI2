@@ -423,6 +423,8 @@ type
               continue;
             end
             else if Darwin.Island then begin
+              if SwiftOnly then
+                lFrameworkJson["Swift"] := true;
               if not lTreatAsSwiftOnly then
                 lFrameworkJson["SwiftAndCocoa"] := true
               else
