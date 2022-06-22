@@ -170,10 +170,7 @@ type
                   //'x86_64-apple-ios-simulator:Accelerate',
                   //'i386-apple-ios-simulator:Accelerate',
                   //'arm64-apple-ios-simulator:Accelerate',
-                  'ios:Accelerate',
-                  'ios-simulator:Accelerate',
-                  'tvos:Accelerate',
-                  'tvos-simulator:Accelerate',
+                  'Accelerate',
 
                   'PCIDriverKit', //83882: HI: breakage with Xcode 11.4
 
