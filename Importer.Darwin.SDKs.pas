@@ -134,6 +134,9 @@ type
         lTargetFolderName := lTargetFolderName+" Simulator";
 
       var lTargetFolder := Path.Combine(SDKsBaseFolder, lTargetFolderName);
+      if SwiftOnly then
+        lTargetFolder := lTargetFolder+"_SwiftOnly";
+
       if lTargetFolder.FolderExists and not DontClean then
         Folder.Delete(lTargetFolder);
 
@@ -239,7 +242,8 @@ type
       end;
 
       MergeOrFlatten(lTargetFolder, lArchitectures.Select(a -> a[0]).ToList());
-      MergeSwift(lTargetFolder);
+      if SwiftOnly then
+        MergeSwift2(lTargetFolder, lTargetFolder.SubstringToLastOccurrenceOf("_"));
       //codegen(targetFolder);
 
       if GenerateCode then
@@ -258,7 +262,7 @@ type
     method MergeOrFlatten(aTargetFolder: String; aArchitectures: ImmutableList<Architecture>);
     begin
       writeLn($"Merge or Flatten {aTargetFolder}");
-      if aArchitectures.Count > 1 then
+      if (aArchitectures.Count > 1) or SwiftOnly then
         Merge(aTargetFolder, aArchitectures)
       else if aArchitectures.Count = 1 then
         Flatten(aTargetFolder, aArchitectures.First);
@@ -300,7 +304,7 @@ type
           for each a in aArchitectures do begin
             var f2 := Path.Combine(aTargetFolder, a.Arch, f);
             if f2.FileExists then begin
-              File.CopyTo(f2, Path.Combine(aTargetFolder, f2.LastPathComponent));
+              File.Move(f2, Path.Combine(aTargetFolder, f2.LastPathComponent));
               writeLn($"Copy {f2}");
             end;
           end;
@@ -327,19 +331,48 @@ type
       Folder.Delete(lSubfolder);
     end;
 
-    method MergeSwift(aTargetFolder: String);
+    //method MergeSwift(aTargetFolder: String);
+    //begin
+      //var lSwiftFolder := Path.Combine(aTargetFolder, "Swift");
+      //if lSwiftFolder.FolderExists then begin
+        //for each f in Folder.GetFiles(lSwiftFolder) do begin
+          //if Path.Combine(aTargetFolder, f.LastPathComponent).FileExists then
+            //{no-op, real merge will happen later}
+          //else
+            //File.Move(f, Path.Combine(aTargetFolder, f.LastPathComponent));
+        //end;
+        //if Folder.GetFiles(lSwiftFolder).Count = 0 then
+          //Folder.Delete(lSwiftFolder);
+      //end;
+    //end;
+
+    method MergeSwift2(aSwiftOnlyTargetFolder, aTargetFolder: String);
     begin
-      var lSwiftFolder := Path.Combine(aTargetFolder, "Swift");
+      var lSwiftFolder := Path.Combine(aSwiftOnlyTargetFolder, "Swift");
       if lSwiftFolder.FolderExists then begin
+
+        // Move files in ./Swift
         for each f in Folder.GetFiles(lSwiftFolder) do begin
           if Path.Combine(aTargetFolder, f.LastPathComponent).FileExists then
-            {no-op, real merge will happen later}
+            File.Move(f, Path.Combine(aTargetFolder, Path.ChangeExtension(f.LastPathComponent, ".swift.fx"))) // for now. maybe we can merge later?
           else
             File.Move(f, Path.Combine(aTargetFolder, f.LastPathComponent));
         end;
         if Folder.GetFiles(lSwiftFolder).Count = 0 then
           Folder.Delete(lSwiftFolder);
+
+        // Move files in ./
+        for each f in Folder.GetFiles(aSwiftOnlyTargetFolder) do begin
+          if Path.Combine(aTargetFolder, Path.ChangeExtension(f.LastPathComponent, ".swift.fx")).FileExists then
+            File.Move(f, Path.Combine(aTargetFolder, Path.ChangeExtension(f.LastPathComponent, ".swift2.fx")))
+          else
+            File.Move(f, Path.Combine(aTargetFolder, Path.ChangeExtension(f.LastPathComponent, ".swift.fx")));
+        end;
+
       end;
+
+      if Folder.GetFiles(aSwiftOnlyTargetFolder).Count = 0 then
+        Folder.Delete(aSwiftOnlyTargetFolder);
     end;
 
     //
