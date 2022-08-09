@@ -19,7 +19,7 @@ type
         var lImporter := new Importer();
         lImporter.CodeFolder := Path.Combine(Environment.UserHomeFolder, "Code/");
         lImporter.HI := Path.Combine(ElementsPaths.Instance.ElementsBinFolder, "HeaderImporter.exe");
-        lImporter.FrameworksFolder := Path.Combine(ElementsPaths.Instance.ElementsBinFolder, "..", "Frameworks");
+        lImporter.FrameworksFolder := Path.GetFullPath(Path.Combine(ElementsPaths.Instance.ElementsBinFolder, "..", "Frameworks"));
         lImporter.ApplicationsFolder := Path.Combine(Environment.UserHomeFolder, "Applications");
         if not lImporter.ApplicationsFolder.FolderExists then
           lImporter.ApplicationsFolder := "/Applications";
