@@ -9,7 +9,7 @@ type
 
     property FrameworksFolder: String;
 
-    method ImportSDKs;
+      method ImportSDKs;
     begin
       //GenerateCode := true;
 
@@ -18,6 +18,7 @@ type
       //Debug := true;
       //SkipHI := true;
 
+      //GenerateCode := true;
       //DontDeleteJson := true;
       //SkipDeploymentTargets := true;
       //SkipNonEssentialFrameworks := true;
@@ -37,7 +38,7 @@ type
       // Do Swift Import
       //
 
-      // do not chnage these!
+      // do not change these!
       DontClean := true;
       SkipDeploymentTargets := true;
       SwiftOnly := true;
@@ -48,7 +49,7 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode("14.0") Beta(1);
+      ImportXcode("14.0") Beta(5);
       //ImportXcode("13.4");// Beta(3);
       //ImportXcode("13.1");// Name("RC");
       //ImportXcode("12.5");
