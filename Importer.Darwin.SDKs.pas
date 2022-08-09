@@ -262,35 +262,49 @@ type
     method MergeOrFlatten(aTargetFolder: String; aArchitectures: ImmutableList<Architecture>);
     begin
       writeLn($"Merge or Flatten {aTargetFolder}");
-      if (aArchitectures.Count > 1) or SwiftOnly then
-        Merge(aTargetFolder, aArchitectures)
-      else if aArchitectures.Count = 1 then
+      if (aArchitectures.Count > 1) then begin
+        Merge(aTargetFolder, aArchitectures);
+        if SwiftOnly then
+          Merge(aTargetFolder, aArchitectures) Swift(true);
+        for each a in aArchitectures do
+          Folder.Delete(Path.Combine(aTargetFolder, a.Arch));
+      end
+      else if aArchitectures.Count = 1 then begin
         Flatten(aTargetFolder, aArchitectures.First);
+        Folder.Delete(Path.Combine(aTargetFolder, aArchitectures.First.Arch));
+      end;
     end;
 
-    method Merge(aTargetFolder: String; aArchitectures: ImmutableList<Architecture>);
+    method Merge(aTargetFolder: String; aArchitectures: ImmutableList<Architecture>) Swift(aSwift: Boolean := false);
     begin
+      var lDestinationFolder := aTargetFolder;
+
+      method SourceFolderForArch(aArch: String): String;
+      begin
+        result := Path.Combine(aTargetFolder, aArch);
+        if aSwift then
+          result := Path.Combine(result, "Swift");
+      end;
 
       var lKnownFiles := new List<String>;
       for each a in aArchitectures do begin
-        var fx := Folder.GetFiles(Path.Combine(aTargetFolder, a.Arch)).Where(f -> f.PathExtension = ".fx").Select(f -> f.LastPathComponent).ToList();
+        var fx := Folder.GetFiles(SourceFolderForArch(a.Arch)).Where(f -> f.PathExtension = ".fx").Select(f -> f.LastPathComponent).ToList();
         lKnownFiles.Add(fx);
-
-        if Path.Combine(aTargetFolder, a.Arch, "Swift").FolderExists then begin
-          Folder.Create(Path.Combine(aTargetFolder, "Swift"));
-          fx := Folder.GetFiles(Path.Combine(aTargetFolder, a.Arch, "Swift")).Where(f -> f.PathExtension = ".fx").Select(f -> Path.Combine("Swift", f.LastPathComponent)).ToList();
-          lKnownFiles.Add(fx);
-        end;
       end;
 
-      for each f in lKnownFiles.Distinct do begin
+      if aSwift then begin
+        lDestinationFolder := Path.Combine(lDestinationFolder, "Swift");
+        Folder.Create(lDestinationFolder);
+      end;
+
+      for each f in lKnownFiles.Distinct.OrderBy(f -> f) do begin
         var lArgs := new List<String>;
         lArgs.Add("combine");
-        lArgs.Add(Path.Combine(aTargetFolder, f));
+        lArgs.Add(Path.Combine(lDestinationFolder, f));
 
         var lCount := 0;
         for each a in aArchitectures do begin
-          var f2 := Path.Combine(aTargetFolder, a.Arch, f);
+          var f2 := Path.Combine(SourceFolderForArch(a.Arch), f);
           if f2.FileExists then begin
             lArgs.Add(f2);
             inc(lCount);
@@ -302,17 +316,15 @@ type
         end
         else begin
           for each a in aArchitectures do begin
-            var f2 := Path.Combine(aTargetFolder, a.Arch, f);
+            var f2 := Path.Combine(SourceFolderForArch(a.Arch), f);
             if f2.FileExists then begin
-              File.Move(f2, Path.Combine(aTargetFolder, f2.LastPathComponent));
-              writeLn($"Copy {f2}");
+              writeLn($"Move {f2}");
+              File.Move(f2, Path.Combine(lDestinationFolder, f2.LastPathComponent));
             end;
           end;
         end;
       end;
 
-      for each a in aArchitectures do
-        Folder.Delete(Path.Combine(aTargetFolder, a.Arch));
     end;
 
     method Flatten(aTargetFolder: String; aArchitecture: Architecture);
@@ -328,7 +340,7 @@ type
           File.Move(f, Path.Combine(aTargetFolder, "Swift", f.LastPathComponent));
       end;
 
-      Folder.Delete(lSubfolder);
+      //Folder.Delete(lSubfolder);
     end;
 
     //method MergeSwift(aTargetFolder: String);
