@@ -49,7 +49,7 @@ type
       var lExitCode: Integer;
 
       if defined("ECHOES") and HIRunsEmbedded then begin
-        lExitCode := HeaderImporter.HeaderImporterConsoleApp.Main(aArgs.ToArray);
+        lExitCode := RemObjects.Elements.HeaderImporter.HeaderImporterConsoleApp.Main(aArgs.ToArray);
       end
       else begin
         lExitCode := Process.Run(lExe, aArgs.ToArray, nil, nil, s -> begin
