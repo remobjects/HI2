@@ -29,6 +29,7 @@ type
       //SkipIOS := true;
       //SkipTvOS := true;
       //SkipWatchOS := true;
+      SkipRealityOS := true;
 
       ImportIslandSDKs;
 
@@ -49,7 +50,7 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode("14.0") Beta(5);
+      ImportXcode("14.2");// Beta(5);
       //ImportXcode("13.4");// Beta(3);
       //ImportXcode("13.1");// Name("RC");
       //ImportXcode("12.5");
@@ -113,6 +114,7 @@ type
       ImportIOSSDK();
       ImportTvOSSDK();
       ImportWatchOSSDK();
+      ImportRealityOSSDK();
 
       //ImportDriverKitSDK();
     end;

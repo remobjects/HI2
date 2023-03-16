@@ -119,6 +119,9 @@ type
     property rtlFiles_tvOS: array of String read rtlFiles_iOS;
     property rtlFiles_tvOSSimulator: array of String read rtlFiles_iOSSimulator;
 
+    property rtlFiles_realityOS: array of String read rtlFiles_iOS;
+    property rtlFiles_realityOSSimulator: array of String read rtlFiles_iOSSimulator;
+
     //
     //
     //
@@ -139,11 +142,13 @@ type
     const indirectRtlFiles_iOS = ["mach-o/arm/*.h", "mach-o/arm64/*.h"];
     const indirectRtlFiles_watchOS: array of String = []; // ["mach-o/arm/*.h", "mach-o/arm64/*.h"];
     const indirectRtlFiles_tvOS = ["mach-o/arm64/*.h"];
+    const indirectRtlFiles_realityOS: array of String = [];
     const indirectRtlFiles_DriverKit: array of String = [];
 
     property indirectRtlFiles_iOSSimulator: array of String read indirectRtlFiles_macOS;
     const indirectRtlFiles_tvOSSimulator = ["mach-o/x86_64/*.h"];
     const indirectRtlFiles_watchOSSimulator: array of String = [];//"mach-o/i386/*.h"];
+    const indirectRtlFiles_realityOSSimulator: array of String = [];
 
     //
     //
@@ -194,6 +199,7 @@ type
             ]".Replace("'",'"');
     var forceIncludes_watchOS := forceIncludes_iOS;
     var forceIncludes_tvOS := forceIncludes_iOS;
+    var forceIncludes_realityOS := forceIncludes_iOS;
     var forceIncludes_macOS := "[
             { 'Key': 'Quartz/ImageKit/IKImageEditPanel.h', 'Value': ['Foundation/NSError.h']},
             { 'Key': 'Quartz/ImageKit/IKImageView.h', 'Value': ['Foundation/NSError.h']},

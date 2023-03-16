@@ -13,7 +13,7 @@ type
       try
         // add your own code here
         writeLn("RemObjects Elements .fx Importer Frontend (HI2).");
-        writeLn("Copyright RemObjects Software 2016-2021. All Rights Reserved.");
+        writeLn("Copyright RemObjects Software 2016-2023. All Rights Reserved.");
         writeLn();
 
         var lImporter := new Importer();
