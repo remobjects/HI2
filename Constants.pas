@@ -417,6 +417,10 @@ type
             lFiles.Add(FilterIncludeFileList(rtlFiles_tvOSSimulator, aVersion, aArchitecture))
           else
             lFiles.Add(FilterIncludeFileList(rtlFiles_tvOS, aVersion, aArchitecture));
+        "realityOS": if aArchitecture.Simulator then
+            lFiles.Add(FilterIncludeFileList(rtlFiles_realityOSSimulator, aVersion, aArchitecture))
+          else
+            lFiles.Add(FilterIncludeFileList(rtlFiles_realityOS, aVersion, aArchitecture));
       end;
       result := lFiles;
     end;
@@ -443,6 +447,10 @@ type
             lFiles.Add(FilterIncludeFileList(indirectRtlFiles_tvOSSimulator, aVersion, aArchitecture))
           else
             lFiles.Add(FilterIncludeFileList(indirectRtlFiles_tvOS, aVersion, aArchitecture));
+        "realityOS": if aArchitecture.Simulator then
+            lFiles.Add(FilterIncludeFileList(indirectRtlFiles_realityOSSimulator, aVersion, aArchitecture))
+          else
+            lFiles.Add(FilterIncludeFileList(indirectRtlFiles_realityOS, aVersion, aArchitecture));
       end;
       result := lFiles;
     end;
@@ -455,6 +463,7 @@ type
         "iOS": forceIncludes_iOS;
         "watchOS": forceIncludes_watchOS;
         "tvOS": forceIncludes_tvOS;
+        "realityOS": forceIncludes_realityOS;
       end;
 
       if aArchitecture.Environment = "macabi" then
