@@ -29,7 +29,7 @@ type
       //SkipIOS := true;
       //SkipTvOS := true;
       //SkipWatchOS := true;
-      SkipRealityOS := true;
+      SkipVisionOS := true;
 
       ImportIslandSDKs;
 
@@ -114,7 +114,7 @@ type
       ImportIOSSDK();
       ImportTvOSSDK();
       ImportWatchOSSDK();
-      ImportRealityOSSDK();
+      ImportVisionOSSDK();
 
       //ImportDriverKitSDK();
     end;

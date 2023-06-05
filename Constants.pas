@@ -50,7 +50,7 @@ type
     const watchOSDefines32 =               _iOSDefines32+";WATCHOS;DEVICE";
     const watchOSDefines64 =               _watchOSDefines64+";WATCHOS;DEVICE";
     const tvOSDefines64 =                  _iOSDefines64+";TVOS;DEVICE";
-    const realityOSDefines64 =             _iOSDefines64+";REALITYOS;DEVICE";
+    const visionOSDefines64 =             _iOSDefines64+";VISIONOS;DEVICE";
     const iOSDefinesSimulatorI386 =        _iOSDefinesSimulator32+";IOS;IOSSIMULATOR;SIMULATOR";
     const iOSDefinesSimulatorX64 =         _iOSDefinesSimulator64+";IOS;IOSSIMULATOR;SIMULATOR";
     const iOSDefinesSimulatorArm64 =       _iOSDefines64         +";IOS;IOSSIMULATOR;SIMULATOR";
@@ -59,8 +59,8 @@ type
     const watchOSDefinesSimulatorArm64 =   _iOSDefines64         +";WATCHOS;WATCHOSSIMULATOR;SIMULATOR";
     const tvOSDefinesSimulatorX64 =        _iOSDefinesSimulator64+";TVOS;TVOSSIMULATOR;SIMULATOR";
     const tvOSDefinesSimulatorArm64 =      _iOSDefines64         +";TVOS;TVOSSIMULATOR;SIMULATOR";
-    const realityOSDefinesSimulatorX64 =   _iOSDefinesSimulator64+";REALITYOS;REALITYOSSIMULATOR;SIMULATOR";
-    const realityOSDefinesSimulatorArm64 = _iOSDefines64         +";REALITYOS;REALITYOSSIMULATOR;SIMULATOR";
+    const visionOSDefinesSimulatorX64 =    _iOSDefinesSimulator64+";VISIONOS;VISIONOSSIMULATOR;SIMULATOR";
+    const visionOSDefinesSimulatorArm64 =  _iOSDefines64         +";VISIONOS;VISIONOSSIMULATOR;SIMULATOR";
 
     const ExtraDefinesToffee = ";DARWIN;__ELEMENTS;__TOFFEE__";
     const ExtraDefinesIsland = ";DARWIN;__ELEMENTS;__ISLAND__;POSIX";
@@ -86,15 +86,15 @@ type
     property Architecture_tvOS_arm64                : Architecture read new Architecture(Triple := "arm64-apple-tvos",                 Defines := tvOSDefines64,                  SDKName := "tvOS",                                                                                    MinimumTargetSDK := "9.0");
     property Architecture_tvOSSimulator_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-tvos-simulator",      Defines := tvOSDefinesSimulatorX64,        SDKName := "tvOS",         Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "9.0");
     property Architecture_tvOSSimulator_arm64       : Architecture read new Architecture(Triple := "arm64-apple-tvos-simulator",       Defines := tvOSDefinesSimulatorArm64,      SDKName := "tvOS",         Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "14.2");
-    property Architecture_realityOS_arm64           : Architecture read new Architecture(Triple := "arm64-apple-realityos",            Defines := realityOSDefines64,             SDKName := "realityOS",                                                                               MinimumTargetSDK := "17.0");
-    property Architecture_realityOSSimulator_x86_64 : Architecture read new Architecture(Triple := "x86_64-apple-realityos-simulator", Defines := realityOSDefinesSimulatorX64,   SDKName := "realityOS",    Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "17.0");
-    property Architecture_realityOSSimulator_arm64  : Architecture read new Architecture(Triple := "arm64-apple-realityos-simulator",  Defines := realityOSDefinesSimulatorArm64, SDKName := "realityOS",    Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "17.0");
+    property Architecture_visionOS_arm64            : Architecture read new Architecture(Triple := "arm64-apple-visionos",            Defines := visionOSDefines64,             SDKName := "visionOS",                                                                               MinimumTargetSDK := "17.0");
+    property Architecture_visionOSSimulator_x86_64  : Architecture read new Architecture(Triple := "x86_64-apple-visionos-simulator", Defines := visionOSDefinesSimulatorX64,   SDKName := "visionOS",    Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "17.0");
+    property Architecture_visionOSSimulator_arm64   : Architecture read new Architecture(Triple := "arm64-apple-visionos-simulator",  Defines := visionOSDefinesSimulatorArm64, SDKName := "visionOS",    Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "17.0");
 
     const macOSEnvironmentVersionDefine     = '__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__';
     const iOSEnvironmentVersionDefine       = '__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__';
     const watchOSEnvironmentVersionDefine   = '__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__';
     const tvOSEnvironmentVersionDefine      = '__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__';
-    const realityOSEnvironmentVersionDefine = '__ENVIRONMENT_REALITY_OS_VERSION_MIN_REQUIRED__';
+    const visionOSEnvironmentVersionDefine  = '__ENVIRONMENT_VISION_OS_VERSION_MIN_REQUIRED__';
 
     const macCatalystDeploymentTargets_x86_64 =   "15.0;14.0;13.0";
     const macCatalystDeploymentTargets_arm64  =   "15.0;14.0";
@@ -103,7 +103,7 @@ type
     const iOSDeploymentTargets =                  "16.0;15.0;14.2;14.0;13.0;12.0;11.0;10.0;9.0"; // keep 14.2 for Catalyst
     const tvOSDeploymentTargets =                 "16.0;15.0;14.0;13.0;12.0;11.0;10.0;9.0";
     const watchOSDeploymentTargets =              "9.0;8.0;7.0;6.0;5.0;4.0;3.0;2.0";
-    const realityOSDeploymentTargets =            "17.0";
+    const visionOSDeploymentTargets =             "17.0";
 
     method DeploymentTargets(aSDK: String; aArchitecture: String): String;
     begin
@@ -119,7 +119,7 @@ type
         "iOS": iOSDeploymentTargets;
         "tvOS": tvOSDeploymentTargets;
         "watchOS": watchOSDeploymentTargets;
-        "realityOS": realityOSDeploymentTargets;
+        "visionOS": visionOSDeploymentTargets;
       end;
     end;
 
@@ -149,7 +149,7 @@ type
     property iOSVersion: String;// := iOSCurrentVersion;
     property tvOSVersion: String;// := tvOSCurrentVersion;
     property watchOSVersion: String;// := watchOSCurrentVersion;
-    property realityOSVersion: String;// := realityOSCurrentVersion;
+    property visionOSVersion: String;// := visionOSCurrentVersion;
     property DriverKitVersion: String;// := driverKitCurrentVersion;
     property BetaSuffix: String := "";
     property DeveloperFolder: String := ToffeePaths.Instance.LocalXcodeDeveloperFolder;
@@ -208,7 +208,7 @@ type
         "iOS": if aSimulator then "iPhoneSimulator" else "iPhoneOS";
         "tvOS": if aSimulator then "AppleTVSimulator" else "AppleTVOS";
         "watchOS": if aSimulator then "WatchSimulator" else "WatchOS";
-        "realityOS": if aSimulator then "RealitySimulator" else "RealityOS";
+        "visionOS": if aSimulator then "VisionSimulator" else "VisionOS";
       end;
     end;
 
@@ -260,9 +260,9 @@ type
       yield (Architecture_watchOSSimulator_x86_64, watchOSVersion);
       yield (Architecture_watchOSSimulator_arm64,  watchOSVersion);
 
-      yield (Architecture_realityOS_arm64,           realityOSVersion);
-      yield (Architecture_realityOSSimulator_x86_64, realityOSVersion);
-      yield (Architecture_realityOSSimulator_arm64,  realityOSVersion);
+      yield (Architecture_visionOS_arm64,           visionOSVersion);
+      yield (Architecture_visionOSSimulator_x86_64, visionOSVersion);
+      yield (Architecture_visionOSSimulator_arm64,  visionOSVersion);
     end;
 
     method MacCatalystArchitectures: sequence of tuple of (Architecture, String); iterator;
@@ -336,15 +336,15 @@ type
         yield (Architecture_watchOSSimulator_arm64, watchOSVersion);
     end;
 
-    method realityOSArchitectures: sequence of tuple of (Architecture, String); iterator;
+    method visionOSArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
-      yield (Architecture_realityOS_arm64, realityOSVersion);
+      yield (Architecture_visionOS_arm64, visionOSVersion);
     end;
 
-    method realityOSSimulatorArchitectures: sequence of tuple of (Architecture, String); iterator;
+    method visionOSSimulatorArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
-      yield (Architecture_realityOSSimulator_x86_64, realityOSVersion);
-      yield (Architecture_realityOSSimulator_arm64, realityOSVersion);
+      yield (Architecture_visionOSSimulator_x86_64, visionOSVersion);
+      yield (Architecture_visionOSSimulator_arm64, visionOSVersion);
     end;
 
 
@@ -417,10 +417,10 @@ type
             lFiles.Add(FilterIncludeFileList(rtlFiles_tvOSSimulator, aVersion, aArchitecture))
           else
             lFiles.Add(FilterIncludeFileList(rtlFiles_tvOS, aVersion, aArchitecture));
-        "realityOS": if aArchitecture.Simulator then
-            lFiles.Add(FilterIncludeFileList(rtlFiles_realityOSSimulator, aVersion, aArchitecture))
+        "visionOS": if aArchitecture.Simulator then
+            lFiles.Add(FilterIncludeFileList(rtlFiles_visionOSSimulator, aVersion, aArchitecture))
           else
-            lFiles.Add(FilterIncludeFileList(rtlFiles_realityOS, aVersion, aArchitecture));
+            lFiles.Add(FilterIncludeFileList(rtlFiles_visionOS, aVersion, aArchitecture));
       end;
       result := lFiles;
     end;
@@ -447,10 +447,10 @@ type
             lFiles.Add(FilterIncludeFileList(indirectRtlFiles_tvOSSimulator, aVersion, aArchitecture))
           else
             lFiles.Add(FilterIncludeFileList(indirectRtlFiles_tvOS, aVersion, aArchitecture));
-        "realityOS": if aArchitecture.Simulator then
-            lFiles.Add(FilterIncludeFileList(indirectRtlFiles_realityOSSimulator, aVersion, aArchitecture))
+        "visionOS": if aArchitecture.Simulator then
+            lFiles.Add(FilterIncludeFileList(indirectRtlFiles_visionOSSimulator, aVersion, aArchitecture))
           else
-            lFiles.Add(FilterIncludeFileList(indirectRtlFiles_realityOS, aVersion, aArchitecture));
+            lFiles.Add(FilterIncludeFileList(indirectRtlFiles_visionOS, aVersion, aArchitecture));
       end;
       result := lFiles;
     end;
@@ -463,7 +463,7 @@ type
         "iOS": forceIncludes_iOS;
         "watchOS": forceIncludes_watchOS;
         "tvOS": forceIncludes_tvOS;
-        "realityOS": forceIncludes_realityOS;
+        "visionOS": forceIncludes_visionOS;
       end;
 
       if aArchitecture.Environment = "macabi" then
@@ -540,7 +540,7 @@ type
       iOSVersion := FindVersion("iOS", "iPhoneOS");
       tvOSVersion := FindVersion("tvOS", "AppleTVOS");
       watchOSVersion := FindVersion("watchOS", "WatchOS");
-      //realityOSVersion := FindVersion("realityOS", "RealityOS");
+      //visionOSVersion := FindVersion("visionOS", "VisionOS");
       DriverKitVersion := FindVersion("DriverKit", "DriverKit", "MacOSX");
 
     end;

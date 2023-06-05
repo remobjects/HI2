@@ -25,7 +25,7 @@ type
     property SkipIOS := false;
     property SkipTvOS := false;
     property SkipWatchOS := false;
-    property SkipRealityOS := false;
+    property SkipVisionOS := false;
     property SkipDevice := false;
     property SkipSimulator := false;
 
@@ -92,14 +92,14 @@ type
       end;
     end;
 
-    method ImportRealityOSSDK();
+    method ImportVisionOSSDK();
     begin
-      if not SkipRealityOS then begin
+      if not SkipVisionOS then begin
         if not SkipDevice then
-          ImportSDK("realityOS", Darwin.realityOSVersion, false);
+          ImportSDK("visionOS", Darwin.visionOSVersion, false);
         if not SkipSimulator then
-          ImportSDK("realityOS", Darwin.realityOSVersion, true);
-        CreateSDKZip("realityOS", Darwin.realityOSVersion);
+          ImportSDK("visionOS", Darwin.visionOSVersion, true);
+        CreateSDKZip("visionOS", Darwin.visionOSVersion);
       end;
     end;
 
@@ -119,7 +119,7 @@ type
         "iOS": if aSimulator then Darwin.iOSSimulatorArchitectures else Darwin.iOSArchitectures;
         "tvOS": if aSimulator then Darwin.tvOSSimulatorArchitectures else Darwin.tvOSArchitectures;
         "watchOS": if aSimulator then Darwin.watchOSSimulatorArchitectures else Darwin.watchOSArchitectures;
-        "realityOS": if aSimulator then Darwin.realityOSSimulatorArchitectures else Darwin.realityOSArchitectures;
+        "visionOS": if aSimulator then Darwin.visionOSSimulatorArchitectures else Darwin.visionOSArchitectures;
       end;
 
       method DefinesForVersion(v: String): String;
@@ -130,7 +130,7 @@ type
           "iOS": Darwin.iOSEnvironmentVersionDefine;
           "tvOS": Darwin.tvOSEnvironmentVersionDefine;
           "watchOS": Darwin.watchOSEnvironmentVersionDefine;
-          "realityOS": Darwin.realityOSEnvironmentVersionDefine;
+          "visionOS": Darwin.visionOSEnvironmentVersionDefine;
         end;
         lEnvironmentVersionDefine := lEnvironmentVersionDefine+"="+Darwin.CalculateIntegerVersion(aName, lInternalShortVersion);
         var lDefines := lEnvironmentVersionDefine;
