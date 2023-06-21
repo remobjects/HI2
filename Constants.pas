@@ -86,9 +86,9 @@ type
     property Architecture_tvOS_arm64                : Architecture read new Architecture(Triple := "arm64-apple-tvos",                 Defines := tvOSDefines64,                  SDKName := "tvOS",                                                                                    MinimumTargetSDK := "9.0");
     property Architecture_tvOSSimulator_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-tvos-simulator",      Defines := tvOSDefinesSimulatorX64,        SDKName := "tvOS",         Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "9.0");
     property Architecture_tvOSSimulator_arm64       : Architecture read new Architecture(Triple := "arm64-apple-tvos-simulator",       Defines := tvOSDefinesSimulatorArm64,      SDKName := "tvOS",         Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "14.2");
-    property Architecture_visionOS_arm64            : Architecture read new Architecture(Triple := "arm64-apple-visionos",            Defines := visionOSDefines64,             SDKName := "visionOS",                                                                               MinimumTargetSDK := "17.0");
-    property Architecture_visionOSSimulator_x86_64  : Architecture read new Architecture(Triple := "x86_64-apple-visionos-simulator", Defines := visionOSDefinesSimulatorX64,   SDKName := "visionOS",    Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "17.0");
-    property Architecture_visionOSSimulator_arm64   : Architecture read new Architecture(Triple := "arm64-apple-visionos-simulator",  Defines := visionOSDefinesSimulatorArm64, SDKName := "visionOS",    Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "17.0");
+    property Architecture_visionOS_arm64            : Architecture read new Architecture(Triple := "arm64-apple-visionos",            Defines := visionOSDefines64,               SDKName := "visionOS",                                                                                MinimumTargetSDK := "1.0");
+    property Architecture_visionOSSimulator_x86_64  : Architecture read new Architecture(Triple := "x86_64-apple-visionos-simulator", Defines := visionOSDefinesSimulatorX64,     SDKName := "visionOS",     Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "1.0");
+    property Architecture_visionOSSimulator_arm64   : Architecture read new Architecture(Triple := "arm64-apple-visionos-simulator",  Defines := visionOSDefinesSimulatorArm64,   SDKName := "visionOS",     Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "1.0");
 
     const macOSEnvironmentVersionDefine     = '__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__';
     const iOSEnvironmentVersionDefine       = '__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__';
@@ -96,14 +96,14 @@ type
     const tvOSEnvironmentVersionDefine      = '__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__';
     const visionOSEnvironmentVersionDefine  = '__ENVIRONMENT_VISION_OS_VERSION_MIN_REQUIRED__';
 
-    const macCatalystDeploymentTargets_x86_64 =   "15.0;14.0;13.0";
-    const macCatalystDeploymentTargets_arm64  =   "15.0;14.0";
-    const macOSDeploymentTargets_x86_64 =         "13.0;12.0;11.0;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
-    const macOSDeploymentTargets_arm64 =          "13.0;12.0;11.0";
-    const iOSDeploymentTargets =                  "16.0;15.0;14.2;14.0;13.0;12.0;11.0;10.0;9.0"; // keep 14.2 for Catalyst
-    const tvOSDeploymentTargets =                 "16.0;15.0;14.0;13.0;12.0;11.0;10.0;9.0";
-    const watchOSDeploymentTargets =              "9.0;8.0;7.0;6.0;5.0;4.0;3.0;2.0";
-    const visionOSDeploymentTargets =             "17.0";
+    const macCatalystDeploymentTargets_x86_64 =   "17.0;16.0;15.0;14.0;13.0";
+    const macCatalystDeploymentTargets_arm64  =   "17.0;16.0;15.0;14.0";
+    const macOSDeploymentTargets_x86_64 =         "14.0;13.0;12.0;11.0;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
+    const macOSDeploymentTargets_arm64 =          "14.0;13.0;12.0;11.0";
+    const iOSDeploymentTargets =                  "17.0;16.0;15.0;14.2;14.0;13.0;12.0;11.0;10.0;9.0"; // keep 14.2 for Catalyst
+    const tvOSDeploymentTargets =                 "17.0;16.0;15.0;14.0;13.0;12.0;11.0;10.0;9.0";
+    const watchOSDeploymentTargets =              "10.0;9.0;8.0;7.0;6.0;5.0;4.0;3.0;2.0";
+    const visionOSDeploymentTargets =             "1.0";
 
     method DeploymentTargets(aSDK: String; aArchitecture: String): String;
     begin
@@ -137,20 +137,13 @@ type
 
     const MIN_TVOS_VERSION_FOR_ARM64E_SIMULATOR = MIN_IOS_VERSION_FOR_ARM64E_SIMULATOR;
 
-    //const macOSCurrentVersion = "11.0";
-    //const iOSCurrentVersion = "14.2";
-    //const tvOSCurrentVersion = "14.2";
-    //const watchOSCurrentVersion = "7.1";
-    //const driverKitCurrentVersion = "20.0";
-    //const xcodeCurrentVersion = "12.2";
-
     // Ovverride these values to control what Xcode ansd SDK Versions to use
-    property macOSVersion: String;// := macOSCurrentVersion;
-    property iOSVersion: String;// := iOSCurrentVersion;
-    property tvOSVersion: String;// := tvOSCurrentVersion;
-    property watchOSVersion: String;// := watchOSCurrentVersion;
-    property visionOSVersion: String;// := visionOSCurrentVersion;
-    property DriverKitVersion: String;// := driverKitCurrentVersion;
+    property macOSVersion: String;
+    property iOSVersion: String;
+    property tvOSVersion: String;
+    property watchOSVersion: String;
+    property visionOSVersion: String;
+    property DriverKitVersion: String;
     property BetaSuffix: String := "";
     property DeveloperFolder: String := ToffeePaths.Instance.LocalXcodeDeveloperFolder;
     property Island := true;
@@ -187,7 +180,7 @@ type
     begin
       var v := aVersion.split(".");
       if length(v) < 2 then
-        raise new Exception($"Invalid SDK version beginaVersionend;");
+        raise new Exception($"Invalid SDK version {aVersion}");
       result := v[0]+"."+v[1];
     end;
 
@@ -208,7 +201,7 @@ type
         "iOS": if aSimulator then "iPhoneSimulator" else "iPhoneOS";
         "tvOS": if aSimulator then "AppleTVSimulator" else "AppleTVOS";
         "watchOS": if aSimulator then "WatchSimulator" else "WatchOS";
-        "visionOS": if aSimulator then "VisionSimulator" else "VisionOS";
+        "visionOS": if aSimulator then "XRSimulator" else "XROS";
       end;
     end;
 
@@ -221,6 +214,7 @@ type
         "iOS": if aSimulator then "iPhoneSimulator" else "iPhoneOS";
         "tvOS": if aSimulator then "AppleTVSimulator" else "AppleTVOS";
         "watchOS": if aSimulator then "WatchSimulator" else "WatchOS";
+        "visionOS": if aSimulator then "XRhSimulator" else "XROS";
       end;
     end;
 
@@ -329,7 +323,6 @@ type
 
     method watchOSSimulatorArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
-      //yield (Architecture_watchOSSimulator_i386, watchOSVersion);
       if watchOSVersion.CompareVersionTripleTo(MIN_WATCHOS_VERSION_FOR_ARM64) ≥ 0 then
         yield (Architecture_watchOSSimulator_x86_64, watchOSVersion);
       if watchOSSimulatorArm then
@@ -343,10 +336,10 @@ type
 
     method visionOSSimulatorArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
-      yield (Architecture_visionOSSimulator_x86_64, visionOSVersion);
       yield (Architecture_visionOSSimulator_arm64, visionOSVersion);
+      if macOS_Intel then
+        yield (Architecture_visionOSSimulator_x86_64, visionOSVersion);
     end;
-
 
     //
     // RTL Files
@@ -540,7 +533,7 @@ type
       iOSVersion := FindVersion("iOS", "iPhoneOS");
       tvOSVersion := FindVersion("tvOS", "AppleTVOS");
       watchOSVersion := FindVersion("watchOS", "WatchOS");
-      //visionOSVersion := FindVersion("visionOS", "VisionOS");
+      visionOSVersion := FindVersion("visionOS", "XROS");
       DriverKitVersion := FindVersion("DriverKit", "DriverKit", "MacOSX");
 
     end;
