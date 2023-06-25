@@ -86,15 +86,15 @@ type
     property Architecture_tvOS_arm64                : Architecture read new Architecture(Triple := "arm64-apple-tvos",                 Defines := tvOSDefines64,                  SDKName := "tvOS",                                                                                    MinimumTargetSDK := "9.0");
     property Architecture_tvOSSimulator_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-tvos-simulator",      Defines := tvOSDefinesSimulatorX64,        SDKName := "tvOS",         Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "9.0");
     property Architecture_tvOSSimulator_arm64       : Architecture read new Architecture(Triple := "arm64-apple-tvos-simulator",       Defines := tvOSDefinesSimulatorArm64,      SDKName := "tvOS",         Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "14.2");
-    property Architecture_visionOS_arm64            : Architecture read new Architecture(Triple := "arm64-apple-visionos",            Defines := visionOSDefines64,               SDKName := "visionOS",                                                                                MinimumTargetSDK := "1.0");
-    property Architecture_visionOSSimulator_x86_64  : Architecture read new Architecture(Triple := "x86_64-apple-visionos-simulator", Defines := visionOSDefinesSimulatorX64,     SDKName := "visionOS",     Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "1.0");
-    property Architecture_visionOSSimulator_arm64   : Architecture read new Architecture(Triple := "arm64-apple-visionos-simulator",  Defines := visionOSDefinesSimulatorArm64,   SDKName := "visionOS",     Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "1.0");
+    property Architecture_visionOS_arm64            : Architecture read new Architecture(Triple := "arm64-apple-visionos",             Defines := visionOSDefines64,               SDKName := "visionOS",                                                                                MinimumTargetSDK := "1.0", OS := "xros");
+    property Architecture_visionOSSimulator_x86_64  : Architecture read new Architecture(Triple := "x86_64-apple-visionos-simulator",  Defines := visionOSDefinesSimulatorX64,     SDKName := "visionOS",     Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "1.0", OS := "xros");
+    property Architecture_visionOSSimulator_arm64   : Architecture read new Architecture(Triple := "arm64-apple-visionos-simulator",   Defines := visionOSDefinesSimulatorArm64,   SDKName := "visionOS",     Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "1.0", OS := "xros");
 
     const macOSEnvironmentVersionDefine     = '__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__';
     const iOSEnvironmentVersionDefine       = '__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__';
     const watchOSEnvironmentVersionDefine   = '__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__';
     const tvOSEnvironmentVersionDefine      = '__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__';
-    const visionOSEnvironmentVersionDefine  = '__ENVIRONMENT_VISION_OS_VERSION_MIN_REQUIRED__';
+    const visionOSEnvironmentVersionDefine  = '__ENVIRONMENT_OS_VERSION_MIN_REQUIRED__'; // visionOS (Beta 2 at least) doesn't have its own __ENVIRONMENT_XR_OS_VERSION_MIN_REQUIRED__
 
     const macCatalystDeploymentTargets_x86_64 =   "17.0;16.0;15.0;14.0;13.0";
     const macCatalystDeploymentTargets_arm64  =   "17.0;16.0;15.0;14.0";
@@ -214,7 +214,7 @@ type
         "iOS": if aSimulator then "iPhoneSimulator" else "iPhoneOS";
         "tvOS": if aSimulator then "AppleTVSimulator" else "AppleTVOS";
         "watchOS": if aSimulator then "WatchSimulator" else "WatchOS";
-        "visionOS": if aSimulator then "XRhSimulator" else "XROS";
+        "visionOS": if aSimulator then "XRSimulator" else "XROS";
       end;
     end;
 
@@ -349,6 +349,11 @@ type
     begin
       if aBlacklist.Contains(aName) then begin
         writeLn("Skipping " + aName + ", blacklisted");
+        exit true;
+      end;
+
+      if aBlacklist.Contains(aArchitecture.SDKName + ":" + aName) then begin
+        writeLn("Skipping " + aName + ", blacklisted for " + aArchitecture.SDKName);
         exit true;
       end;
 

@@ -29,7 +29,7 @@ type
       //SkipIOS := true;
       //SkipTvOS := true;
       //SkipWatchOS := true;
-      SkipVisionOS := true;
+      //SkipVisionOS := true;
 
       ImportIslandSDKs;
 
@@ -50,7 +50,7 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode("14.2");// Beta(5);
+      ImportXcode("15") Beta(2);
       //ImportXcode("13.4");// Beta(3);
       //ImportXcode("13.1");// Name("RC");
       //ImportXcode("12.5");

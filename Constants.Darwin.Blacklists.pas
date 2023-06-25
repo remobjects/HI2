@@ -190,6 +190,8 @@ type
                   //'15.0:x86_64-apple-ios:CoreThreadCommissionerService',
                   //'15.0:arm64-apple-ios:CoreThreadCommissionerService',
 
+                  'visionOS:SensitiveContentAnalysis',
+
                   ].ToList; readonly;
 
   end;
