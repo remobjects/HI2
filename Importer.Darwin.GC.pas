@@ -73,7 +73,7 @@ type
       end
       else if aArchitecture.MacCatalyst then begin
         //lSDK := "UIKit for Mac "+aVersion;
-        lSDKName := "UIKit for Mac";
+        lSDKName := "Mac Catalyst";
       end;
 
       var lOutPath := Path.Combine(BaseFolder, "GC", "Darwin", lSDKName, lArch);
