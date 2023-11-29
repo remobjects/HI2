@@ -28,6 +28,7 @@ type
 
         method ImportGC();
         begin
+          Darwin.LoadVersionsFromXcode();
           lImporter.GCSourceFolder := "/Users/mh/Code/RemObjects/gc";
           lImporter.GCBinariesFolder := "/Users/mh/Code/Elements/Bin/References/Island";
           //lImporter.GCBinariesFolder := lImporter.GCSourceFolder;
