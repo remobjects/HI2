@@ -512,12 +512,15 @@ type
     method LoadVersionsFromXcode;
     begin
 
-      method FindVersion(aPrettyName: not nullable String; aName: not nullable String; aParentName: nullable String := nil): String;
+      method FindVersion(aPrettyName: not nullable String; aName: not nullable String; aParentName: nullable String := nil; aOptional: Boolean := false): String;
       begin
         aParentName := coalesce(aParentName, aName);
         var lPath := Path.Combine(DeveloperFolder, "Platforms", aParentName+".platform", "Developer", "SDKs");
-        if not lPath:FolderExists then
-          raise new Exception($"Cannot find any {aPrettyName} SDKs in '{DeveloperFolder}'");
+        if not lPath:FolderExists then begin
+          if not aOptional then
+            raise new Exception($"Cannot find any {aPrettyName} SDKs in '{DeveloperFolder}'");
+          exit;
+        end;
         var lCandidates := Folder.GetSubfolders(lPath).Where(f -> f.LastPathComponent.StartsWith(aName) and (f.PathExtension = ".sdk"));
         for each c in lCandidates do begin
           var v := c.LastPathComponentWithoutExtension;
@@ -538,7 +541,7 @@ type
       iOSVersion := FindVersion("iOS", "iPhoneOS");
       tvOSVersion := FindVersion("tvOS", "AppleTVOS");
       watchOSVersion := FindVersion("watchOS", "WatchOS");
-      visionOSVersion := FindVersion("visionOS", "XROS");
+      visionOSVersion := FindVersion("visionOS", "XROS", true);
       DriverKitVersion := FindVersion("DriverKit", "DriverKit", "MacOSX");
 
     end;

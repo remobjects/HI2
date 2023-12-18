@@ -94,7 +94,7 @@ type
 
     method ImportVisionOSSDK();
     begin
-      if not SkipVisionOS then begin
+      if not SkipVisionOS and assigned(Darwin.visionOSVersion) then begin
         if not SkipDevice then
           ImportSDK("visionOS", Darwin.visionOSVersion, false);
         if not SkipSimulator then
