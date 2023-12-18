@@ -86,9 +86,9 @@ type
     property Architecture_tvOS_arm64                : Architecture read new Architecture(Triple := "arm64-apple-tvos",                 Defines := tvOSDefines64,                  SDKName := "tvOS",                                                                                    MinimumTargetSDK := "9.0");
     property Architecture_tvOSSimulator_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-tvos-simulator",      Defines := tvOSDefinesSimulatorX64,        SDKName := "tvOS",         Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "9.0");
     property Architecture_tvOSSimulator_arm64       : Architecture read new Architecture(Triple := "arm64-apple-tvos-simulator",       Defines := tvOSDefinesSimulatorArm64,      SDKName := "tvOS",         Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "14.2");
-    property Architecture_visionOS_arm64            : Architecture read new Architecture(Triple := "arm64-apple-visionos",             Defines := visionOSDefines64,               SDKName := "visionOS",                                                                                MinimumTargetSDK := "1.0", OS := "xros");
-    property Architecture_visionOSSimulator_x86_64  : Architecture read new Architecture(Triple := "x86_64-apple-visionos-simulator",  Defines := visionOSDefinesSimulatorX64,     SDKName := "visionOS",     Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "1.0", OS := "xros");
-    property Architecture_visionOSSimulator_arm64   : Architecture read new Architecture(Triple := "arm64-apple-visionos-simulator",   Defines := visionOSDefinesSimulatorArm64,   SDKName := "visionOS",     Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "1.0", OS := "xros");
+    property Architecture_visionOS_arm64            : Architecture read new Architecture(Triple := "arm64-apple-xros",                 Defines := visionOSDefines64,              SDKName := "visionOS",                                                                                MinimumTargetSDK := "1.0", OS := "xros");
+    property Architecture_visionOSSimulator_x86_64  : Architecture read new Architecture(Triple := "x86_64-apple-xros-simulator",      Defines := visionOSDefinesSimulatorX64,    SDKName := "visionOS",     Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "1.0", OS := "xros");
+    property Architecture_visionOSSimulator_arm64   : Architecture read new Architecture(Triple := "arm64-apple-xros-simulator",       Defines := visionOSDefinesSimulatorArm64,  SDKName := "visionOS",     Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "1.0", OS := "xros");
 
     const macOSEnvironmentVersionDefine     = '__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__';
     const iOSEnvironmentVersionDefine       = '__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__';
@@ -541,7 +541,12 @@ type
       iOSVersion := FindVersion("iOS", "iPhoneOS");
       tvOSVersion := FindVersion("tvOS", "AppleTVOS");
       watchOSVersion := FindVersion("watchOS", "WatchOS");
+<<<<<<< HEAD
       visionOSVersion := FindVersion("visionOS", "XROS", true);
+=======
+      if not Importer.SkipVisionOS then
+        visionOSVersion := FindVersion("visionOS", "XROS");
+>>>>>>> da1e13ebf0064a614225076777d5b258c6fb751c
       DriverKitVersion := FindVersion("DriverKit", "DriverKit", "MacOSX");
 
     end;

@@ -19,15 +19,15 @@ type
 
     property SkipHI := false;
 
-    property SkipMacOS := false;
-    property SkipMacCatalyst := false;
-    property SkipDriverKit := false;
-    property SkipIOS := false;
-    property SkipTvOS := false;
-    property SkipWatchOS := false;
-    property SkipVisionOS := false;
-    property SkipDevice := false;
-    property SkipSimulator := false;
+    class property SkipMacOS := false;
+    class property SkipMacCatalyst := false;
+    class property SkipDriverKit := false;
+    class property SkipIOS := false;
+    class property SkipTvOS := false;
+    class property SkipWatchOS := false;
+    class property SkipVisionOS := false;
+    class property SkipDevice := false;
+    class property SkipSimulator := false;
 
     property DontDeleteJson  := false;
     property DontClean := false;
