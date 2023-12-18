@@ -541,12 +541,8 @@ type
       iOSVersion := FindVersion("iOS", "iPhoneOS");
       tvOSVersion := FindVersion("tvOS", "AppleTVOS");
       watchOSVersion := FindVersion("watchOS", "WatchOS");
-<<<<<<< HEAD
-      visionOSVersion := FindVersion("visionOS", "XROS", true);
-=======
       if not Importer.SkipVisionOS then
         visionOSVersion := FindVersion("visionOS", "XROS");
->>>>>>> da1e13ebf0064a614225076777d5b258c6fb751c
       DriverKitVersion := FindVersion("DriverKit", "DriverKit", "MacOSX");
 
     end;
