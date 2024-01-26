@@ -134,6 +134,7 @@ type
 
     const MIN_WATCHOS_VERSION_FOR_ARM64 = "5.0";
     const MIN_WATCHOS_VERSION_FOR_ARM64E_SIMULATOR = "7.1";
+    const MAX_WATCHOS_VERSION_FOR_ARMV7K = "10.3";
 
     const MIN_TVOS_VERSION_FOR_ARM64E_SIMULATOR = MIN_IOS_VERSION_FOR_ARM64E_SIMULATOR;
 
@@ -316,7 +317,8 @@ type
 
     method watchOSArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
-      yield (Architecture_watchOS_armv7k, watchOSVersion);
+      if watchOSVersion.CompareVersionTripleTo(MAX_WATCHOS_VERSION_FOR_ARMV7K) ≤ 0 then
+        yield (Architecture_watchOS_armv7k, watchOSVersion);
       if watchOSVersion.CompareVersionTripleTo(MIN_WATCHOS_VERSION_FOR_ARM64) ≥ 0 then
         yield (Architecture_watchOS_arm64_32, watchOSVersion);
     end;
