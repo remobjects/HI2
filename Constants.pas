@@ -86,9 +86,9 @@ type
     property Architecture_tvOS_arm64                : Architecture read new Architecture(Triple := "arm64-apple-tvos",                 Defines := tvOSDefines64,                  SDKName := "tvOS",                                                                                    MinimumTargetSDK := "9.0");
     property Architecture_tvOSSimulator_x86_64      : Architecture read new Architecture(Triple := "x86_64-apple-tvos-simulator",      Defines := tvOSDefinesSimulatorX64,        SDKName := "tvOS",         Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "9.0");
     property Architecture_tvOSSimulator_arm64       : Architecture read new Architecture(Triple := "arm64-apple-tvos-simulator",       Defines := tvOSDefinesSimulatorArm64,      SDKName := "tvOS",         Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "14.2");
-    property Architecture_visionOS_arm64            : Architecture read new Architecture(Triple := "arm64-apple-visionos",             Defines := visionOSDefines64,               SDKName := "visionOS",                                                                                MinimumTargetSDK := "1.0", OS := "xros");
-    property Architecture_visionOSSimulator_x86_64  : Architecture read new Architecture(Triple := "x86_64-apple-visionos-simulator",  Defines := visionOSDefinesSimulatorX64,     SDKName := "visionOS",     Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "1.0", OS := "xros");
-    property Architecture_visionOSSimulator_arm64   : Architecture read new Architecture(Triple := "arm64-apple-visionos-simulator",   Defines := visionOSDefinesSimulatorArm64,   SDKName := "visionOS",     Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "1.0", OS := "xros");
+    property Architecture_visionOS_arm64            : Architecture read new Architecture(Triple := "arm64-apple-xros",                 Defines := visionOSDefines64,              SDKName := "visionOS",                                                                                MinimumTargetSDK := "1.0", OS := "xros");
+    property Architecture_visionOSSimulator_x86_64  : Architecture read new Architecture(Triple := "x86_64-apple-xros-simulator",      Defines := visionOSDefinesSimulatorX64,    SDKName := "visionOS",     Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "1.0", OS := "xros");
+    property Architecture_visionOSSimulator_arm64   : Architecture read new Architecture(Triple := "arm64-apple-xros-simulator",       Defines := visionOSDefinesSimulatorArm64,  SDKName := "visionOS",     Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "1.0", OS := "xros");
 
     const macOSEnvironmentVersionDefine     = '__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__';
     const iOSEnvironmentVersionDefine       = '__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__';
@@ -134,6 +134,7 @@ type
 
     const MIN_WATCHOS_VERSION_FOR_ARM64 = "5.0";
     const MIN_WATCHOS_VERSION_FOR_ARM64E_SIMULATOR = "7.1";
+    const MAX_WATCHOS_VERSION_FOR_ARMV7K = "10.3";
 
     const MIN_TVOS_VERSION_FOR_ARM64E_SIMULATOR = MIN_IOS_VERSION_FOR_ARM64E_SIMULATOR;
 
@@ -316,7 +317,8 @@ type
 
     method watchOSArchitectures: sequence of tuple of (Architecture, String); iterator;
     begin
-      yield (Architecture_watchOS_armv7k, watchOSVersion);
+      if watchOSVersion.CompareVersionTripleTo(MAX_WATCHOS_VERSION_FOR_ARMV7K) ≤ 0 then
+        yield (Architecture_watchOS_armv7k, watchOSVersion);
       if watchOSVersion.CompareVersionTripleTo(MIN_WATCHOS_VERSION_FOR_ARM64) ≥ 0 then
         yield (Architecture_watchOS_arm64_32, watchOSVersion);
     end;
@@ -512,12 +514,15 @@ type
     method LoadVersionsFromXcode;
     begin
 
-      method FindVersion(aPrettyName: not nullable String; aName: not nullable String; aParentName: nullable String := nil): String;
+      method FindVersion(aPrettyName: not nullable String; aName: not nullable String; aParentName: nullable String := nil; aOptional: Boolean := false): String;
       begin
         aParentName := coalesce(aParentName, aName);
         var lPath := Path.Combine(DeveloperFolder, "Platforms", aParentName+".platform", "Developer", "SDKs");
-        if not lPath:FolderExists then
-          raise new Exception($"Cannot find any {aPrettyName} SDKs in '{DeveloperFolder}'");
+        if not lPath:FolderExists then begin
+          if not aOptional then
+            raise new Exception($"Cannot find any {aPrettyName} SDKs in '{DeveloperFolder}'");
+          exit;
+        end;
         var lCandidates := Folder.GetSubfolders(lPath).Where(f -> f.LastPathComponent.StartsWith(aName) and (f.PathExtension = ".sdk"));
         for each c in lCandidates do begin
           var v := c.LastPathComponentWithoutExtension;
@@ -538,7 +543,8 @@ type
       iOSVersion := FindVersion("iOS", "iPhoneOS");
       tvOSVersion := FindVersion("tvOS", "AppleTVOS");
       watchOSVersion := FindVersion("watchOS", "WatchOS");
-      visionOSVersion := FindVersion("visionOS", "XROS");
+      if not Importer.SkipVisionOS then
+        visionOSVersion := FindVersion("visionOS", "XROS");
       DriverKitVersion := FindVersion("DriverKit", "DriverKit", "MacOSX");
 
     end;
