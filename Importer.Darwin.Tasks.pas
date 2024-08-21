@@ -50,7 +50,8 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode("15") Beta(2);
+      ImportXcode("16.0") Beta(6);
+      //ImportXcode("q15.4");// Beta(3);
       //ImportXcode("13.4");// Beta(3);
       //ImportXcode("13.1");// Name("RC");
       //ImportXcode("12.5");
