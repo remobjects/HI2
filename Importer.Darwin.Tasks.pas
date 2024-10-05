@@ -7,23 +7,34 @@ type
   Importer = public partial class
   public
 
-    property FrameworksFolder: String;
+    method ImportCurrentXcode;
+    begin
+      ImportXcode("16.1") Beta(1);
+      //ImportXcode("13.4");// Beta(3);
+      //ImportXcode("13.1");// Name("RC");
+      //ImportXcode("12.5");
+      //ImportXcode("13.2");// Name("RC");
+      //ImportXcode("12.5") Beta(3);
+      //ImportXcode("12.3") Name("keep");
+    end;
 
-      method ImportSDKs;
+    method ImportSDKs;
     begin
       //GenerateCode := true;
 
       //SwiftOnly := true;
-      SkipSwift := true;
-      //Debug := true;
+      Debug := true;
       //SkipHI := true;
 
       //GenerateCode := true;
       //DontDeleteJson := true;
-      //SkipDeploymentTargets := true;
+
+      SkipDeploymentTargets := true;
       //SkipNonEssentialFrameworks := true;
+
       //SkipDevice := true;
       //SkipSimulator := true;
+
       //SkipMacOS := true;
       //SkipMacCatalyst := true;
       //SkipIOS := true;
@@ -31,6 +42,7 @@ type
       //SkipWatchOS := true;
       //SkipVisionOS := true;
 
+      SkipSwift := true;
       ImportIslandSDKs;
 
       //exit;
@@ -48,16 +60,7 @@ type
       ImportIslandSDKs;
     end;
 
-    method ImportCurrentXcode;
-    begin
-      ImportXcode("15") Beta(2);
-      //ImportXcode("13.4");// Beta(3);
-      //ImportXcode("13.1");// Name("RC");
-      //ImportXcode("12.5");
-      //ImportXcode("13.2");// Name("RC");
-      //ImportXcode("12.5") Beta(3);
-      //ImportXcode("12.3") Name("keep");
-    end;
+    property FrameworksFolder: String;
 
     //
     //

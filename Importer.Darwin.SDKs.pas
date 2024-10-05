@@ -669,8 +669,8 @@ type
         exit;
       end;
 
-      if Debug then
-        writeLn(lJsonDocument);
+      //if Debug then
+        //writeLn(lJsonDocument);
 
       var aClangIncludeFolder: String;
       var aClangBaseFolder := Path.Combine(Darwin.DeveloperFolder, "Toolchains/XcodeDefault.xctoolchain/usr/lib/clang");
