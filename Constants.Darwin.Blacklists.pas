@@ -191,6 +191,7 @@ type
                   //'15.0:arm64-apple-ios:CoreThreadCommissionerService',
 
                   'visionOS:SensitiveContentAnalysis',
+                  'macosx:AccessorySetupKit',
 
                   ].ToList; readonly;
 
