@@ -193,6 +193,7 @@ type
                   'visionOS:SensitiveContentAnalysis',
                   'macosx:AccessorySetupKit',
                   'xros:SwiftUICore',
+                  'xros-simulator:SwiftUICore',
 
                   ].ToList; readonly;
 
