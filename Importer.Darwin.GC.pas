@@ -55,10 +55,10 @@ type
       var lTargetString := aArchitecture.Triple;
       if length(aArchitecture.CpuType) > 0 then
         lTargetString := lTargetString+";"+aArchitecture.CpuType;
-      lBaseJson.Root["TargetString"] := lTargetString;
-      lBaseJson.Root["Version"] := aVersion;
-      lBaseJson.Root["SDKVersionString"] := aVersion;
-      lBaseJson.Root["SDKName"] := aArchitecture.SDKName;
+      lBaseJson["TargetString"] := lTargetString;
+      lBaseJson["Version"] := aVersion;
+      lBaseJson["SDKVersionString"] := aVersion;
+      lBaseJson["SDKName"] := aArchitecture.SDKName;
 
       Folder.Create(BaseFolder);
       var lBaseJsonFile := Path.Combine(BaseFolder, aArchitecture.Triple+".gc-json");

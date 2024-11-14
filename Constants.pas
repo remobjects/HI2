@@ -471,8 +471,8 @@ type
 
       var lShared := JsonDocument.TryFromString(forceIncludes_Shared);
       var lPerPlatform := JsonDocument.TryFromString(lPerPlatformString);
-      result := lShared.Root as JsonArray;
-      result.Add((lPerPlatform.Root as JsonArray).Items);
+      result := lShared as JsonArray;
+      result.Add((lPerPlatform as JsonArray).Items);
     end;
 
     method FilterBlacklist(aBlackList: ImmutableList<String>; aVersion: String; aArchitecture: Architecture): ImmutableList<String>;
