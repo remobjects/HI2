@@ -800,23 +800,13 @@ type
         var lTargetFolder := Path.Combine(SDKsBaseFolder, lTargetFolderName);
         var lTargetFolder2 := Path.Combine(SDKsBaseFolder, lTargetFolderName2);
 
-        Folder.Create(Path.Combine(SDKsBaseFolder, "__CI2Shared"));
         Folder.Create(Path.Combine(SDKsBaseFolder, "__Public"));
-
-        var lTargetZipName := Path.Combine(SDKsBaseFolder, "__CI2Shared", lTargetFolderName)+".zip";
-        var lTargetZipName3 := Path.Combine(SDKsBaseFolder, "__CI2Shared", lTargetFolderName)+" Simulator.zip";
-        var lTargetZipName2 := Path.Combine(SDKsBaseFolder, "__Public", lTargetFolderName)+lSuffix+".zip";
+        var lTargetZipName := Path.Combine(SDKsBaseFolder, "__Public", lTargetFolderName)+lSuffix+".zip";
         writeLn($"Creating {lTargetZipName}");
-        CreateZip(lTargetFolder, lTargetZipName);
-        if aName in ["macOS", "Mac Catalyst"] then begin
-          File.CopyTo(lTargetZipName, lTargetZipName2);
-        end
-        else begin
-          writeLn($"Creating {lTargetZipName3}");
-          CreateZip(lTargetFolder+" Simulator", lTargetZipName3);
-          writeLn($"Creating {lTargetZipName2}");
-          CreateZip([lTargetFolder, lTargetFolder2], lTargetZipName2);
-        end;
+        if aName in ["macOS", "Mac Catalyst"] then
+          CreateZip(lTargetFolder, lTargetZipName)
+        else
+          CreateZip([lTargetFolder, lTargetFolder2], lTargetZipName)
       end;
     end;
 

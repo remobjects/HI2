@@ -9,17 +9,15 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode("16.2") Beta(2);
-      //ImportXcode("16.2") Name("RC");
-      //ImportXcode("16.1");
+      //ImportXcode("16.3") Beta(1);
+      //ImportXcode("16.3") Name("RC");
+      ImportXcode("16.3");
     end;
 
     method ImportSDKs;
     begin
-      //GenerateCode := true;
-
       //SwiftOnly := true;
-      Debug := true;
+      //Debug := true;
       //SkipHI := true;
 
       //GenerateCode := true;

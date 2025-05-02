@@ -1,27 +1,40 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # RemObjects Fire
-Project("{656346D9-4656-40DA-A068-22D5425D4639}") = "HeaderImporter", "..\Elements\Source\HeaderImporter\HeaderImporter.elements", "{EDD5844B-07EA-4D7C-86A7-24D2C6270B85}"
+Project("{656346d9-4656-40da-a068-22d5425d4639}") = "HeaderImporter", "..\Elements\Source\HeaderImporter\HeaderImporter.elements", "{edd5844b-07ea-4d7c-86a7-24d2c6270b85}"
 EndProject
-Project("{656346D9-4656-40DA-A068-22D5425D4639}") = "HI2", "HI2.elements", "{FFB61B34-176B-4F77-B847-53A0D9905CC9}"
+Project("{656346d9-4656-40da-a068-22d5425d4639}") = "HI2", "HI2.elements", "{ffb61b34-176b-4f77-b847-53a0d9905cc9}"
 	ProjectSection(ProjectDependencies) = postProject
-		{EDD5844B-07EA-4D7C-86A7-24D2C6270B85} = {EDD5844B-07EA-4D7C-86A7-24D2C6270B85}
+		{edd5844b-07ea-4d7c-86a7-24d2c6270b85} = {edd5844b-07ea-4d7c-86a7-24d2c6270b85}
 	EndProjectSection
+EndProject
+Project("{656346d9-4656-40da-a068-22d5425d4639}") = "RemObjects.Elements", "..\Elements\Source\RemObjects.Elements\RemObjects.Elements.elements", "{148ff081-0eb5-49ba-8cff-063215a02425}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AnyCPU = Debug|AnyCPU
+		Debug-Profile|AnyCPU = Debug-Profile|AnyCPU
 		Release|AnyCPU = Release|AnyCPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{EDD5844B-07EA-4D7C-86A7-24D2C6270B85}.Debug|AnyCPU.ActiveCfg = Debug|AnyCPU
-		{EDD5844B-07EA-4D7C-86A7-24D2C6270B85}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
-		{EDD5844B-07EA-4D7C-86A7-24D2C6270B85}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
-		{EDD5844B-07EA-4D7C-86A7-24D2C6270B85}.Release|AnyCPU.Build.0 = Release|AnyCPU
-		{FFB61B34-176B-4F77-B847-53A0D9905CC9}.Debug|AnyCPU.ActiveCfg = Debug|AnyCPU
-		{FFB61B34-176B-4F77-B847-53A0D9905CC9}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
-		{FFB61B34-176B-4F77-B847-53A0D9905CC9}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
-		{FFB61B34-176B-4F77-B847-53A0D9905CC9}.Release|AnyCPU.Build.0 = Release|AnyCPU
+		{edd5844b-07ea-4d7c-86a7-24d2c6270b85}.Debug|AnyCPU.ActiveCfg = Debug|AnyCPU
+		{edd5844b-07ea-4d7c-86a7-24d2c6270b85}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
+		{edd5844b-07ea-4d7c-86a7-24d2c6270b85}.Debug-Profile|AnyCPU.ActiveCfg = Debug-Profile|AnyCPU
+		{edd5844b-07ea-4d7c-86a7-24d2c6270b85}.Debug-Profile|AnyCPU.Build.0 = Debug-Profile|AnyCPU
+		{edd5844b-07ea-4d7c-86a7-24d2c6270b85}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
+		{edd5844b-07ea-4d7c-86a7-24d2c6270b85}.Release|AnyCPU.Build.0 = Release|AnyCPU
+		{ffb61b34-176b-4f77-b847-53a0d9905cc9}.Debug|AnyCPU.ActiveCfg = Debug|AnyCPU
+		{ffb61b34-176b-4f77-b847-53a0d9905cc9}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
+		{ffb61b34-176b-4f77-b847-53a0d9905cc9}.Debug-Profile|AnyCPU.ActiveCfg = Debug-Profile|AnyCPU
+		{ffb61b34-176b-4f77-b847-53a0d9905cc9}.Debug-Profile|AnyCPU.Build.0 = Debug-Profile|AnyCPU
+		{ffb61b34-176b-4f77-b847-53a0d9905cc9}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
+		{ffb61b34-176b-4f77-b847-53a0d9905cc9}.Release|AnyCPU.Build.0 = Release|AnyCPU
+		{148ff081-0eb5-49ba-8cff-063215a02425}.Debug|AnyCPU.ActiveCfg = Debug|AnyCPU
+		{148ff081-0eb5-49ba-8cff-063215a02425}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
+		{148ff081-0eb5-49ba-8cff-063215a02425}.Debug-Profile|AnyCPU.ActiveCfg = Debug-Profile|AnyCPU
+		{148ff081-0eb5-49ba-8cff-063215a02425}.Debug-Profile|AnyCPU.Build.0 = Debug-Profile|AnyCPU
+		{148ff081-0eb5-49ba-8cff-063215a02425}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
+		{148ff081-0eb5-49ba-8cff-063215a02425}.Release|AnyCPU.Build.0 = Release|AnyCPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -194,6 +194,8 @@ type
                   'macosx:AccessorySetupKit',
                   'xros:SwiftUICore',
                   'xros-simulator:SwiftUICore',
+                  '10.4:watchos:BrowserEngineKit', // Framework is broken in Xcode 15.3 only
+                  '10.4:watchos-simulator:BrowserEngineKit', // Framework is broken in Xcode 15.3 only
 
                   ].ToList; readonly;
 

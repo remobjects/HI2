@@ -350,35 +350,42 @@ type
     method IsInBlacklist(aBlacklist: ImmutableList<String>; aName: String; aVersion: String; aArchitecture: Architecture): Boolean;
     begin
       if aBlacklist.Contains(aName) then begin
-        writeLn("Skipping " + aName + ", blacklisted");
+        writeLn($"Skipping {aName},  blacklisted");
         exit true;
       end;
-
-      if aBlacklist.Contains(aArchitecture.SDKName + ":" + aName) then begin
-        writeLn("Skipping " + aName + ", blacklisted for " + aArchitecture.SDKName);
-        exit true;
-      end;
-
       if aBlacklist.Contains(aVersion + ":" + aName) then begin
-        writeLn("Skipping " + aName + ", blacklisted for " + aVersion);
+        writeLn($"Skipping {aName},  blacklisted for {aVersion}");
+        exit true;
+      end;
+
+      if aBlacklist.Contains(aArchitecture.SDKName.ToLowerInvariant + ":" + aName) then begin
+        writeLn($"Skipping {aName},  blacklisted for {aArchitecture.SDKName}");
+        exit true;
+      end;
+      if aBlacklist.Contains(aVersion + ":" + aArchitecture.SDKName.ToLowerInvariant+ ":" + aName) then begin
+        writeLn($"Skipping {aName}, blacklisted for {aArchitecture.SDKName} {aVersion}");
         exit true;
       end;
 
       if aBlacklist.Contains(aArchitecture.Triple + ":" + aName) then begin
-        writeLn("Skipping " + aName + ", blacklisted for " + aArchitecture.Triple);
+        writeLn($"Skipping {aName},  blacklisted for {aArchitecture.Triple}");
+        exit true;
+      end;
+      if aBlacklist.Contains(aVersion + ":" + aArchitecture.Triple + ":" + aName) then begin
+        writeLn($"Skipping {aName},  blacklisted for {aArchitecture.Triple} on {aVersion}");
         exit true;
       end;
 
       var lTripleOS := aArchitecture.Triple.Split("-").Skip(2).JoinedString("-");
       if aBlacklist.Contains(lTripleOS + ":" + aName) then begin
-        writeLn("Skipping " + aName + ", blacklisted for " + lTripleOS);
+        writeLn($"Skipping {aName},  blacklisted for {lTripleOS}");
+        exit true;
+      end;
+      if aBlacklist.Contains(aVersion + ":" + lTripleOS + ":" + aName) then begin
+        writeLn($"Skipping {aName},  blacklisted for {lTripleOS} on {aVersion}");
         exit true;
       end;
 
-      if aBlacklist.Contains(aVersion + ":" + aArchitecture.Triple + ":" + aName) then begin
-        writeLn("Skipping " + aName + ", blacklisted for " + aVersion + ":" + aArchitecture.Triple);
-        exit true;
-      end;
 
       exit false;
     end;
