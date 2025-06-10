@@ -2,10 +2,14 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # RemObjects Fire
 Project("{656346d9-4656-40da-a068-22d5425d4639}") = "HeaderImporter", "..\Elements\Source\HeaderImporter\HeaderImporter.elements", "{edd5844b-07ea-4d7c-86a7-24d2c6270b85}"
+	ProjectSection(ProjectDependencies) = postProject
+		{148ff081-0eb5-49ba-8cff-063215a02425} = {148ff081-0eb5-49ba-8cff-063215a02425}
+	EndProjectSection
 EndProject
 Project("{656346d9-4656-40da-a068-22d5425d4639}") = "HI2", "HI2.elements", "{ffb61b34-176b-4f77-b847-53a0d9905cc9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{edd5844b-07ea-4d7c-86a7-24d2c6270b85} = {edd5844b-07ea-4d7c-86a7-24d2c6270b85}
+		{148ff081-0eb5-49ba-8cff-063215a02425} = {148ff081-0eb5-49ba-8cff-063215a02425}
 	EndProjectSection
 EndProject
 Project("{656346d9-4656-40da-a068-22d5425d4639}") = "RemObjects.Elements", "..\Elements\Source\RemObjects.Elements\RemObjects.Elements.elements", "{148ff081-0eb5-49ba-8cff-063215a02425}"
