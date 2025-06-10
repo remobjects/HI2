@@ -96,14 +96,14 @@ type
     const tvOSEnvironmentVersionDefine      = '__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__';
     const visionOSEnvironmentVersionDefine  = '__ENVIRONMENT_OS_VERSION_MIN_REQUIRED__'; // visionOS (Beta 2 at least) doesn't have its own __ENVIRONMENT_XR_OS_VERSION_MIN_REQUIRED__
 
-    const macCatalystDeploymentTargets_x86_64 =   "18.0;17.0;16.0;15.0;14.0;13.0";
-    const macCatalystDeploymentTargets_arm64  =   "18.0;17.0;16.0;15.0;14.0";
-    const macOSDeploymentTargets_x86_64 =         "15.0;14.0;13.0;12.0;11.0;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
-    const macOSDeploymentTargets_arm64 =          "15.0;14.0;13.0;12.0;11.0";
-    const iOSDeploymentTargets =                  "18.0;17.0;16.0;15.0;14.2;14.0;13.0;12.0;11.0;10.0;9.0"; // keep 14.2 for Catalyst
-    const tvOSDeploymentTargets =                 "18.0;17.0;16.0;15.0;14.0;13.0;12.0;11.0;10.0;9.0";
-    const watchOSDeploymentTargets =              "11.0;10.0;9.0;8.0;7.0;6.0;5.0;4.0;3.0;2.0";
-    const visionOSDeploymentTargets =             "2.0;1.0";
+    const macCatalystDeploymentTargets_x86_64 =   "26.0;18.0;17.0;16.0;15.0;14.0;13.0";
+    const macCatalystDeploymentTargets_arm64  =   "26.0;18.0;17.0;16.0;15.0;14.0";
+    const macOSDeploymentTargets_x86_64 =         "26.0;15.0;14.0;13.0;12.0;11.0;10.15;10.14;10.13;10.12;10.11;10.10;10.9;10.8;10.7;10.6";
+    const macOSDeploymentTargets_arm64 =          "26.0;15.0;14.0;13.0;12.0;11.0";
+    const iOSDeploymentTargets =                  "26.0;18.0;17.0;16.0;15.0;14.2;14.0;13.0;12.0;11.0;10.0;9.0"; // keep 14.2 for Catalyst
+    const tvOSDeploymentTargets =                 "26.0;18.0;17.0;16.0;15.0;14.0;13.0;12.0;11.0;10.0;9.0";
+    const watchOSDeploymentTargets =              "26.0;11.0;10.0;9.0;8.0;7.0;6.0;5.0;4.0;3.0;2.0";
+    const visionOSDeploymentTargets =             "26.0;2.0;1.0";
 
     method DeploymentTargets(aSDK: String; aArchitecture: String): String;
     begin
@@ -533,6 +533,8 @@ type
         var lCandidates := Folder.GetSubfolders(lPath).Where(f -> f.LastPathComponent.StartsWith(aName) and (f.PathExtension = ".sdk"));
         for each c in lCandidates do begin
           var v := c.LastPathComponentWithoutExtension;
+          if not v.LastPathComponent.Contains(".") then
+            continue; // 26.0+ has a link symlink w/o ".0" in the name
           if length(v) > length(aName) then begin
             v := v.Substring(length(aName));
             writeLn($"{aPrettyName} {v} in {c}");

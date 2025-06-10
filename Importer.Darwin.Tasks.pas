@@ -9,9 +9,9 @@ type
 
     method ImportCurrentXcode;
     begin
-      //ImportXcode("16.3") Beta(1);
-      //ImportXcode("16.3") Name("RC");
-      ImportXcode("16.3");
+      ImportXcode("26.0") Beta(1);
+      //ImportXcode("16.4") Name("RC");
+      //ImportXcode("16.4");
     end;
 
     method ImportSDKs;
@@ -30,11 +30,11 @@ type
       //SkipSimulator := true;
 
       //SkipMacOS := true;
-      //SkipMacCatalyst := true;
-      //SkipIOS := true;
-      //SkipTvOS := true;
-      //SkipWatchOS := true;
-      //SkipVisionOS := true;
+      SkipMacCatalyst := true;
+      SkipIOS := true;
+      SkipTvOS := true;
+      SkipWatchOS := true;
+      SkipVisionOS := true;
 
       //
       // do not change these below this line!

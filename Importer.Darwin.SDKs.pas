@@ -460,13 +460,15 @@ type
 
         var lFrameworkFolder := aFrameworksFolders.Select(f2 -> Path.Combine(f2, f+".framework")).Where(f2 -> f2.FolderExists).FirstOrDefault;
         var lHeadersFolder := Path.Combine(lFrameworkFolder, "Headers");
+        var lFrameworksFolder := Path.Combine(lFrameworkFolder, "Frameworks");
         if assigned(lFrameworkFolder) then begin
           lFrameworkJson["FrameworkPath"] := FixSSDKPath(lFrameworkFolder);
 
           var lHeaderFilesCount := if lHeadersFolder.FolderExists then Folder.GetFiles(lHeadersFolder, true).Where(f2 -> f2.PathExtension = ".h").Count else 0;
+          var lFrameworksCount := if lFrameworksFolder.FolderExists then Folder.GetSubfolders(lFrameworksFolder).Where(f2 -> f2.PathExtension = ".framework").Count else 0;
           var lSwiftInterfaces := Folder.GetFiles(lFrameworkFolder, true).Where(f2 -> f2.PathExtension = ".swiftinterface").ToList;
           var lSwift := lSwiftInterfaces.Count > 0;
-          var lTreatAsSwiftOnly := lSwift and (lHeaderFilesCount ≤ 1);
+          var lTreatAsSwiftOnly := lSwift and (lHeaderFilesCount ≤ 1) and (lFrameworksCount = 0);
 
           if lSwift then begin
             if f.StartsWith("_") /*and f.EndsWith("_SwiftUI")*/ then begin
