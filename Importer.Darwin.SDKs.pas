@@ -160,6 +160,18 @@ type
         "DriverKit": lFrameworksFolders.ReplaceAt(0, Path.Combine(lSdkFolder, "System", "DriverKit", "System", "Library", "Frameworks"));
       end;
 
+      var lSubFrameworksFolder := Path.Combine(lSdkFolder, "System", "Library", "SubFrameworks");
+      if lSubFrameworksFolder.FolderExists then
+        lFrameworksFolders.Add(lSubFrameworksFolder);
+
+      case aName of
+        "Mac Catalyst": begin
+            lSubFrameworksFolder := Path.Combine(lSdkFolder, "System", "iOSSupport", "System", "Library", "SubFrameworks");
+            if lSubFrameworksFolder.FolderExists then
+              lFrameworksFolders.Insert(0, lSubFrameworksFolder);
+          end;
+      end;
+
       var lUsrLibFolders :=  new List<String>(Path.Combine(lSdkFolder, "usr", "lib"));
       case aName of
         "Mac Catalyst": lUsrLibFolders.Add(      Path.Combine(lSdkFolder, "System", "iOSSupport", "usr", "lib")); // add as second!!!
@@ -174,18 +186,23 @@ type
       end;
 
       if not SkipDeploymentTargets then begin
+        var s := new Stopwatch;
         for each (a, nil) in lArchitectures do begin
-          for each d in Darwin.DeploymentTargets(aName, a.Arch):Split(";") do begin
+
+          var lTargetFolderForArch := Path.Combine(lTargetFolder, a.Arch);
+          Folder.Create(lTargetFolderForArch);
+
+          for parallel d in Darwin.DeploymentTargets(aName, a.Arch):Split(";") do begin
             if d.CompareVersionTripleTo(aVersion) < 0 then begin
               if not assigned(a.MinimumDeploymentTarget) or (a.MinimumDeploymentTarget.CompareVersionTripleTo(d) ≤ 0) then begin
                 var lDefines := a.Defines+";"+DefinesForVersion(d);
 
                 // below code is "doProcessDeploymentTargetSDK(options.version, deploymentVersion, options.sdkFolder, architectures[a], defines, targetFolder, options.forceIncludes);"
 
-                var lTargetFolderForArch := Path.Combine(lTargetFolder, a.Arch);
-                Folder.Create(lTargetFolderForArch);
+                var lTemp := Path.Combine(lTargetFolder, a.Arch, d);
+                Folder.Create(lTemp);
                 if not Darwin.Toffee and not SkipSwift then
-                  Folder.Create(Path.Combine(lTargetFolderForArch, "Swift"));
+                  Folder.Create(Path.Combine(lTemp, "Swift"));
 
                 var lFrameworks := new List<String>("Foundation", "Security"); // iOS Simulator requires this from rtl/objc. We wont actually *use* the generated file
 
@@ -199,16 +216,15 @@ type
                            Architecture(a)
                              Frameworks(lFrameworks)
                                 Defines(lDefines)
-                           OutputFolder(lTargetFolderForArch);
+                           OutputFolder(lTemp);
 
-                File.Move(Path.Combine(lTargetFolderForArch, "rtl.fx"), Path.Combine(lTargetFolderForArch, $"rtl-{d}.fx"));
-                for each f in Folder.GetFiles(lTargetFolderForArch) do
-                  if (f.PathExtension = ".fx") and (not f.LastPathComponent.StartsWith("rtl")) then
-                    File.Delete(f);
+                File.Move(Path.Combine(lTemp, "rtl.fx"), Path.Combine(lTargetFolderForArch, $"rtl-{d}.fx"));
+                Folder.Delete(lTemp);
               end;
             end;
           end;
         end;
+        Log($"  Deployment targets took {Convert.MillisecondsToTimeString(s.ElapsedTime)}s.");
       end;
 
       // main target
