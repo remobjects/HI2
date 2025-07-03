@@ -198,7 +198,7 @@ type
       result := case aName of
         "macOS": "MacOSX";
         "Mac Catalyst": "MacOSX";
-        "DriverKit": "MacOSX";
+        "DriverKit": "MacOSX"; // DriverKit uses macOS here
         "iOS": if aSimulator then "iPhoneSimulator" else "iPhoneOS";
         "tvOS": if aSimulator then "AppleTVSimulator" else "AppleTVOS";
         "watchOS": if aSimulator then "WatchSimulator" else "WatchOS";

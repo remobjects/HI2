@@ -453,6 +453,13 @@ type
           result := "{sdk}/"+result.Substring(length(aSDKFolder)).TrimStart(['/','\']);
       end;
 
+      method FixXcodePath(aPath: String): String;
+      begin
+        result := aPath;
+        if result.StartsWith(Darwin.DeveloperFolder) then
+          result := "{developer}/"+result.Substring(length(Darwin.DeveloperFolder)).TrimStart(['/','\']);
+      end;
+
       method FixToolchainPath(aPath: String): String;
       begin
         result := aPath;
@@ -703,16 +710,17 @@ type
       var lArgs := new List<String>;
       lArgs.Add("import");
       lArgs.Add($"--json={lJsonName}");
-      lArgs.Add($"--sdk={aSDKFolder}");
-      lArgs.Add($"--toolchain={lToolchainFolder}");
+      lArgs.Add($"--developer={Darwin.DeveloperFolder}");
+      lArgs.Add($"--sdk={FixXcodePath(aSDKFolder)}");
+      lArgs.Add($"--toolchain={FixXcodePath(lToolchainFolder)}");
       lArgs.Add("-o", aOutputFolder);
 
-      lArgs.Add($"-i", aUsrIncludeFolder);
+      lArgs.Add($"-i", FixXcodePath(aUsrIncludeFolder));
       if assigned(aClangIncludeFolder) then
-        lArgs.Add($"-i", aClangIncludeFolder);
+        lArgs.Add($"-i", FixXcodePath(aClangIncludeFolder));
       for each f in aFrameworksFolders do
-        lArgs.Add($"-f", f);
-      lArgs.Add($"-i", SDKsBaseFolder);
+        lArgs.Add($"-f", FixXcodePath(f));
+      lArgs.Add($"-i", FixXcodePath(SDKsBaseFolder));
 
       //if assigned(aRootSDK) then begin
         //var lBaseFXFolder := Path.Combine(Path.GetParentDirectory(Path.GetParentDirectory(aOutputFolder)), aRootSDK);
@@ -763,7 +771,7 @@ type
         //s += " "+more;
 
       for each f in aUsrLibFolders do
-      lArgs.Add($"--libpath="+f);
+        lArgs.Add($"--libpath="+FixXcodePath(f));
 
       if Debug then
         lArgs.Add("--debug");
