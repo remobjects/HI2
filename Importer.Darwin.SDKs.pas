@@ -132,7 +132,18 @@ type
           "watchOS": Darwin.watchOSEnvironmentVersionDefine;
           "visionOS": Darwin.visionOSEnvironmentVersionDefine;
         end;
-        lEnvironmentVersionDefine := lEnvironmentVersionDefine+"="+Darwin.CalculateIntegerVersion(aName, lInternalShortVersion);
+
+        if lEnvironmentVersionDefine.Contains(";") then begin
+          var lSplit :=lEnvironmentVersionDefine.Split(";", true);
+          lEnvironmentVersionDefine := "";
+          for each s in lSplit do
+            lEnvironmentVersionDefine := lEnvironmentVersionDefine+";"+s+"="+Darwin.CalculateIntegerVersion(aName, lInternalShortVersion);
+          lEnvironmentVersionDefine := lEnvironmentVersionDefine.Trim(';');
+        end
+        else begin
+          lEnvironmentVersionDefine := lEnvironmentVersionDefine+"="+Darwin.CalculateIntegerVersion(aName, lInternalShortVersion);
+        end;
+
         var lDefines := lEnvironmentVersionDefine;
         if Darwin.Toffee then
           lDefines := lDefines+";"+Darwin.ExtraDefinesToffee
@@ -228,7 +239,7 @@ type
       end;
 
       // main target
-      for each (a, nil) in lArchitectures do begin
+      for parallel (a, nil) in lArchitectures do begin
         if not assigned(a.MinimumTargetSDK) or (a.MinimumTargetSDK.CompareVersionTripleTo(aVersion) ≤ 0) then begin
           var lDefines := a.Defines+";"+DefinesForVersion(lInternalShortVersion);
 
