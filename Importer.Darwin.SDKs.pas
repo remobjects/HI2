@@ -338,7 +338,7 @@ type
         Folder.Create(lDestinationFolder);
       end;
 
-      for each f in lKnownFiles.Distinct.OrderBy(f -> f) do begin
+      for parallel f in lKnownFiles.Distinct.OrderBy(f -> f) do begin
         var lArgs := new List<String>;
         lArgs.Add("combine");
         lArgs.Add(Path.Combine(lDestinationFolder, f));
