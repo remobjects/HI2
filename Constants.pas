@@ -50,7 +50,7 @@ type
     const watchOSDefines32 =               _iOSDefines32+";WATCHOS;DEVICE";
     const watchOSDefines64 =               _watchOSDefines64+";WATCHOS;DEVICE";
     const tvOSDefines64 =                  _iOSDefines64+";TVOS;DEVICE";
-    const visionOSDefines64 =             _iOSDefines64+";VISIONOS;DEVICE";
+    const visionOSDefines64 =              _iOSDefines64+";VISIONOS;DEVICE";
     const iOSDefinesSimulatorI386 =        _iOSDefinesSimulator32+";IOS;IOSSIMULATOR;SIMULATOR";
     const iOSDefinesSimulatorX64 =         _iOSDefinesSimulator64+";IOS;IOSSIMULATOR;SIMULATOR";
     const iOSDefinesSimulatorArm64 =       _iOSDefines64         +";IOS;IOSSIMULATOR;SIMULATOR";
@@ -124,7 +124,7 @@ type
     end;
 
     const MIN_MACOS_VERSION_FOR_ARM64   = "11.0";
-    const MAX_MACOS_VERSION_FOR_X86_64  = "26.0"; // 26.99?
+    const MAX_MACOS_VERSION_FOR_X86_64  = "26.99";
 
     const MIN_IOS_VERSION_FOR_ARMV7S           = "6.0";
     const MIN_IOS_VERSION_FOR_ARM64            = "7.0";
