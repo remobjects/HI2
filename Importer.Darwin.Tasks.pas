@@ -9,9 +9,9 @@ type
 
     method ImportCurrentXcode;
     begin
-      ImportXcode("26.0") Beta(2);
-      //ImportXcode("16.4") Name("RC");
-      //ImportXcode("16.4");
+      //ImportXcode("26.5") Beta(1);
+      //ImportXcode("26.3") Name("RC");
+      ImportXcode("26.5");
     end;
 
     method ImportSDKs;
