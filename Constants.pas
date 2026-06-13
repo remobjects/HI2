@@ -156,8 +156,8 @@ type
     property DriverKitVersion: String;
     property BetaSuffix: String := "";
     property DeveloperFolder: String := ToffeePaths.Instance.LocalXcodeDeveloperFolder;
-    property Island := true;
-    property Toffee := false;
+    property Island := true; readonly;
+    property Toffee := false; readonly;
 
     property Mode: String read if Toffee then "Toffee" else if Island then "Island" else "Unknown";
 

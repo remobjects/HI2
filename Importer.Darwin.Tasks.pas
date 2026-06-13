@@ -9,9 +9,9 @@ type
 
     method ImportCurrentXcode;
     begin
-      //ImportXcode("26.5") Beta(1);
+      ImportXcode("27.0") Beta(1);
       //ImportXcode("26.3") Name("RC");
-      ImportXcode("26.5");
+      //ImportXcode("26.5");
     end;
 
     method ImportSDKs;
@@ -39,22 +39,8 @@ type
       //
       // do not change these below this line!
       //
-      SkipSwift := true;
-      ImportIslandSDKs;
-
-      exit;
-
-      //
-      // Do Swift Import
-      //
-
-      // do not change these!
-      DontClean := true;
-      SkipDeploymentTargets := true;
-      SwiftOnly := true;
-      SkipSwift := false;
-
-      ImportIslandSDKs;
+      ImportCocoaSDKs;
+      ImportSwiftSDKs;
     end;
 
     property FrameworksFolder: String;
@@ -63,20 +49,26 @@ type
     //
     //
 
-    //method ImportToffeeSDKs;
-    //begin
-      //Darwin.Toffee := true;
-      //Darwin.Island := false;
-      //BaseFolder := Path.Combine(FrameworksFolder, "Toffee");
-      //ImportCurrentXcode();
-    //end;
-
     method ImportIslandSDKs;
     begin
-      Darwin.Toffee := false;
-      Darwin.Island := true;
       BaseFolder := Path.Combine(FrameworksFolder, "Island");
       ImportCurrentXcode();
+    end;
+
+    method ImportCocoaSDKs;
+    begin
+      SwiftOnly := false;
+      SkipSwift := true;
+      ImportIslandSDKs;
+    end;
+
+    method ImportSwiftSDKs;
+    begin
+      DontClean := true;
+      SkipDeploymentTargets := true;
+      SwiftOnly := true;
+      SkipSwift := false;
+      ImportIslandSDKs;
     end;
 
     //

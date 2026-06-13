@@ -406,10 +406,10 @@ type
 
         // Move files in ./Swift
         for each f in Folder.GetFiles(lSwiftFolder) do begin
-          if Path.Combine(aTargetFolder, f.LastPathComponent).FileExists then
-            File.Move(f, Path.Combine(aTargetFolder, Path.ChangeExtension(f.LastPathComponent, ".swift.fx"))) // for now. maybe we can merge later?
+          if Path.Combine(aTargetFolder, Path.ChangeExtension(f.LastPathComponent, ".swift.fx")).FileExists then
+            File.Move(f, Path.Combine(aTargetFolder, Path.ChangeExtension(f.LastPathComponent, ".swift2.fx")))
           else
-            File.Move(f, Path.Combine(aTargetFolder, f.LastPathComponent));
+            File.Move(f, Path.Combine(aTargetFolder, Path.ChangeExtension(f.LastPathComponent, ".swift.fx"))) // for now. maybe we can merge later?
         end;
         if Folder.GetFiles(lSwiftFolder).Count = 0 then
           Folder.Delete(lSwiftFolder);
@@ -478,6 +478,30 @@ type
           result := "{toolchain}/"+result.Substring(length(lToolchainFolder)).TrimStart(['/','\']);
       end;
 
+      method FindSwiftInterface(aSwiftModuleFolder: String): nullable String;
+      begin
+        result := Path.Combine(aSwiftModuleFolder, $"{aArchitecture.Arch}.swiftinterface");
+        if result.FileExists then
+          exit;
+
+        var lArch := aArchitecture.Arch;
+        if aArchitecture.Arch = "arm64" then
+          lArch := lArch+"e";
+        result := Path.Combine(aSwiftModuleFolder, $"{lArch}.swiftinterface");
+        if result.FileExists then
+          exit;
+
+        var lOsName := case aName of
+          "Mac Catalyst": "ios-macabi";
+          else aName.ToLower;
+        end;
+        result := Path.Combine(aSwiftModuleFolder, $"{lArch}-apple-{lOsName}.swiftinterface");
+        if result.FileExists then
+          exit;
+
+        result := nil;
+      end;
+
       var lJsonImports := new JsonArray();
       for each f in aFrameworks.OrderBy(f -> f.ToLowerInvariant) do begin
 
@@ -500,8 +524,9 @@ type
 
           var lHeaderFilesCount := if lHeadersFolder.FolderExists then Folder.GetFiles(lHeadersFolder, true).Where(f2 -> f2.PathExtension = ".h").Count else 0;
           var lFrameworksCount := if lFrameworksFolder.FolderExists then Folder.GetSubfolders(lFrameworksFolder).Where(f2 -> f2.PathExtension = ".framework").Count else 0;
-          var lSwiftInterfaces := Folder.GetFiles(lFrameworkFolder, true).Where(f2 -> f2.PathExtension = ".swiftinterface").ToList;
-          var lSwift := lSwiftInterfaces.Count > 0;
+          var lSwiftModule := Path.Combine(lFrameworkFolder, "Modules", $"{f}.swiftmodule");
+          var lSwiftInterface := if lSwiftModule.FolderExists then FindSwiftInterface(lSwiftModule) else nil;
+          var lSwift := assigned(lSwiftInterface);
           var lTreatAsSwiftOnly := lSwift and (lHeaderFilesCount ≤ 1) and (lFrameworksCount = 0);
 
           if lSwift then begin
@@ -525,12 +550,8 @@ type
                 lFrameworkJson["SwiftAndCocoa"] := true
               else
                 lFrameworkJson["Swift"] := true;
-              var lPath := Path.Combine(lFrameworkFolder, "Modules", $"{f}.swiftmodule");
-              if lPath.FolderExists then
-                lFrameworkJson["SwiftModule"] := FixSSDKPath(lPath);
-              lPath := Path.Combine(lPath, $"{aArchitecture.Arch}.swiftinterface");
-              if lPath.FileExists then
-                lFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
+              lFrameworkJson["SwiftModule"] := FixSSDKPath(lSwiftModule);
+              lFrameworkJson["SwiftInterface"] := FixSSDKPath(lSwiftInterface);
             end;
           end
           else begin
@@ -600,30 +621,11 @@ type
 
                 lShadowFrameworkJson["SwiftModule"] := FixSSDKPath(f);
 
-                var lPath := Path.Combine(f, $"{aArchitecture.Arch}.swiftinterface");
-                if lPath.FileExists then begin
-                  lShadowFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
-                end
-                else begin
-                  var lArch := aArchitecture.Arch;
-                  if aArchitecture.Arch = "arm64" then
-                    lArch := lArch+"e";
-                  lPath := Path.Combine(f, $"{lArch}.swiftinterface");
-                  if lPath.FileExists then begin
-                    lShadowFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
-                  end
-                  else begin
-                    var lOsName := case aName of
-                      "Mac Catalyst": "ios-macabi";
-                      else aName.ToLower;
-                    end;
-                    lPath := Path.Combine(f, $"{lArch}-apple-{lOsName}.swiftinterface");
-                    if lPath.FileExists then
-                      lShadowFrameworkJson["SwiftInterface"] := FixSSDKPath(lPath);
-                  end;
-                end;
+                var lSwiftInterface := FindSwiftInterface(f);
+                if assigned(lSwiftInterface) then
+                  lShadowFrameworkJson["SwiftInterface"] := FixSSDKPath(lSwiftInterface);
 
-                lPath := Path.Combine(lSwiftPath, $"libswift{lName}.tbd");
+                var lPath := Path.Combine(lSwiftPath, $"libswift{lName}.tbd");
                 if lPath.FileExists then
                   lShadowFrameworkJson["SwiftTbd"] := FixSSDKPath(lPath);
 
