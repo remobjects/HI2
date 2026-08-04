@@ -19,8 +19,6 @@ type
     property Debug := false;
     property CreateZips := true;
 
-    property HIRunsEmbedded := false;
-
 //    property FXBaseFolder: String; // MUST BE SET!
 
     property LoggingCallback: block(aLine: String);
@@ -46,30 +44,24 @@ type
         lExe := Mono;
       end;
 
-      var lExitCode: Integer;
-
-      if defined("ECHOES") and HIRunsEmbedded then begin
-        lExitCode := RemObjects.Elements.HeaderImporter.HeaderImporterConsoleApp.Main(aArgs.ToArray);
-      end
-      else begin
-        lExitCode := Process.Run(lExe, aArgs.ToArray, nil, nil, s -> begin
-          lOutput.AppendLine(s);
-          if Debug or assigned(LoggingCallback) then
-            Log("  "+s);
-        end, s -> begin
-          lOutput.AppendLine(s);
+      var lExitCode := Process.Run(lExe, aArgs.ToArray, nil, nil, s -> begin
+        lOutput.AppendLine(s);
+        if Debug or assigned(LoggingCallback) then
           Log("  "+s);
-        end);
-      end;
+      end, s -> begin
+        lOutput.AppendLine(s);
+        Log("  "+s);
+      end);
 
       if lExitCode ≠ 0 then begin
         if not (Debug or assigned(LoggingCallback)) then
           Log(lOutput.ToString);
-        if assigned(aSDKFolder) then begin
+        //if assigned(aSDKFolder) then begin
           writeLn($"Header Importer failed");
           writeLn($"SDK Folder: {aSDKFolder}");
+          writeLn(#"Header Importer: {lExe}");
           writeLn($"Command Line: {Process.StringForCommand("HeaderImporter.exe") Parameters(aArgs)}");
-        end;
+        //end;
         raise new HIException("HeaderImporter failed");
       end;
     end;
