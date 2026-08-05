@@ -362,12 +362,6 @@ type
         if assigned(lZipPath) then
           lOutputManifest["zip"] := Path.Combine("__Public", Path.GetFileName(lZipPath));
       end;
-      if CreateFuchsiaGCPackage then begin
-        var lGCZipPath := AssembleFuchsiaGC(lSDKID);
-        lOutputManifest["gcAssembled"] := true;
-        if assigned(lGCZipPath) then
-          lOutputManifest["gcZip"] := lGCZipPath;
-      end;
       File.WriteText(lOutputManifestPath, lOutputManifest.ToJsonString(JsonFormat.HumanReadable));
       Log($"Wrote Fuchsia FIDL SDK manifest to {lOutputManifestPath}.");
     end;

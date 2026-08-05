@@ -75,46 +75,14 @@ This matches the `Frameworks/Island/Darwin` layout when `output-folder` is
 
 ### Separate GC package
 
-GC is not part of the SDK archive. Add `--assemble-gc` to create the separate
-Fuchsia GC package that is overlaid by the libraries installer:
+GC is not part of the SDK archive, and HI2 does not build or package it. Build
+and package the Fuchsia collector through the GC repository's release flow.
+Fuchsia SDK assembly removes stale `gc.fx` and `libgc.a` files and rejects an
+SDK if either artifact is present.
 
-```text
-HI2 fuchsia <idk-folder> <platform-output-folder> \
-  --reuse-ir \
-  --assemble-gc \
-  --runtime-fx=<folder> \
-  --gc-x64=<file> \
-  --gc-arm64=<file>
-```
-
-`--runtime-fx` supplies `x64/gc.fx` and `arm64/gc.fx`. Build the x64 and arm64
-archives from the GC repository first so upstream CMake remains the single
-source-file manifest:
-
-```text
-./build-remobjects-fuchsia.sh \
-  --idk <idk-folder> \
-  --toolchain <fuchsia-clang-folder> \
-  --api <level>
-```
-
-Pass the resulting
-`out/remobjects-gc/Fuchsia/x64/Release/libgc.a` and arm64 counterpart through
-`--gc-x64` and `--gc-arm64`. HI2 does not compile GC sources.
-
-By default, with an SDK platform output of `Frameworks/Island/Fuchsia`, GC is
-written in the existing sibling-package pattern:
-
-```text
-Frameworks/Island/GC/Fuchsia/Fuchsia <sdk-id>/{x64,arm64}/
-Frameworks/Island/GC/Fuchsia.zip
-```
-
-`--gc-output=<folder>` overrides the `Frameworks/Island/GC/Fuchsia` folder.
-
-The ZIP has a canonical root folder, sorted entries, fixed timestamps and
+The SDK ZIP has a canonical root folder, sorted entries, fixed timestamps and
 permissions, CRC validation, and a logged SHA-256. Re-running with identical
 inputs produces the same archive bytes. On macOS, HI2 uses the absolute system
 `zip` and `unzip` tools so packaging also works under Fire's bundled arm64 Mono;
-Linux uses the managed ZIP implementation. This applies to both the SDK and GC
-archives. Pass `--no-zip` to stop after assembling and validating their folders.
+Linux uses the managed ZIP implementation. Pass `--no-zip` to stop after
+assembling and validating the SDK folder.

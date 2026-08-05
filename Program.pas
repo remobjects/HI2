@@ -36,7 +36,7 @@ type
 
             "fuchsia": begin
                 if length(args) < 3 then begin
-                  writeLn("Usage: HI2 fuchsia <idk-folder> <platform-output-folder> [--intermediate=<folder>] [--api=<level>] [--fidlc=<path>] [--docker=<path>] [--fidlc-docker-image=<image>] [--stable-only] [--reuse-ir] [--ir-only] [--assemble-sdk --runtime-fx=<folder> --islandrtl=<folder> (--clang=<folder> | --clang-runtime=<folder>)] [--assemble-gc --gc-x64=<file> --gc-arm64=<file> [--gc-output=<folder>]] [--no-zip] [library ...]");
+                  writeLn("Usage: HI2 fuchsia <idk-folder> <platform-output-folder> [--intermediate=<folder>] [--api=<level>] [--fidlc=<path>] [--docker=<path>] [--fidlc-docker-image=<image>] [--stable-only] [--reuse-ir] [--ir-only] [--assemble-sdk --runtime-fx=<folder> --islandrtl=<folder> (--clang=<folder> | --clang-runtime=<folder>)] [--no-zip] [library ...]");
                   exit 1;
                 end;
 
@@ -64,22 +64,11 @@ type
                     lImporter.ReuseFidlIR := true
                   else if lArgument:ToLowerInvariant = "--assemble-sdk" then
                     lImporter.AssembleFuchsiaRuntime := true
-                  else if lArgument:ToLowerInvariant = "--assemble-gc" then
-                    lImporter.CreateFuchsiaGCPackage := true
                   else if lArgument.StartsWith("--runtime-fx=", true) then begin
                     lImporter.FuchsiaRuntimeFxFolder := lArgument.Substring(length("--runtime-fx="));
                   end
                   else if lArgument.StartsWith("--islandrtl=", true) then begin
                     lImporter.FuchsiaIslandRTLFolder := lArgument.Substring(length("--islandrtl="));
-                  end
-                  else if lArgument.StartsWith("--gc-x64=", true) then begin
-                    lImporter.FuchsiaGCX64Library := lArgument.Substring(length("--gc-x64="));
-                  end
-                  else if lArgument.StartsWith("--gc-arm64=", true) then begin
-                    lImporter.FuchsiaGCArm64Library := lArgument.Substring(length("--gc-arm64="));
-                  end
-                  else if lArgument.StartsWith("--gc-output=", true) then begin
-                    lImporter.FuchsiaGCOutputFolder := lArgument.Substring(length("--gc-output="));
                   end
                   else if lArgument.StartsWith("--clang=", true) then begin
                     lImporter.FuchsiaClangFolder := lArgument.Substring(length("--clang="));
@@ -89,6 +78,8 @@ type
                   end
                   else if lArgument:ToLowerInvariant = "--no-zip" then
                     lImporter.CreateZips := false
+                  else if lArgument.StartsWith("--") then
+                    raise new HIException($"Invalid Fuchsia option: {lArgument}")
                   else
                     lLibraries.Add(lArgument);
                 end;
