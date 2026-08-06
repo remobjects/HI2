@@ -31,12 +31,14 @@ type
                 aMicrosoftName: not nullable String;
                 aTargetString: not nullable String;
                 aTarget: FxCpuTarget;
+                aCOFFMachine: UInt16;
                 aDefines: not nullable ImmutableList<String>);
     begin
       Name := aName;
       MicrosoftName := aMicrosoftName;
       TargetString := aTargetString;
       Target := aTarget;
+      COFFMachine := aCOFFMachine;
       Defines := aDefines;
     end;
 
@@ -44,6 +46,7 @@ type
     property MicrosoftName: not nullable String; readonly;
     property TargetString: not nullable String; readonly;
     property Target: FxCpuTarget; readonly;
+    property COFFMachine: UInt16; readonly;
     property Defines: not nullable ImmutableList<String>; readonly;
   end;
 
@@ -143,21 +146,37 @@ type
                                                "x86",
                                                "i686-pc-windows-msvc",
                                                FxCpuTarget.i386,
+                                               $014c,
                                                new List<String>("_X86_", "WINVER=0x0A00", "__LITTLE_ENDIAN__", "_MSC_VER=1700", "_WIN32", "_M_IX86=600", "WINDOWS", "i386", "_INTEGRAL_MAX_BITS=64", "UNICODE", "STRICT", "_WINSOCKAPI_", "target_arch=x86", "target_vendor=pc", "target_os=windows"));
         "x86_64", "x64":
           result := new WindowsSDKArchitecture("x86_64",
                                                "x64",
                                                "x86_64-pc-windows-msvc",
                                                FxCpuTarget.x86_64,
+                                               $8664,
                                                new List<String>("CPU64", "_X86_64_", "_WIN64", "WINVER=0x0A00", "__LITTLE_ENDIAN__", "_MSC_VER=1700", "_WIN32", "_M_X64", "_M_AMD64", "WINDOWS", "x86_64", "_INTEGRAL_MAX_BITS=64", "UNICODE", "STRICT", "_WINSOCKAPI_", "target_arch=x86_64", "target_vendor=pc", "target_os=windows"));
         "arm64", "aarch64":
           result := new WindowsSDKArchitecture("arm64",
                                                "arm64",
                                                "arm64-pc-windows-msvc",
                                                FxCpuTarget.arm64,
+                                               $aa64,
                                                new List<String>("CPU64", "_ARM64_", "_WIN64", "WINVER=0x0A00", "__LITTLE_ENDIAN__", "_MSC_VER=1700", "_WIN32", "_M_ARM64", "WINDOWS", "arm64", "_INTEGRAL_MAX_BITS=64", "UNICODE", "STRICT", "_WINSOCKAPI_", "target_arch=arm64", "target_vendor=pc", "target_os=windows"));
         else
           raise new Exception($"Unsupported Windows SDK architecture '{aName}'. Supported names are i386, x86_64, and arm64.");
+      end;
+    end;
+
+    method ResolveWindowsArchitectures: not nullable List<WindowsSDKArchitecture>;
+    begin
+      if WindowsArchitectures.Count = 0 then
+        WindowsArchitectures.Add(["i386", "x86_64", "arm64"]);
+      result := new List<WindowsSDKArchitecture>;
+      for each lName in WindowsArchitectures do begin
+        var lArchitecture := WindowsArchitecture(lName);
+        if result.Any(aItem -> aItem.Name = lArchitecture.Name) then
+          raise new Exception($"Windows SDK architecture '{lArchitecture.Name}' was specified more than once.");
+        result.Add(lArchitecture);
       end;
     end;
 
@@ -331,11 +350,8 @@ type
       var lSourceFolder := Path.Combine(RequireIslandSDKFolder(WindowsSupportFilesFolder, "Windows supplemental SDK files folder"), aArchitecture.Name);
       if not lSourceFolder.FolderExists then
         raise new Exception($"Windows supplemental SDK files for {aArchitecture.Name} were not found at '{lSourceFolder}'.");
-      for each lFileName in ["java.fx", "sqlite3.fx", "sqlite3.lib"] do begin
-        var lSource := Path.Combine(lSourceFolder, lFileName);
-        if lSource.FileExists then
-          CopyIslandSDKFile(lSource, Path.Combine(aOutputFolder, lFileName));
-      end;
+      for each lFileName in ["java.fx"] do
+        CopyIslandSDKFile(Path.Combine(lSourceFolder, lFileName), Path.Combine(aOutputFolder, lFileName));
     end;
 
     method ValidateWindowsFx(aPath: not nullable String;
@@ -364,9 +380,24 @@ type
         ValidateWindowsFx(Path.Combine(lArchitectureFolder, "rtl.fx"), "rtl", lArchitecture);
         if ImportWindowsRuntime then
           ValidateWindowsFx(Path.Combine(lArchitectureFolder, "winrt.fx"), "winrt", lArchitecture);
-        for each lGCFile in ["gc.fx", "gc.lib", "libgc.a"] do
-          if Path.Combine(lArchitectureFolder, lGCFile).FileExists then
-            raise new Exception($"Windows {lArchitecture.Name} SDK must not contain '{lGCFile}'; GC is packaged separately.");
+        for each lStandaloneFile in ["gc.fx", "gc.lib", "libgc.a", "sqlite3.fx", "sqlite3.lib"] do
+          if Path.Combine(lArchitectureFolder, lStandaloneFile).FileExists then
+            raise new Exception($"Windows {lArchitecture.Name} SDK must not contain '{lStandaloneFile}'; GC and SQLite are packaged separately.");
+      end;
+    end;
+
+    method RemoveWindowsStandaloneLibraries(aSDKFolder: not nullable String;
+                                             aArchitectures: not nullable ImmutableList<WindowsSDKArchitecture>);
+    begin
+      for each lArchitecture in aArchitectures do begin
+        var lArchitectureFolder := RequireIslandSDKFolder(Path.Combine(aSDKFolder, lArchitecture.Name), $"Windows {lArchitecture.Name} SDK architecture folder");
+        for each lFileName in ["gc.fx", "gc.lib", "libgc.a", "sqlite3.fx", "sqlite3.lib"] do begin
+          var lPath := Path.Combine(lArchitectureFolder, lFileName);
+          if lPath.FileExists then begin
+            File.Delete(lPath);
+            Log($"Removed standalone library artifact '{lPath}' from the Windows SDK.");
+          end;
+        end;
       end;
     end;
 
@@ -398,15 +429,7 @@ type
         lNetFxIncludeFolder := ResolveWindowsNetFxIncludeFolder;
       var lIncludeFolders := WindowsIncludeFolders(lLayout, lMSVCIncludeFolder, lNetFxIncludeFolder);
       var lAvailableHeaders := WindowsHeaderNames(lIncludeFolders);
-      var lArchitectures := new List<WindowsSDKArchitecture>;
-      if WindowsArchitectures.Count = 0 then
-        WindowsArchitectures.Add(["i386", "x86_64", "arm64"]);
-      for each lName in WindowsArchitectures do begin
-        var lArchitecture := WindowsArchitecture(lName);
-        if lArchitectures.Any(aItem -> aItem.Name = lArchitecture.Name) then
-          raise new Exception($"Windows SDK architecture '{lArchitecture.Name}' was specified more than once.");
-        lArchitectures.Add(lArchitecture);
-      end;
+      var lArchitectures := ResolveWindowsArchitectures;
 
       var lSDKFolder := Path.Combine(WindowsOutputFolder, "Windows "+lLayout.Version);
       if lSDKFolder.FolderExists then
@@ -428,6 +451,17 @@ type
       if CreateZips then
         CreateDeterministicIslandSDKZip(lSDKFolder,
                                         Path.Combine(WindowsOutputFolder, "__Public", Path.GetFileName(lSDKFolder)+".zip"));
+    end;
+
+    method RepackageWindowsSDK(aSDKFolder: not nullable String);
+    begin
+      var lSDKFolder := RequireIslandSDKFolder(aSDKFolder, "Existing Windows Island SDK folder");
+      var lArchitectures := ResolveWindowsArchitectures;
+      RemoveWindowsStandaloneLibraries(lSDKFolder, lArchitectures);
+      ValidateWindowsSDK(lSDKFolder, lArchitectures);
+      if CreateZips then
+        CreateDeterministicIslandSDKZip(lSDKFolder,
+                                        Path.Combine(Path.GetParentDirectory(lSDKFolder), "__Public", Path.GetFileName(lSDKFolder)+".zip"));
     end;
 
   end;

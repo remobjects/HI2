@@ -125,6 +125,62 @@ type
                 exit 0;
               end;
 
+            "windows-repackage": begin
+                if length(args) < 2 then begin
+                  writeLn("Usage: HI2 windows-repackage <existing-island-sdk-folder> [--architectures=i386,x86_64,arm64] [--skip-winrt] [--no-zip]");
+                  exit 1;
+                end;
+
+                for each lArgument in args.Skip(2) do begin
+                  if lArgument.StartsWith("--architectures=", true) then
+                    lImporter.WindowsArchitectures.Add(lArgument.Substring(length("--architectures=")).Replace(",", ";").Split(";", true))
+                  else if lArgument:ToLowerInvariant = "--skip-winrt" then
+                    lImporter.ImportWindowsRuntime := false
+                  else if lArgument:ToLowerInvariant = "--no-zip" then
+                    lImporter.CreateZips := false
+                  else
+                    raise new HIException($"Invalid Windows repackage option: {lArgument}");
+                end;
+
+                lImporter.RepackageWindowsSDK(args[1]);
+                exit 0;
+              end;
+
+            "sqlite": begin
+                if length(args) < 3 then begin
+                  writeLn("Usage: HI2 sqlite <amalgamation-folder> <libraries-output-folder> --windows-sdk=<folder> --msvc=<folder> --windows-declarations=<folder> [--sdk-version=<version>] [--architectures=i386,x86_64,arm64] [--clang=<clang-cl-or-LLVM-bin-folder>] [--llvm-ar=<path-or-LLVM-bin-folder>] [--intermediate=<folder>] [--no-zip]");
+                  exit 1;
+                end;
+
+                lImporter.SQLiteSourceFolder := args[1];
+                lImporter.SQLiteOutputFolder := args[2];
+                for each lArgument in args.Skip(3) do begin
+                  if lArgument.StartsWith("--windows-sdk=", true) then
+                    lImporter.WindowsSDKFolder := lArgument.Substring(length("--windows-sdk="))
+                  else if lArgument.StartsWith("--msvc=", true) then
+                    lImporter.WindowsMSVCFolder := lArgument.Substring(length("--msvc="))
+                  else if lArgument.StartsWith("--sdk-version=", true) then
+                    lImporter.WindowsSDKVersion := lArgument.Substring(length("--sdk-version="))
+                  else if lArgument.StartsWith("--architectures=", true) then
+                    lImporter.WindowsArchitectures.Add(lArgument.Substring(length("--architectures=")).Replace(",", ";").Split(";", true))
+                  else if lArgument.StartsWith("--windows-declarations=", true) then
+                    lImporter.SQLiteWindowsDeclarationsFolder := lArgument.Substring(length("--windows-declarations="))
+                  else if lArgument.StartsWith("--clang=", true) then
+                    lImporter.SQLiteClang := lArgument.Substring(length("--clang="))
+                  else if lArgument.StartsWith("--llvm-ar=", true) then
+                    lImporter.SQLiteLLVMAr := lArgument.Substring(length("--llvm-ar="))
+                  else if lArgument.StartsWith("--intermediate=", true) then
+                    lImporter.SQLiteIntermediateFolder := lArgument.Substring(length("--intermediate="))
+                  else if lArgument:ToLowerInvariant = "--no-zip" then
+                    lImporter.CreateZips := false
+                  else
+                    raise new HIException($"Invalid SQLite option: {lArgument}");
+                end;
+
+                lImporter.BuildSQLitePackage;
+                exit 0;
+              end;
+
             "gc": begin
 
                 Darwin.LoadVersionsFromXcode();

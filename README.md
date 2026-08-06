@@ -133,6 +133,61 @@ diagnostic. `winrt.fx` is discovered fresh from the top-level Windows Runtime C
 ABI headers in the selected SDK; C++-only WRL and implementation-helper headers
 are excluded. RTL and WinRT are imported in one graph so the latter retains the
 Windows preprocessor state and an explicit dependency on `rtl.fx`.
-`--support-files` can copy existing `java.fx`, `sqlite3.fx`, and `sqlite3.lib`
-files from per-architecture folders. GC is never copied into the SDK and stale
-`gc.fx`, `gc.lib`, or `libgc.a` files are rejected.
+`--support-files` supplies the existing architecture-specific `java.fx`
+declaration surface. GC and SQLite are standalone Island libraries rather than
+Windows SDK content; stale `gc.fx`, `gc.lib`, `libgc.a`, `sqlite3.fx`, and
+`sqlite3.lib` files are rejected.
+
+To remove historical standalone-library payloads from an existing Windows SDK,
+validate it, and recreate its deterministic public ZIP without reimporting the
+headers, use:
+
+```text
+HI2 windows-repackage <existing-island-sdk-folder> \
+  [--architectures=i386,x86_64,arm64] [--skip-winrt] [--no-zip]
+```
+
+## SQLite library
+
+SQLite is packaged independently below `Island/Libraries`, so updating a
+Windows SDK neither rebuilds nor embeds this third-party library. Build or
+refresh the Windows portion of the standalone package with:
+
+```text
+HI2 sqlite <amalgamation-folder> <libraries-output-folder> \
+  --windows-sdk=<folder> \
+  --msvc=<folder> \
+  --windows-declarations=<folder> \
+  [--sdk-version=<version>] \
+  [--clang=<clang-cl-or-LLVM-bin-folder>] \
+  [--llvm-ar=<path-or-LLVM-bin-folder>] \
+  [--architectures=i386,x86_64,arm64] [--no-zip]
+```
+
+The amalgamation folder must contain `sqlite3.c` and `sqlite3.h`, or have one
+unambiguous child folder containing them. `--windows-declarations` points to
+per-architecture folders containing the existing `sqlite3.fx` declaration
+surface; it may point into the output package being refreshed because HI2
+stages the declarations before replacing `Island/Windows`. HI2 cross-compiles
+the source with `clang-cl`, creates deterministic
+indexed COFF archives with `llvm-ar`, and validates all declaration targets.
+Private, SQLite-prefixed implementations of `memchr`, `strspn`, and `strcspn`
+keep the archive linkable with older Island Windows RTL imports without
+exporting replacements for the platform C runtime symbols. The Windows build
+also uses SQLite's supported `SQLITE_OMIT_SEH` option because Island does not
+link the MSVC runtime's `__C_specific_handler`.
+The tool options accept either absolute executable paths or an LLVM `bin`
+folder; on macOS, HI2 also recognizes Homebrew LLVM below
+`/opt/homebrew/opt/llvm` and `/usr/local/opt/llvm`.
+
+The generated layout is:
+
+```text
+<libraries-output-folder>/SQLite/Island/Windows/<architecture>/sqlite3.fx
+<libraries-output-folder>/SQLite/Island/Windows/<architecture>/sqlite3.lib
+<libraries-output-folder>/__Public/SQLite.zip
+```
+
+`SQLite.zip` has `Island` as its archive root, matching the Elements reference
+package layout. Regenerating Windows replaces only `Island/Windows`, preserving
+future Linux or Android payloads in the same package before recreating the ZIP.
