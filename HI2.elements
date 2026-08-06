@@ -76,6 +76,7 @@
     <Compile Include="Importer.Fuchsia.pas" />
     <Compile Include="Importer.Fuchsia.SDK.pas" />
     <Compile Include="Importer.Windows.pas" />
+    <Compile Include="Importer.Linux.pas" />
     <Compile Include="Importer.Darwin.GC.pas" />
     <Compile Include="Importer.Darwin.SDKs.pas" />
     <Compile Include="Constants.Darwin.Blacklists.pas" />

@@ -125,6 +125,40 @@ type
                 exit 0;
               end;
 
+            "linux": begin
+                if length(args) < 2 then begin
+                  writeLn("Usage: HI2 linux <platform-output-folder> [--ubuntu-version=26.04] [--docker-image=ubuntu:26.04] [--docker=<path>] [--architectures=x86_64,arm64] [--rtl-config-folder=<folder>] [--intermediate=<folder>] [--header-importer=<absolute-path>] [--reuse-sysroots] [--no-zip]");
+                  exit 1;
+                end;
+
+                lImporter.LinuxOutputFolder := args[1];
+                for each lArgument in args.Skip(2) do begin
+                  if lArgument.StartsWith("--ubuntu-version=", true) then
+                    lImporter.LinuxUbuntuVersion := lArgument.Substring(length("--ubuntu-version="))
+                  else if lArgument.StartsWith("--docker-image=", true) then
+                    lImporter.LinuxDockerImage := lArgument.Substring(length("--docker-image="))
+                  else if lArgument.StartsWith("--docker=", true) then
+                    lImporter.Docker := lArgument.Substring(length("--docker="))
+                  else if lArgument.StartsWith("--architectures=", true) then
+                    lImporter.LinuxArchitectures.Add(lArgument.Substring(length("--architectures=")).Replace(",", ";").Split(";", true))
+                  else if lArgument.StartsWith("--rtl-config-folder=", true) then
+                    lImporter.LinuxRTLConfigFolder := lArgument.Substring(length("--rtl-config-folder="))
+                  else if lArgument.StartsWith("--intermediate=", true) then
+                    lImporter.LinuxIntermediateFolder := lArgument.Substring(length("--intermediate="))
+                  else if lArgument.StartsWith("--header-importer=", true) then
+                    lImporter.HI := lArgument.Substring(length("--header-importer="))
+                  else if lArgument:ToLowerInvariant = "--reuse-sysroots" then
+                    lImporter.LinuxReuseSysroots := true
+                  else if lArgument:ToLowerInvariant = "--no-zip" then
+                    lImporter.CreateZips := false
+                  else
+                    raise new HIException($"Invalid Linux option: {lArgument}");
+                end;
+
+                lImporter.ImportLinuxSDK;
+                exit 0;
+              end;
+
             "gc": begin
 
                 Darwin.LoadVersionsFromXcode();

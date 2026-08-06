@@ -136,3 +136,48 @@ Windows preprocessor state and an explicit dependency on `rtl.fx`.
 `--support-files` can copy existing `java.fx`, `sqlite3.fx`, and `sqlite3.lib`
 files from per-architecture folders. GC is never copied into the SDK and stale
 `gc.fx`, `gc.lib`, or `libgc.a` files are rejected.
+
+## Linux SDK
+
+HI2 generates the Linux Island SDK from an official Ubuntu container image:
+
+```text
+HI2 linux <platform-output-folder> \
+  [--ubuntu-version=26.04] \
+  [--docker-image=ubuntu:26.04] \
+  [--docker=<absolute-path>] \
+  [--architectures=x86_64,arm64] \
+  [--rtl-config-folder=<folder>] \
+  [--intermediate=<folder>] \
+  [--header-importer=<absolute-path>] \
+  [--reuse-sysroots] [--no-zip]
+```
+
+The default import captures the current Ubuntu 26.04 development packages for
+glibc, GCC builtin headers, GTK 3, and SQLite for both x86_64 and arm64. It
+filters the checked-in Linux RTL, GTK, and SQLite configurations against the
+actual headers in each architecture's sysroot. `rtl.fx` is generated first;
+GTK and SQLite are then imported with an explicit reference to it. The SQLite
+static library is copied beside `sqlite3.fx`.
+
+Ubuntu contains case-distinct Linux headers which cannot be represented on a
+normal case-insensitive macOS volume. On macOS, HI2 therefore creates a sparse
+case-sensitive APFS image below the intermediate folder and mounts it at a
+temporary path. Docker writes each sysroot to a tar archive in an ordinary
+transfer folder, and the host extracts that archive onto the image. The image
+is detached after import and may be reused with `--reuse-sysroots`. Linux hosts
+use an ordinary intermediate directory.
+
+The generated layout is:
+
+```text
+<platform-output-folder>/Ubuntu 26.04/x86_64/
+<platform-output-folder>/Ubuntu 26.04/arm64/
+<platform-output-folder>/__Public/Ubuntu 26.04.zip
+```
+
+The ZIP is deterministic and contains no GC. `gc.fx`, `gc.lib`, and `libgc.a`
+are rejected because collectors are distributed through the separate GC
+package. The legacy armv6 SDK surface is intentionally not regenerated: modern
+Ubuntu publishes x86_64 and arm64 development environments, while armv6 remains
+available only through older SDKs.
