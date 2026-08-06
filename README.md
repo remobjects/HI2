@@ -181,3 +181,43 @@ are rejected because collectors are distributed through the separate GC
 package. The legacy armv6 SDK surface is intentionally not regenerated: modern
 Ubuntu publishes x86_64 and arm64 development environments, while armv6 remains
 available only through older SDKs.
+
+## Android SDK
+
+HI2 generates a native Android Island SDK from an official stable NDK and an
+official SQLite amalgamation:
+
+```text
+HI2 android <platform-output-folder> \
+  (--ndk=<extracted-ndk-folder> | --ndk-archive=<android-ndk-r29-linux.zip>) \
+  --sqlite-archive=<sqlite-amalgamation-3530400.zip> \
+  [--ndk-release=r29] [--api=35] [--sqlite-version=3.53.4] \
+  [--architectures=arm64-v8a,armeabi-v7a,x86,x86_64] \
+  [--rtl-config-folder=<folder>] [--intermediate=<folder>] \
+  [--header-importer=<absolute-path>] [--mono=<absolute-path>] \
+  [--docker=<absolute-path>] \
+  [--docker-image=ubuntu:24.04] [--reuse-ndk] [--reuse-sqlite] [--no-zip]
+```
+
+When `--api` is omitted, the importer selects the NDK metadata's maximum native
+API level. The four default ABIs are the NDK's supported default set; removed
+`armeabi` and non-default `riscv64` are not advertised. On macOS, archive
+extraction uses a reusable case-sensitive APFS sparse image because the NDK
+contains case-distinct Linux headers.
+
+`--mono` explicitly selects the managed runtime used to launch
+`HeaderImporter.exe`. This is useful on Apple silicon, where a universal or
+arm64 Mono avoids Rosetta memory-management failures during the large RTL
+header import.
+
+SQLite is rebuilt from the selected amalgamation in an amd64 Linux container
+with the NDK's Clang wrappers. Each architecture receives freshly imported
+`rtl.fx` and `sqlite3.fx`, the static SQLite library, modern compiler-rt
+builtins and `libatomic`, and the NDK shared-library CRT objects under the
+legacy names expected by the Elements Android linker. Obsolete `gdbserver` and
+all GC files are excluded. The deterministic ZIP is written as:
+
+```text
+<platform-output-folder>/Android 35/<abi>/
+<platform-output-folder>/__Public/Android 35.zip
+```

@@ -159,6 +159,56 @@ type
                 exit 0;
               end;
 
+            "android": begin
+                if length(args) < 2 then begin
+                  writeLn("Usage: HI2 android <platform-output-folder> (--ndk=<folder> | --ndk-archive=<zip>) --sqlite-archive=<zip> [--ndk-release=r29] [--api=35] [--sqlite-version=3.53.4] [--architectures=arm64-v8a,armeabi-v7a,x86,x86_64] [--rtl-config-folder=<folder>] [--intermediate=<folder>] [--header-importer=<absolute-path>] [--mono=<absolute-path>] [--docker=<absolute-path>] [--docker-image=ubuntu:24.04] [--reuse-ndk] [--reuse-sqlite] [--debug] [--no-zip]");
+                  exit 1;
+                end;
+
+                lImporter.AndroidOutputFolder := args[1];
+                for each lArgument in args.Skip(2) do begin
+                  if lArgument.StartsWith("--ndk=", true) then
+                    lImporter.AndroidNDKFolder := lArgument.Substring(length("--ndk="))
+                  else if lArgument.StartsWith("--ndk-archive=", true) then
+                    lImporter.AndroidNDKArchive := lArgument.Substring(length("--ndk-archive="))
+                  else if lArgument.StartsWith("--sqlite-archive=", true) then
+                    lImporter.AndroidSQLiteArchive := lArgument.Substring(length("--sqlite-archive="))
+                  else if lArgument.StartsWith("--ndk-release=", true) then
+                    lImporter.AndroidNDKRelease := lArgument.Substring(length("--ndk-release="))
+                  else if lArgument.StartsWith("--api=", true) then
+                    lImporter.AndroidAPILevel := lArgument.Substring(length("--api="))
+                  else if lArgument.StartsWith("--sqlite-version=", true) then
+                    lImporter.AndroidSQLiteVersion := lArgument.Substring(length("--sqlite-version="))
+                  else if lArgument.StartsWith("--architectures=", true) then
+                    lImporter.AndroidArchitectures.Add(lArgument.Substring(length("--architectures=")).Replace(",", ";").Split(";", true))
+                  else if lArgument.StartsWith("--rtl-config-folder=", true) then
+                    lImporter.AndroidRTLConfigFolder := lArgument.Substring(length("--rtl-config-folder="))
+                  else if lArgument.StartsWith("--intermediate=", true) then
+                    lImporter.AndroidIntermediateFolder := lArgument.Substring(length("--intermediate="))
+                  else if lArgument.StartsWith("--header-importer=", true) then
+                    lImporter.HI := lArgument.Substring(length("--header-importer="))
+                  else if lArgument.StartsWith("--mono=", true) then
+                    lImporter.Mono := lArgument.Substring(length("--mono="))
+                  else if lArgument.StartsWith("--docker=", true) then
+                    lImporter.Docker := lArgument.Substring(length("--docker="))
+                  else if lArgument.StartsWith("--docker-image=", true) then
+                    lImporter.AndroidDockerImage := lArgument.Substring(length("--docker-image="))
+                  else if lArgument:ToLowerInvariant = "--reuse-ndk" then
+                    lImporter.AndroidReuseNDK := true
+                  else if lArgument:ToLowerInvariant = "--reuse-sqlite" then
+                    lImporter.AndroidReuseSQLite := true
+                  else if lArgument:ToLowerInvariant = "--debug" then
+                    lImporter.Debug := true
+                  else if lArgument:ToLowerInvariant = "--no-zip" then
+                    lImporter.CreateZips := false
+                  else
+                    raise new HIException($"Invalid Android option: {lArgument}");
+                end;
+
+                lImporter.ImportAndroidSDK;
+                exit 0;
+              end;
+
             "gc": begin
 
                 Darwin.LoadVersionsFromXcode();

@@ -37,7 +37,7 @@ type
       var lOutput := new StringBuilder();
 
       var lExe := HI;
-      if defined("TOFFEE") and assigned(Mono) then begin
+      if assigned(Mono) then begin
         var lArguments := aArgs.MutableVersion;
         lArguments.Insert(0, HI);
         aArgs := lArguments;
