@@ -256,9 +256,18 @@ type
                                   lArchitectureFolder);
       end;
 
-      if CreateZips then
-        CreateDeterministicIslandSDKZip(lIslandFolder,
-                                        Path.Combine(SQLiteOutputFolder, "__Public", "SQLite.zip"));
+      if CreateZips then begin
+        var lZipStageIslandFolder := Path.Combine(SQLiteIntermediateFolder, "Packages", "Windows", "Island");
+        if lZipStageIslandFolder.FolderExists then
+          System.IO.Directory.Delete(lZipStageIslandFolder, true);
+        CopyIslandSDKFolder(lWindowsFolder, Path.Combine(lZipStageIslandFolder, "Windows"));
+        var lPublicFolder := Path.Combine(SQLiteOutputFolder, "__Public");
+        var lLegacyZip := Path.Combine(lPublicFolder, "SQLite.zip");
+        if lLegacyZip.FileExists then
+          File.Delete(lLegacyZip);
+        CreateDeterministicIslandSDKZip(lZipStageIslandFolder,
+                                        Path.Combine(lPublicFolder, "Island-Windows-sqlite.zip"));
+      end;
     end;
 
   end;

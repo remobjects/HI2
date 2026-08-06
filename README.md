@@ -185,9 +185,27 @@ The generated layout is:
 ```text
 <libraries-output-folder>/SQLite/Island/Windows/<architecture>/sqlite3.fx
 <libraries-output-folder>/SQLite/Island/Windows/<architecture>/sqlite3.lib
-<libraries-output-folder>/__Public/SQLite.zip
+<libraries-output-folder>/__Public/Island-Windows-sqlite.zip
 ```
 
-`SQLite.zip` has `Island` as its archive root, matching the Elements reference
-package layout. Regenerating Windows replaces only `Island/Windows`, preserving
-future Linux or Android payloads in the same package before recreating the ZIP.
+`Island-Windows-sqlite.zip` has `Island` as its archive root, matching the
+Elements reference package layout. Regenerating Windows replaces only
+`Island/Windows`, preserving other platform payloads in the local package while
+creating a Windows-only public ZIP.
+
+## Darwin system libraries
+
+SQLite, libxml2, and zlib are supplied by Darwin itself, so Island ships only
+their imported `.fx` declarations. After building the import projects under
+`Elements/Frameworks/Import Projects`, split and package the generated Island
+folder with:
+
+```text
+HI2 darwin-libraries <imported-island-folder> <libraries-output-folder> [--no-zip]
+```
+
+This creates `Island-Darwin-sqlite.zip`, `Island-Darwin-libxml2.zip`, and
+`Island-Darwin-zlib.zip`. Each archive has `Island` as its root and contains
+only the corresponding library. Island watchOS declarations are deliberately
+excluded; macOS, Mac Catalyst, iOS, tvOS, visionOS, and their applicable
+simulators are included when present in the import output.

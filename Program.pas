@@ -181,6 +181,23 @@ type
                 exit 0;
               end;
 
+            "darwin-libraries": begin
+                if length(args) < 3 then begin
+                  writeLn("Usage: HI2 darwin-libraries <imported-island-folder> <libraries-output-folder> [--no-zip]");
+                  exit 1;
+                end;
+
+                for each lArgument in args.Skip(3) do begin
+                  if lArgument:ToLowerInvariant = "--no-zip" then
+                    lImporter.CreateZips := false
+                  else
+                    raise new HIException($"Invalid Darwin libraries option: {lArgument}");
+                end;
+
+                lImporter.PackageIslandDarwinLibraries(args[1], args[2]);
+                exit 0;
+              end;
+
             "gc": begin
 
                 Darwin.LoadVersionsFromXcode();

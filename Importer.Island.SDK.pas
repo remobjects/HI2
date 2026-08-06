@@ -40,6 +40,16 @@ type
       System.IO.File.Copy(aSource, aDestination, false);
     end;
 
+    method CopyIslandSDKFolder(aSource: not nullable String; aDestination: not nullable String);
+    begin
+      var lSource := RequireIslandSDKFolder(aSource, "Island SDK input folder");
+      Folder.Create(aDestination);
+      for each lSubfolder in Folder.GetSubfolders(lSource).OrderBy(aPath -> aPath) do
+        CopyIslandSDKFolder(lSubfolder, Path.Combine(aDestination, Path.GetFileName(lSubfolder)));
+      for each lFile in Folder.GetFiles(lSource).OrderBy(aPath -> aPath) do
+        CopyIslandSDKFile(lFile, Path.Combine(aDestination, Path.GetFileName(lFile)));
+    end;
+
     method RunIslandSDKTool(aExecutable: not nullable String;
                             aArguments: not nullable ImmutableList<String>;
                             aWorkingDirectory: not nullable String;
