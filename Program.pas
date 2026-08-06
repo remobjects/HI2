@@ -88,6 +88,43 @@ type
                 exit 0;
               end;
 
+            "windows": begin
+                if length(args) < 3 then begin
+                  writeLn("Usage: HI2 windows <windows-sdk-folder> <platform-output-folder> --msvc=<folder> [--netfx-sdk=<folder>] [--sdk-version=<version>] [--architectures=i386,x86_64,arm64] [--rtl-config-folder=<folder>] [--support-files=<folder>] [--intermediate=<folder>] [--header-importer=<absolute-path>] [--skip-winrt] [--no-zip]");
+                  exit 1;
+                end;
+
+                lImporter.WindowsSDKFolder := args[1];
+                lImporter.WindowsOutputFolder := args[2];
+                for each lArgument in args.Skip(3) do begin
+                  if lArgument.StartsWith("--msvc=", true) then
+                    lImporter.WindowsMSVCFolder := lArgument.Substring(length("--msvc="))
+                  else if lArgument.StartsWith("--netfx-sdk=", true) then
+                    lImporter.WindowsNetFxSDKFolder := lArgument.Substring(length("--netfx-sdk="))
+                  else if lArgument.StartsWith("--sdk-version=", true) then
+                    lImporter.WindowsSDKVersion := lArgument.Substring(length("--sdk-version="))
+                  else if lArgument.StartsWith("--architectures=", true) then
+                    lImporter.WindowsArchitectures.Add(lArgument.Substring(length("--architectures=")).Replace(",", ";").Split(";", true))
+                  else if lArgument.StartsWith("--rtl-config-folder=", true) then
+                    lImporter.WindowsRTLConfigFolder := lArgument.Substring(length("--rtl-config-folder="))
+                  else if lArgument.StartsWith("--support-files=", true) then
+                    lImporter.WindowsSupportFilesFolder := lArgument.Substring(length("--support-files="))
+                  else if lArgument.StartsWith("--intermediate=", true) then
+                    lImporter.WindowsIntermediateFolder := lArgument.Substring(length("--intermediate="))
+                  else if lArgument.StartsWith("--header-importer=", true) then
+                    lImporter.HI := lArgument.Substring(length("--header-importer="))
+                  else if lArgument:ToLowerInvariant = "--skip-winrt" then
+                    lImporter.ImportWindowsRuntime := false
+                  else if lArgument:ToLowerInvariant = "--no-zip" then
+                    lImporter.CreateZips := false
+                  else
+                    raise new HIException($"Invalid Windows option: {lArgument}");
+                end;
+
+                lImporter.ImportWindowsSDK;
+                exit 0;
+              end;
+
             "gc": begin
 
                 Darwin.LoadVersionsFromXcode();

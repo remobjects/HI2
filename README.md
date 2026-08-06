@@ -86,3 +86,53 @@ inputs produces the same archive bytes. On macOS, HI2 uses the absolute system
 `zip` and `unzip` tools so packaging also works under Fire's bundled arm64 Mono;
 Linux uses the managed ZIP implementation. Pass `--no-zip` to stop after
 assembling and validating the SDK folder.
+
+## Windows SDK
+
+HI2 can generate a fresh Windows Island SDK from either an installed Windows
+SDK or the official `Microsoft.Windows.SDK.CPP` NuGet packages:
+
+```text
+HI2 windows <windows-sdk-folder> <platform-output-folder> \
+  --msvc=<folder> \
+  [--netfx-sdk=<folder>] \
+  [--sdk-version=<version>] \
+  [--architectures=i386,x86_64,arm64] \
+  [--rtl-config-folder=<folder>] \
+  [--support-files=<folder>] \
+  [--intermediate=<folder>] \
+  [--header-importer=<absolute-path>] \
+  [--skip-winrt] [--no-zip]
+```
+
+For NuGet input, extract `Microsoft.Windows.SDK.CPP` and each desired
+architecture package (`.x86`, `.x64`, and `.arm64`) into one folder. The
+packages merge below their common `c` directory. The Windows SDK does not
+contain the MSVC CRT headers, so `--msvc` is required and may point to the MSVC
+include folder, a versioned MSVC tools folder, or a Visual Studio root.
+
+The Windows Runtime metadata headers also use CLR metadata declarations from
+the .NET Framework SDK. On an installed Windows SDK layout, HI2 looks for the
+sibling `Windows Kits\NETFXSDK` folder and selects the newest installed version.
+For NuGet input or a non-Windows host, pass `--netfx-sdk` with the .NET Framework
+SDK root, a versioned SDK folder, or its `Include\um` folder. This option is not
+required with `--skip-winrt`.
+
+The importer auto-selects the newest SDK version unless `--sdk-version` is
+specified, generates `rtl.fx` and `winrt.fx` for every requested architecture,
+validates their platform/CPU/target metadata, and writes:
+
+```text
+<platform-output-folder>/Windows <sdk-version>/
+<platform-output-folder>/__Public/Windows <sdk-version>.zip
+```
+
+The checked-in Windows JSON files remain the curated compatibility surface for
+the core `rtl.fx` import; headers removed from a newer SDK are skipped with a
+diagnostic. `winrt.fx` is discovered fresh from the top-level Windows Runtime C
+ABI headers in the selected SDK; C++-only WRL and implementation-helper headers
+are excluded. RTL and WinRT are imported in one graph so the latter retains the
+Windows preprocessor state and an explicit dependency on `rtl.fx`.
+`--support-files` can copy existing `java.fx`, `sqlite3.fx`, and `sqlite3.lib`
+files from per-architecture folders. GC is never copied into the SDK and stale
+`gc.fx`, `gc.lib`, or `libgc.a` files are rejected.
