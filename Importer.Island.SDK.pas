@@ -40,6 +40,39 @@ type
       System.IO.File.Copy(aSource, aDestination, false);
     end;
 
+    method CopyIslandSDKFolder(aSource: not nullable String; aDestination: not nullable String);
+    begin
+      var lSource := RequireIslandSDKFolder(aSource, "Island SDK input folder");
+      Folder.Create(aDestination);
+      for each lSubfolder in Folder.GetSubfolders(lSource).OrderBy(aPath -> aPath) do
+        CopyIslandSDKFolder(lSubfolder, Path.Combine(aDestination, Path.GetFileName(lSubfolder)));
+      for each lFile in Folder.GetFiles(lSource).OrderBy(aPath -> aPath) do
+        CopyIslandSDKFile(lFile, Path.Combine(aDestination, Path.GetFileName(lFile)));
+    end;
+
+    method CreateIslandPlatformLibraryZip(aLibrariesOutputFolder: not nullable String;
+                                          aIntermediateFolder: not nullable String;
+                                          aPackageName: not nullable String;
+                                          aPlatformName: not nullable String;
+                                          aArchiveName: not nullable String);
+    begin
+      var lSourcePlatformFolder := RequireIslandSDKFolder(Path.Combine(aLibrariesOutputFolder,
+                                                                       aPackageName,
+                                                                       "Island",
+                                                                       aPlatformName),
+                                                          $"{aPlatformName} {aPackageName} package folder");
+      var lStageIslandFolder := Path.Combine(aIntermediateFolder,
+                                             "Packages",
+                                             aPackageName,
+                                             aPlatformName,
+                                             "Island");
+      if lStageIslandFolder.FolderExists then
+        System.IO.Directory.Delete(lStageIslandFolder, true);
+      CopyIslandSDKFolder(lSourcePlatformFolder, Path.Combine(lStageIslandFolder, aPlatformName));
+      CreateDeterministicIslandSDKZip(lStageIslandFolder,
+                                      Path.Combine(aLibrariesOutputFolder, "__Public", aArchiveName));
+    end;
+
     method RunIslandSDKTool(aExecutable: not nullable String;
                             aArguments: not nullable ImmutableList<String>;
                             aWorkingDirectory: not nullable String;

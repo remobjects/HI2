@@ -125,15 +125,90 @@ type
                 exit 0;
               end;
 
+            "windows-repackage": begin
+                if length(args) < 2 then begin
+                  writeLn("Usage: HI2 windows-repackage <existing-island-sdk-folder> [--architectures=i386,x86_64,arm64] [--skip-winrt] [--no-zip]");
+                  exit 1;
+                end;
+
+                for each lArgument in args.Skip(2) do begin
+                  if lArgument.StartsWith("--architectures=", true) then
+                    lImporter.WindowsArchitectures.Add(lArgument.Substring(length("--architectures=")).Replace(",", ";").Split(";", true))
+                  else if lArgument:ToLowerInvariant = "--skip-winrt" then
+                    lImporter.ImportWindowsRuntime := false
+                  else if lArgument:ToLowerInvariant = "--no-zip" then
+                    lImporter.CreateZips := false
+                  else
+                    raise new HIException($"Invalid Windows repackage option: {lArgument}");
+                end;
+
+                lImporter.RepackageWindowsSDK(args[1]);
+                exit 0;
+              end;
+
+            "sqlite": begin
+                if length(args) < 3 then begin
+                  writeLn("Usage: HI2 sqlite <amalgamation-folder> <libraries-output-folder> --windows-sdk=<folder> --msvc=<folder> --windows-declarations=<folder> [--sdk-version=<version>] [--architectures=i386,x86_64,arm64] [--clang=<clang-cl-or-LLVM-bin-folder>] [--llvm-ar=<path-or-LLVM-bin-folder>] [--intermediate=<folder>] [--no-zip]");
+                  exit 1;
+                end;
+
+                lImporter.SQLiteSourceFolder := args[1];
+                lImporter.SQLiteOutputFolder := args[2];
+                for each lArgument in args.Skip(3) do begin
+                  if lArgument.StartsWith("--windows-sdk=", true) then
+                    lImporter.WindowsSDKFolder := lArgument.Substring(length("--windows-sdk="))
+                  else if lArgument.StartsWith("--msvc=", true) then
+                    lImporter.WindowsMSVCFolder := lArgument.Substring(length("--msvc="))
+                  else if lArgument.StartsWith("--sdk-version=", true) then
+                    lImporter.WindowsSDKVersion := lArgument.Substring(length("--sdk-version="))
+                  else if lArgument.StartsWith("--architectures=", true) then
+                    lImporter.WindowsArchitectures.Add(lArgument.Substring(length("--architectures=")).Replace(",", ";").Split(";", true))
+                  else if lArgument.StartsWith("--windows-declarations=", true) then
+                    lImporter.SQLiteWindowsDeclarationsFolder := lArgument.Substring(length("--windows-declarations="))
+                  else if lArgument.StartsWith("--clang=", true) then
+                    lImporter.SQLiteClang := lArgument.Substring(length("--clang="))
+                  else if lArgument.StartsWith("--llvm-ar=", true) then
+                    lImporter.SQLiteLLVMAr := lArgument.Substring(length("--llvm-ar="))
+                  else if lArgument.StartsWith("--intermediate=", true) then
+                    lImporter.SQLiteIntermediateFolder := lArgument.Substring(length("--intermediate="))
+                  else if lArgument:ToLowerInvariant = "--no-zip" then
+                    lImporter.CreateZips := false
+                  else
+                    raise new HIException($"Invalid SQLite option: {lArgument}");
+                end;
+
+                lImporter.BuildSQLitePackage;
+                exit 0;
+              end;
+
+            "darwin-libraries": begin
+                if length(args) < 3 then begin
+                  writeLn("Usage: HI2 darwin-libraries <imported-island-folder> <libraries-output-folder> [--no-zip]");
+                  exit 1;
+                end;
+
+                for each lArgument in args.Skip(3) do begin
+                  if lArgument:ToLowerInvariant = "--no-zip" then
+                    lImporter.CreateZips := false
+                  else
+                    raise new HIException($"Invalid Darwin libraries option: {lArgument}");
+                end;
+
+                lImporter.PackageIslandDarwinLibraries(args[1], args[2]);
+                exit 0;
+              end;
+
             "linux": begin
                 if length(args) < 2 then begin
-                  writeLn("Usage: HI2 linux <platform-output-folder> [--ubuntu-version=26.04] [--docker-image=ubuntu:26.04] [--docker=<path>] [--architectures=x86_64,arm64] [--rtl-config-folder=<folder>] [--intermediate=<folder>] [--header-importer=<absolute-path>] [--reuse-sysroots] [--no-zip]");
+                  writeLn("Usage: HI2 linux <platform-output-folder> [--libraries-output-folder=<folder>] [--ubuntu-version=26.04] [--docker-image=ubuntu:26.04] [--docker=<path>] [--architectures=x86_64,arm64] [--rtl-config-folder=<folder>] [--intermediate=<folder>] [--header-importer=<absolute-path>] [--reuse-sysroots] [--no-zip]");
                   exit 1;
                 end;
 
                 lImporter.LinuxOutputFolder := args[1];
                 for each lArgument in args.Skip(2) do begin
-                  if lArgument.StartsWith("--ubuntu-version=", true) then
+                  if lArgument.StartsWith("--libraries-output-folder=", true) then
+                    lImporter.LinuxLibrariesOutputFolder := lArgument.Substring(length("--libraries-output-folder="))
+                  else if lArgument.StartsWith("--ubuntu-version=", true) then
                     lImporter.LinuxUbuntuVersion := lArgument.Substring(length("--ubuntu-version="))
                   else if lArgument.StartsWith("--docker-image=", true) then
                     lImporter.LinuxDockerImage := lArgument.Substring(length("--docker-image="))
@@ -159,15 +234,40 @@ type
                 exit 0;
               end;
 
+            "linux-repackage": begin
+                if length(args) < 2 then begin
+                  writeLn("Usage: HI2 linux-repackage <existing-island-sdk-folder> [--libraries-output-folder=<folder>] [--architectures=x86_64,arm64] [--intermediate=<folder>] [--no-zip]");
+                  exit 1;
+                end;
+
+                for each lArgument in args.Skip(2) do begin
+                  if lArgument.StartsWith("--libraries-output-folder=", true) then
+                    lImporter.LinuxLibrariesOutputFolder := lArgument.Substring(length("--libraries-output-folder="))
+                  else if lArgument.StartsWith("--architectures=", true) then
+                    lImporter.LinuxArchitectures.Add(lArgument.Substring(length("--architectures=")).Replace(",", ";").Split(";", true))
+                  else if lArgument.StartsWith("--intermediate=", true) then
+                    lImporter.LinuxIntermediateFolder := lArgument.Substring(length("--intermediate="))
+                  else if lArgument:ToLowerInvariant = "--no-zip" then
+                    lImporter.CreateZips := false
+                  else
+                    raise new HIException($"Invalid Linux repackage option: {lArgument}");
+                end;
+
+                lImporter.RepackageLinuxSDK(args[1]);
+                exit 0;
+              end;
+
             "android": begin
                 if length(args) < 2 then begin
-                  writeLn("Usage: HI2 android <platform-output-folder> (--ndk=<folder> | --ndk-archive=<zip>) --sqlite-archive=<zip> [--ndk-release=r29] [--api=35] [--sqlite-version=3.53.4] [--architectures=arm64-v8a,armeabi-v7a,x86,x86_64] [--rtl-config-folder=<folder>] [--intermediate=<folder>] [--header-importer=<absolute-path>] [--mono=<absolute-path>] [--docker=<absolute-path>] [--docker-image=ubuntu:24.04] [--reuse-ndk] [--reuse-sqlite] [--debug] [--no-zip]");
+                  writeLn("Usage: HI2 android <platform-output-folder> (--ndk=<folder> | --ndk-archive=<zip>) --sqlite-archive=<zip> [--libraries-output-folder=<folder>] [--ndk-release=r29] [--api=35] [--sqlite-version=3.53.4] [--architectures=arm64-v8a,armeabi-v7a,x86,x86_64] [--rtl-config-folder=<folder>] [--intermediate=<folder>] [--header-importer=<absolute-path>] [--mono=<absolute-path>] [--docker=<absolute-path>] [--docker-image=ubuntu:24.04] [--reuse-ndk] [--reuse-sqlite] [--debug] [--no-zip]");
                   exit 1;
                 end;
 
                 lImporter.AndroidOutputFolder := args[1];
                 for each lArgument in args.Skip(2) do begin
-                  if lArgument.StartsWith("--ndk=", true) then
+                  if lArgument.StartsWith("--libraries-output-folder=", true) then
+                    lImporter.AndroidLibrariesOutputFolder := lArgument.Substring(length("--libraries-output-folder="))
+                  else if lArgument.StartsWith("--ndk=", true) then
                     lImporter.AndroidNDKFolder := lArgument.Substring(length("--ndk="))
                   else if lArgument.StartsWith("--ndk-archive=", true) then
                     lImporter.AndroidNDKArchive := lArgument.Substring(length("--ndk-archive="))
@@ -206,6 +306,29 @@ type
                 end;
 
                 lImporter.ImportAndroidSDK;
+                exit 0;
+              end;
+
+            "android-repackage": begin
+                if length(args) < 2 then begin
+                  writeLn("Usage: HI2 android-repackage <existing-island-sdk-folder> [--libraries-output-folder=<folder>] [--architectures=arm64-v8a,armeabi-v7a,x86,x86_64] [--intermediate=<folder>] [--no-zip]");
+                  exit 1;
+                end;
+
+                for each lArgument in args.Skip(2) do begin
+                  if lArgument.StartsWith("--libraries-output-folder=", true) then
+                    lImporter.AndroidLibrariesOutputFolder := lArgument.Substring(length("--libraries-output-folder="))
+                  else if lArgument.StartsWith("--architectures=", true) then
+                    lImporter.AndroidArchitectures.Add(lArgument.Substring(length("--architectures=")).Replace(",", ";").Split(";", true))
+                  else if lArgument.StartsWith("--intermediate=", true) then
+                    lImporter.AndroidIntermediateFolder := lArgument.Substring(length("--intermediate="))
+                  else if lArgument:ToLowerInvariant = "--no-zip" then
+                    lImporter.CreateZips := false
+                  else
+                    raise new HIException($"Invalid Android repackage option: {lArgument}");
+                end;
+
+                lImporter.RepackageAndroidSDK(args[1]);
                 exit 0;
               end;
 

@@ -323,21 +323,31 @@ type
     method ValidateLinuxSDK(aSDKFolder: not nullable String;
                             aArchitectures: not nullable ImmutableList<LinuxSDKArchitecture>);
     begin
-      var lFxNames := new List<String>("rtl", "atk", "cairo", "gdk", "glib", "pango", "gtk", "sqlite3");
+      var lFxNames := new List<String>("rtl", "atk", "cairo", "gdk", "glib", "pango", "gtk");
       for each lArchitecture in aArchitectures do begin
         var lArchitectureFolder := Path.Combine(aSDKFolder, lArchitecture.Name);
         for each lName in lFxNames do
           ValidateLinuxFx(Path.Combine(lArchitectureFolder, lName+".fx"), lName, lArchitecture);
+        for each lForbidden in ["gc.fx", "gc.lib", "libgc.a", "sqlite3.fx", "sqlite3.a"] do
+          if Path.Combine(lArchitectureFolder, lForbidden).FileExists then
+            raise new Exception($"Linux {lArchitecture.Name} SDK must not contain '{lForbidden}'; GC and SQLite are packaged separately.");
+      end;
+    end;
+
+    method ValidateLinuxSQLitePackage(aPlatformFolder: not nullable String;
+                                      aArchitectures: not nullable ImmutableList<LinuxSDKArchitecture>);
+    begin
+      for each lArchitecture in aArchitectures do begin
+        var lArchitectureFolder := Path.Combine(aPlatformFolder, lArchitecture.Name);
+        ValidateLinuxFx(Path.Combine(lArchitectureFolder, "sqlite3.fx"), "sqlite3", lArchitecture);
         RequireIslandSDKFile(Path.Combine(lArchitectureFolder, "sqlite3.a"), $"Linux {lArchitecture.Name} SQLite static library");
-        for each lGCFile in ["gc.fx", "gc.lib", "libgc.a"] do
-          if Path.Combine(lArchitectureFolder, lGCFile).FileExists then
-            raise new Exception($"Linux {lArchitecture.Name} SDK must not contain '{lGCFile}'; GC is packaged separately.");
       end;
     end;
 
   public
 
     property LinuxOutputFolder: nullable String;
+    property LinuxLibrariesOutputFolder: nullable String;
     property LinuxUbuntuVersion := "26.04";
     property LinuxDockerImage: nullable String;
     property LinuxIntermediateFolder: nullable String;
@@ -350,9 +360,11 @@ type
       if length(LinuxOutputFolder) = 0 then
         raise new Exception("LinuxOutputFolder must be set.");
       LinuxOutputFolder := Path.GetFullPath(LinuxOutputFolder);
+      LinuxLibrariesOutputFolder := if length(LinuxLibrariesOutputFolder) > 0 then Path.GetFullPath(LinuxLibrariesOutputFolder) else Path.Combine(Path.GetParentDirectory(LinuxOutputFolder), "Libraries");
       LinuxIntermediateFolder := if length(LinuxIntermediateFolder) > 0 then Path.GetFullPath(LinuxIntermediateFolder) else Path.Combine(LinuxOutputFolder, "Import Configurations", "Ubuntu "+LinuxUbuntuVersion);
       HI := RequireIslandSDKFile(HI, "HeaderImporter executable");
       Folder.Create(LinuxOutputFolder);
+      Folder.Create(LinuxLibrariesOutputFolder);
       Folder.Create(LinuxIntermediateFolder);
 
       var lArchitectures := new List<LinuxSDKArchitecture>;
@@ -369,6 +381,10 @@ type
       if lSDKFolder.FolderExists then
         System.IO.Directory.Delete(lSDKFolder, true);
       Folder.Create(lSDKFolder);
+      var lSQLitePlatformFolder := Path.Combine(LinuxLibrariesOutputFolder, "SQLite", "Island", "Linux");
+      if lSQLitePlatformFolder.FolderExists then
+        System.IO.Directory.Delete(lSQLitePlatformFolder, true);
+      Folder.Create(lSQLitePlatformFolder);
 
       var lDetachSysroot := false;
       var lSysrootRoot := PrepareLinuxSysrootRoot(out lDetachSysroot);
@@ -393,9 +409,11 @@ type
           var lGTKConfiguration := PrepareLinuxConfiguration("linux-gtk-x86_64.json", "gtk", lArchitecture, lPackageVersion, lIncludeFolders);
           RunLinuxHeaderImport(lGTKConfiguration, lArchitectureFolder, lSysroot, lArchitecture, lIncludeFolders, lRTLReference);
 
+          var lSQLiteArchitectureFolder := Path.Combine(lSQLitePlatformFolder, lArchitecture.Name);
+          Folder.Create(lSQLiteArchitectureFolder);
           var lSQLiteConfiguration := PrepareLinuxConfiguration("linux-x86_64-sqlite3.json", "sqlite3", lArchitecture, lPackageVersion, lIncludeFolders);
-          RunLinuxHeaderImport(lSQLiteConfiguration, lArchitectureFolder, lSysroot, lArchitecture, lIncludeFolders, lRTLReference);
-          CopyLinuxSQLiteLibrary(lSysroot, lArchitectureFolder, lArchitecture);
+          RunLinuxHeaderImport(lSQLiteConfiguration, lSQLiteArchitectureFolder, lSysroot, lArchitecture, lIncludeFolders, lRTLReference);
+          CopyLinuxSQLiteLibrary(lSysroot, lSQLiteArchitectureFolder, lArchitecture);
 
           for each lGCFile in ["gc.fx", "gc.lib", "libgc.a"] do begin
             var lGCPath := Path.Combine(lArchitectureFolder, lGCFile);
@@ -409,9 +427,69 @@ type
       end;
 
       ValidateLinuxSDK(lSDKFolder, lArchitectures);
-      if CreateZips then
+      ValidateLinuxSQLitePackage(lSQLitePlatformFolder, lArchitectures);
+      if CreateZips then begin
         CreateDeterministicIslandSDKZip(lSDKFolder,
                                         Path.Combine(LinuxOutputFolder, "__Public", Path.GetFileName(lSDKFolder)+".zip"));
+        CreateIslandPlatformLibraryZip(LinuxLibrariesOutputFolder,
+                                       LinuxIntermediateFolder,
+                                       "SQLite",
+                                       "Linux",
+                                       "Island-Linux-sqlite.zip");
+      end;
+    end;
+
+    method RepackageLinuxSDK(aSDKFolder: not nullable String);
+    begin
+      var lSDKFolder := RequireIslandSDKFolder(aSDKFolder, "existing Linux Island SDK folder");
+      LinuxOutputFolder := Path.GetParentDirectory(lSDKFolder);
+      LinuxLibrariesOutputFolder := if length(LinuxLibrariesOutputFolder) > 0 then Path.GetFullPath(LinuxLibrariesOutputFolder) else Path.Combine(Path.GetParentDirectory(LinuxOutputFolder), "Libraries");
+      LinuxIntermediateFolder := if length(LinuxIntermediateFolder) > 0 then Path.GetFullPath(LinuxIntermediateFolder) else Path.Combine(LinuxOutputFolder, "Import Configurations", Path.GetFileName(lSDKFolder));
+      Folder.Create(LinuxLibrariesOutputFolder);
+      Folder.Create(LinuxIntermediateFolder);
+
+      var lArchitectures := new List<LinuxSDKArchitecture>;
+      if LinuxArchitectures.Count = 0 then
+        LinuxArchitectures.Add(["x86_64", "arm64"]);
+      for each lName in LinuxArchitectures do begin
+        var lArchitecture := LinuxArchitecture(lName);
+        if lArchitectures.Any(aItem -> aItem.Name = lArchitecture.Name) then
+          raise new Exception($"Linux SDK architecture '{lArchitecture.Name}' was specified more than once.");
+        lArchitectures.Add(lArchitecture);
+      end;
+
+      for each lArchitecture in lArchitectures do begin
+        var lArchitectureFolder := RequireIslandSDKFolder(Path.Combine(lSDKFolder, lArchitecture.Name), $"Linux {lArchitecture.Name} SDK folder");
+        ValidateLinuxFx(Path.Combine(lArchitectureFolder, "sqlite3.fx"), "sqlite3", lArchitecture);
+        RequireIslandSDKFile(Path.Combine(lArchitectureFolder, "sqlite3.a"), $"Linux {lArchitecture.Name} SQLite static library");
+      end;
+
+      var lSQLitePlatformFolder := Path.Combine(LinuxLibrariesOutputFolder, "SQLite", "Island", "Linux");
+      if lSQLitePlatformFolder.FolderExists then
+        System.IO.Directory.Delete(lSQLitePlatformFolder, true);
+      Folder.Create(lSQLitePlatformFolder);
+      for each lArchitecture in lArchitectures do begin
+        var lArchitectureFolder := Path.Combine(lSDKFolder, lArchitecture.Name);
+        var lSQLiteArchitectureFolder := Path.Combine(lSQLitePlatformFolder, lArchitecture.Name);
+        Folder.Create(lSQLiteArchitectureFolder);
+        for each lFileName in ["sqlite3.fx", "sqlite3.a"] do begin
+          var lSource := Path.Combine(lArchitectureFolder, lFileName);
+          CopyIslandSDKFile(lSource, Path.Combine(lSQLiteArchitectureFolder, lFileName));
+          File.Delete(lSource);
+        end;
+      end;
+
+      ValidateLinuxSDK(lSDKFolder, lArchitectures);
+      ValidateLinuxSQLitePackage(lSQLitePlatformFolder, lArchitectures);
+      if CreateZips then begin
+        CreateDeterministicIslandSDKZip(lSDKFolder,
+                                        Path.Combine(LinuxOutputFolder, "__Public", Path.GetFileName(lSDKFolder)+".zip"));
+        CreateIslandPlatformLibraryZip(LinuxLibrariesOutputFolder,
+                                       LinuxIntermediateFolder,
+                                       "SQLite",
+                                       "Linux",
+                                       "Island-Linux-sqlite.zip");
+      end;
     end;
 
   end;

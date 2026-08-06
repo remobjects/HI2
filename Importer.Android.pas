@@ -372,18 +372,28 @@ type
       for each lArchitecture in aArchitectures do begin
         var lArchitectureFolder := RequireIslandSDKFolder(Path.Combine(aSDKFolder, lArchitecture.Name), $"Android {lArchitecture.Name} SDK folder");
         ValidateAndroidFx(Path.Combine(lArchitectureFolder, "rtl.fx"), "rtl", lArchitecture);
-        ValidateAndroidFx(Path.Combine(lArchitectureFolder, "sqlite3.fx"), "sqlite3", lArchitecture);
-        for each lFile in ["crtbeginS.o", "crtendS.o", "libclang_rt.builtins.a", "libatomic.a", "sqlite3.a"] do
+        for each lFile in ["crtbeginS.o", "crtendS.o", "libclang_rt.builtins.a", "libatomic.a"] do
           RequireIslandSDKFile(Path.Combine(lArchitectureFolder, lFile), $"Android {lArchitecture.Name} {lFile}");
-        for each lForbidden in ["gc.fx", "gc.lib", "libgc.a", "gdbserver"] do
+        for each lForbidden in ["gc.fx", "gc.lib", "libgc.a", "gdbserver", "sqlite3.fx", "sqlite3.a"] do
           if Path.Combine(lArchitectureFolder, lForbidden).FileExists or Path.Combine(lArchitectureFolder, lForbidden).FolderExists then
-            raise new Exception($"Android {lArchitecture.Name} SDK must not contain '{lForbidden}'.");
+            raise new Exception($"Android {lArchitecture.Name} SDK must not contain '{lForbidden}'; GC and SQLite are packaged separately.");
+      end;
+    end;
+
+    method ValidateAndroidSQLitePackage(aPlatformFolder: not nullable String;
+                                        aArchitectures: not nullable ImmutableList<AndroidSDKArchitecture>);
+    begin
+      for each lArchitecture in aArchitectures do begin
+        var lArchitectureFolder := RequireIslandSDKFolder(Path.Combine(aPlatformFolder, lArchitecture.Name), $"Android {lArchitecture.Name} SQLite package folder");
+        ValidateAndroidFx(Path.Combine(lArchitectureFolder, "sqlite3.fx"), "sqlite3", lArchitecture);
+        RequireIslandSDKFile(Path.Combine(lArchitectureFolder, "sqlite3.a"), $"Android {lArchitecture.Name} SQLite static library");
       end;
     end;
 
   public
 
     property AndroidOutputFolder: nullable String;
+    property AndroidLibrariesOutputFolder: nullable String;
     property AndroidNDKFolder: nullable String;
     property AndroidNDKArchive: nullable String;
     property AndroidSQLiteArchive: nullable String;
@@ -402,9 +412,11 @@ type
       if length(AndroidOutputFolder) = 0 then
         raise new Exception("AndroidOutputFolder must be set.");
       AndroidOutputFolder := Path.GetFullPath(AndroidOutputFolder);
+      AndroidLibrariesOutputFolder := if length(AndroidLibrariesOutputFolder) > 0 then Path.GetFullPath(AndroidLibrariesOutputFolder) else Path.Combine(Path.GetParentDirectory(AndroidOutputFolder), "Libraries");
       AndroidIntermediateFolder := if length(AndroidIntermediateFolder) > 0 then Path.GetFullPath(AndroidIntermediateFolder) else Path.Combine(AndroidOutputFolder, "Import Configurations");
       HI := RequireIslandSDKFile(HI, "HeaderImporter executable");
       Folder.Create(AndroidOutputFolder);
+      Folder.Create(AndroidLibrariesOutputFolder);
       Folder.Create(AndroidIntermediateFolder);
 
       var lArchitectures := new List<AndroidSDKArchitecture>;
@@ -435,13 +447,17 @@ type
         if lSDKFolder.FolderExists then
           System.IO.Directory.Delete(lSDKFolder, true);
         Folder.Create(lSDKFolder);
+        var lSQLitePlatformFolder := Path.Combine(AndroidLibrariesOutputFolder, "SQLite", "Island", "Android");
+        if lSQLitePlatformFolder.FolderExists then
+          System.IO.Directory.Delete(lSQLitePlatformFolder, true);
+        Folder.Create(lSQLitePlatformFolder);
 
         Log($"Importing Android API {AndroidAPILevel} from NDK {AndroidNDKRelease} ({lNDKRevision}) for {String.Join(", ", lArchitectures.Select(aArchitecture -> aArchitecture.Name).ToList)}.");
         var lPrebuilt := AndroidPrebuiltFolder(lNDKRoot);
         var lSQLiteFolder := BuildAndroidSQLite(lArchitectures);
         for each lNotice in ["NOTICE", "NOTICE.toolchain", "source.properties"] do
           CopyIslandSDKFile(Path.Combine(lNDKRoot, lNotice), Path.Combine(lSDKFolder, lNotice));
-        File.WriteText(Path.Combine(lSDKFolder, "SQLite Notice.txt"), $"SQLite {AndroidSQLiteVersion} is in the public domain. Source: https://www.sqlite.org/\n");
+        File.WriteText(Path.Combine(lSQLitePlatformFolder, "SQLite Notice.txt"), $"SQLite {AndroidSQLiteVersion} is in the public domain. Source: https://www.sqlite.org/\n");
 
         for each lArchitecture in lArchitectures do begin
           var lArchitectureFolder := Path.Combine(lSDKFolder, lArchitecture.Name);
@@ -451,20 +467,87 @@ type
           RunAndroidHeaderImport(lRTLConfiguration, lArchitectureFolder, lPrebuilt, lArchitecture, lIncludeFolders);
           var lRTLReference := Path.Combine(lArchitectureFolder, "rtl.fx");
 
+          var lSQLiteArchitectureFolder := Path.Combine(lSQLitePlatformFolder, lArchitecture.Name);
+          Folder.Create(lSQLiteArchitectureFolder);
           var lSQLiteIncludes := new List<String>(lIncludeFolders);
           lSQLiteIncludes.Insert(0, lSQLiteFolder);
           var lSQLiteConfiguration := PrepareAndroidConfiguration("android-"+lArchitecture.Name+"-sqlite3.json", "sqlite3", lArchitecture, lNDKRevision, lSQLiteIncludes);
-          RunAndroidHeaderImport(lSQLiteConfiguration, lArchitectureFolder, lPrebuilt, lArchitecture, lSQLiteIncludes, lRTLReference);
-          CopyIslandSDKFile(Path.Combine(lSQLiteFolder, lArchitecture.Name, "sqlite3.a"), Path.Combine(lArchitectureFolder, "sqlite3.a"));
+          RunAndroidHeaderImport(lSQLiteConfiguration, lSQLiteArchitectureFolder, lPrebuilt, lArchitecture, lSQLiteIncludes, lRTLReference);
+          CopyIslandSDKFile(Path.Combine(lSQLiteFolder, lArchitecture.Name, "sqlite3.a"), Path.Combine(lSQLiteArchitectureFolder, "sqlite3.a"));
           CopyAndroidRuntimeFiles(lPrebuilt, lArchitectureFolder, lArchitecture);
         end;
 
         ValidateAndroidSDK(lSDKFolder, lArchitectures);
-        if CreateZips then
+        ValidateAndroidSQLitePackage(lSQLitePlatformFolder, lArchitectures);
+        if CreateZips then begin
           CreateDeterministicIslandSDKZip(lSDKFolder,
                                           Path.Combine(AndroidOutputFolder, "__Public", Path.GetFileName(lSDKFolder)+".zip"));
+          CreateIslandPlatformLibraryZip(AndroidLibrariesOutputFolder,
+                                         AndroidIntermediateFolder,
+                                         "SQLite",
+                                         "Android",
+                                         "Island-Android-sqlite.zip");
+        end;
       finally
         DetachAndroidNDK(lMountedRoot);
+      end;
+    end;
+
+    method RepackageAndroidSDK(aSDKFolder: not nullable String);
+    begin
+      var lSDKFolder := RequireIslandSDKFolder(aSDKFolder, "existing Android Island SDK folder");
+      AndroidOutputFolder := Path.GetParentDirectory(lSDKFolder);
+      AndroidLibrariesOutputFolder := if length(AndroidLibrariesOutputFolder) > 0 then Path.GetFullPath(AndroidLibrariesOutputFolder) else Path.Combine(Path.GetParentDirectory(AndroidOutputFolder), "Libraries");
+      AndroidIntermediateFolder := if length(AndroidIntermediateFolder) > 0 then Path.GetFullPath(AndroidIntermediateFolder) else Path.Combine(AndroidOutputFolder, "Import Configurations");
+      Folder.Create(AndroidLibrariesOutputFolder);
+      Folder.Create(AndroidIntermediateFolder);
+
+      var lArchitectures := new List<AndroidSDKArchitecture>;
+      if AndroidArchitectures.Count = 0 then
+        AndroidArchitectures.Add(["arm64-v8a", "armeabi-v7a", "x86", "x86_64"]);
+      for each lName in AndroidArchitectures do begin
+        var lArchitecture := AndroidArchitecture(lName);
+        if lArchitectures.Any(aItem -> aItem.Name = lArchitecture.Name) then
+          raise new Exception($"Android SDK architecture '{lArchitecture.Name}' was specified more than once.");
+        lArchitectures.Add(lArchitecture);
+      end;
+
+      for each lArchitecture in lArchitectures do begin
+        var lArchitectureFolder := RequireIslandSDKFolder(Path.Combine(lSDKFolder, lArchitecture.Name), $"Android {lArchitecture.Name} SDK folder");
+        ValidateAndroidFx(Path.Combine(lArchitectureFolder, "sqlite3.fx"), "sqlite3", lArchitecture);
+        RequireIslandSDKFile(Path.Combine(lArchitectureFolder, "sqlite3.a"), $"Android {lArchitecture.Name} SQLite static library");
+      end;
+
+      var lSQLitePlatformFolder := Path.Combine(AndroidLibrariesOutputFolder, "SQLite", "Island", "Android");
+      if lSQLitePlatformFolder.FolderExists then
+        System.IO.Directory.Delete(lSQLitePlatformFolder, true);
+      Folder.Create(lSQLitePlatformFolder);
+      var lSQLiteNotice := Path.Combine(lSDKFolder, "SQLite Notice.txt");
+      if lSQLiteNotice.FileExists then begin
+        CopyIslandSDKFile(lSQLiteNotice, Path.Combine(lSQLitePlatformFolder, "SQLite Notice.txt"));
+        File.Delete(lSQLiteNotice);
+      end;
+      for each lArchitecture in lArchitectures do begin
+        var lArchitectureFolder := Path.Combine(lSDKFolder, lArchitecture.Name);
+        var lSQLiteArchitectureFolder := Path.Combine(lSQLitePlatformFolder, lArchitecture.Name);
+        Folder.Create(lSQLiteArchitectureFolder);
+        for each lFileName in ["sqlite3.fx", "sqlite3.a"] do begin
+          var lSource := Path.Combine(lArchitectureFolder, lFileName);
+          CopyIslandSDKFile(lSource, Path.Combine(lSQLiteArchitectureFolder, lFileName));
+          File.Delete(lSource);
+        end;
+      end;
+
+      ValidateAndroidSDK(lSDKFolder, lArchitectures);
+      ValidateAndroidSQLitePackage(lSQLitePlatformFolder, lArchitectures);
+      if CreateZips then begin
+        CreateDeterministicIslandSDKZip(lSDKFolder,
+                                        Path.Combine(AndroidOutputFolder, "__Public", Path.GetFileName(lSDKFolder)+".zip"));
+        CreateIslandPlatformLibraryZip(AndroidLibrariesOutputFolder,
+                                       AndroidIntermediateFolder,
+                                       "SQLite",
+                                       "Android",
+                                       "Island-Android-sqlite.zip");
       end;
     end;
 
