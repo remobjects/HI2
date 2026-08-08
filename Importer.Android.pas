@@ -243,7 +243,7 @@ type
       var lTemplatePath := RequireIslandSDKFile(Path.Combine(lConfigFolder as not nullable, aTemplateName), $"Android configuration '{aTemplateName}'");
       var lConfiguration := JsonObject.FromString(File.ReadText(lTemplatePath));
       lConfiguration["TargetString"] := aArchitecture.TargetString;
-      lConfiguration["Version"] := AndroidAPILevel;
+      lConfiguration["Version"] := AndroidAPILevel+".0";
       lConfiguration["SDKVersionString"] := aNDKRevision;
       lConfiguration["Platform"] := "Android";
 
@@ -360,6 +360,8 @@ type
         raise new Exception($"Android {aArchitecture.Name} FX '{aPath}' is named '{lFx.Name}', expected '{aName}'.");
       if lFx.Platform <> "Android" then
         raise new Exception($"Android {aArchitecture.Name} FX '{aPath}' has platform '{lFx.Platform}', expected Android.");
+      if lFx.VersionEx = 0 then
+        raise new Exception($"Android {aArchitecture.Name} FX '{aPath}' has no encoded API version.");
       if (lFx.TargetDescriptors.Count <> 1) or (lFx.TargetDescriptors[0] <> aArchitecture.Target) then
         raise new Exception($"Android {aArchitecture.Name} FX '{aPath}' has the wrong CPU target.");
       if (lFx.Targets.Count <> 1) or (lFx.Targets[0].TargetString <> aArchitecture.TargetString) then
