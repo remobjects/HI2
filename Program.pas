@@ -36,7 +36,7 @@ type
 
             "fuchsia": begin
                 if length(args) < 3 then begin
-                  writeLn("Usage: HI2 fuchsia <idk-folder> <platform-output-folder> [--intermediate=<folder>] [--api=<level>] [--fidlc=<path>] [--docker=<path>] [--fidlc-docker-image=<image>] [--stable-only] [--reuse-ir] [--ir-only] [--assemble-sdk --runtime-fx=<folder> --islandrtl=<folder> (--clang=<folder> | --clang-runtime=<folder>)] [--no-zip] [library ...]");
+                  writeLn("Usage: HI2 fuchsia <idk-folder> <platform-output-folder> [--intermediate=<folder>] [--api=<level>] [--fidlc=<path>] [--docker=<path>] [--fidlc-docker-image=<image>] [--header-importer=<absolute-path>] [--stable-only] [--reuse-ir] [--ir-only] [--assemble-sdk --islandrtl=<folder> --clang=<folder> [--clang-runtime=<folder>]] [--no-zip] [library ...]");
                   exit 1;
                 end;
 
@@ -54,6 +54,8 @@ type
                     lImporter.FidlcDockerImage := lArgument.Substring(length("--fidlc-docker-image="))
                   else if lArgument.StartsWith("--intermediate=", true) then
                     lImporter.FuchsiaIntermediateFolder := lArgument.Substring(length("--intermediate="))
+                  else if lArgument.StartsWith("--header-importer=", true) then
+                    lImporter.HI := lArgument.Substring(length("--header-importer="))
                   else if lArgument:ToLowerInvariant = "--include-unstable" then
                     lImporter.IncludeUnstableFIDL := true
                   else if lArgument:ToLowerInvariant = "--stable-only" then
@@ -64,9 +66,6 @@ type
                     lImporter.ReuseFidlIR := true
                   else if lArgument:ToLowerInvariant = "--assemble-sdk" then
                     lImporter.AssembleFuchsiaRuntime := true
-                  else if lArgument.StartsWith("--runtime-fx=", true) then begin
-                    lImporter.FuchsiaRuntimeFxFolder := lArgument.Substring(length("--runtime-fx="));
-                  end
                   else if lArgument.StartsWith("--islandrtl=", true) then begin
                     lImporter.FuchsiaIslandRTLFolder := lArgument.Substring(length("--islandrtl="));
                   end
