@@ -25,8 +25,9 @@ The `--ir-only` option stops after producing `fidlc` JSON IR. Otherwise HI2
 passes the IR directly to the FIDL importer in `RemObjects.Elements.dll` and
 writes architecture-specific `.fx` files under
 `<platform-output-folder>/Fuchsia <sdk-id>/x64` and
-`<platform-output-folder>/Fuchsia <sdk-id>/arm64`. Fuchsia import does not
-launch `HeaderImporter.exe`. By default, IR and the import manifest are stored
+`<platform-output-folder>/Fuchsia <sdk-id>/arm64`. The FIDL conversion itself
+does not launch `HeaderImporter.exe`; complete SDK assembly uses it to generate
+the native Fuchsia `rtl.fx`. By default, IR and the import manifest are stored
 under `<platform-output-folder>/FIDL IR/<sdk-id>`; `--intermediate` overrides
 that location. `--reuse-ir` reuses existing per-library IR files, which is
 useful when iterating on `.fx` conversion.
@@ -44,26 +45,29 @@ SDK and create the canonical ZIP:
 ```text
 HI2 fuchsia <idk-folder> <output-folder> \
   --assemble-sdk \
-  --runtime-fx=<folder> \
   --islandrtl=<folder> \
   --clang=<folder>
 ```
 
 The input folders have explicit contracts:
 
-- `--runtime-fx` contains `x64/rtl.fx` and its `arm64` counterpart.
 - `--islandrtl` contains `x64/Island.a`, `x64/Island.fx`, and their `arm64`
   counterparts.
-- `--clang` is a Fuchsia Clang toolchain. It supplies `libunwind.a` and
+- `--clang` is the matching Fuchsia Clang toolchain. It supplies the compiler
+  headers used to import `rtl.fx`, plus `libunwind.a` and
   `libclang_rt.builtins.a`.
 
-`--clang-runtime=<folder>` can replace `--clang` when the compiler itself is
-not needed. The folder must contain `x64/libunwind.a`,
+`--clang-runtime=<folder>` can override the runtime archives copied from the
+Clang toolchain. The folder must contain `x64/libunwind.a`,
 `x64/libclang_rt.builtins.a`, and their `arm64` counterparts.
 
-The assembler copies the matching IDK sysroot startup object, libc, Zircon,
-loader, and fdio libraries; adds the runtime metadata, IslandRTL, unwind, and
-compiler runtime artifacts; validates both architectures; and writes:
+HI2 discovers the public libc, Zircon, and fdio headers in each IDK sysroot,
+adds the matching Clang builtin headers, writes a versioned HeaderImporter
+configuration, and generates `rtl.fx` directly into each architecture folder.
+No separate packaging or import script is used. The assembler then copies the
+matching IDK startup object, libc, Zircon, loader, and fdio libraries; adds
+IslandRTL, unwind, and compiler runtime artifacts; validates both
+architectures; and writes:
 
 ```text
 <output-folder>/Fuchsia <sdk-id>/
