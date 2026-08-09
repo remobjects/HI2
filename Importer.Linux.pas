@@ -169,9 +169,9 @@ type
                                aArchitecture: not nullable LinuxSDKArchitecture): not nullable List<String>;
     begin
       result := new List<String>;
-      result.Add(LinuxGCCIncludeFolder(aSysroot, aArchitecture));
       result.Add(RequireIslandSDKFolder(Path.Combine(aSysroot, "usr", "include"), $"Linux {aArchitecture.Name} headers"));
       result.Add(RequireIslandSDKFolder(Path.Combine(aSysroot, "usr", "include", aArchitecture.GNUTriplet), $"Linux {aArchitecture.Name} multiarch headers"));
+      result.Add(LinuxGCCIncludeFolder(aSysroot, aArchitecture));
 
       var lFlagsPath := RequireIslandSDKFile(Path.Combine(aSysroot, "gtk-cflags.txt"), "GTK include manifest");
       for each lFlag in File.ReadText(lFlagsPath).Replace(#10, " ").Replace(#13, " ").Replace(#9, " ").Split(" ", true) do begin
@@ -320,6 +320,46 @@ type
         raise new Exception($"Linux {aArchitecture.Name} FX '{aPath}' has target string '{if lFx.Targets.Count = 0 then "<none>" else lFx.Targets[0].TargetString}', expected '{aArchitecture.TargetString}'.");
     end;
 
+    method ValidateLinuxRTLSurface(aPath: not nullable String;
+                                   aArchitecture: not nullable LinuxSDKArchitecture);
+    begin
+      var lFx := new FxFile;
+      using lStream := new System.IO.FileStream(aPath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read) do
+        lFx.Read(lStream);
+      var lTarget := lFx.Targets.Single;
+
+      for each lTypeName in ["__struct_tm", "__struct__IO_FILE", "locale_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "uintptr_t", "FILE", "timer_t", "sigval_t", "time_t"] do
+        if not lTarget.NamedTypes.Any(aType -> (aType.Name = "rtl."+lTypeName) and (aType.Visibility = FxMemberVisibility.Public) and (aType.Type >= 0)) then
+          raise new Exception($"Linux {aArchitecture.Name} RTL FX is missing public type 'rtl.{lTypeName}'.");
+
+      var lGlobalName := lTarget.NamedTypes.FirstOrDefault(aType -> aType.Name = "rtl.__Global");
+      if not assigned(lGlobalName) or (lGlobalName.Type < 0) then
+        raise new Exception($"Linux {aArchitecture.Name} RTL FX has no public global scope.");
+      var lGlobalType := lTarget.Types[lGlobalName.Type] as FxDefinitionType;
+      if not assigned(lGlobalType) then
+        raise new Exception($"Linux {aArchitecture.Name} RTL FX global scope has an invalid type.");
+      for each lMemberName in ["towlower", "towupper", "stat", "stat64", "fstat", "fstat64", "lstat", "lstat64"] do
+        if not lGlobalType.Members.Any(aMember -> (aMember.Name = lMemberName) and (aMember.Visibility = FxMemberVisibility.Public)) then
+          raise new Exception($"Linux {aArchitecture.Name} RTL FX is missing public member 'rtl.{lMemberName}'.");
+
+      var lSchedName := lTarget.NamedTypes.First(aType -> aType.Name = "rtl.__struct_sched_param");
+      var lSchedType := lTarget.Types[lSchedName.Type] as FxDefinitionType;
+      if not assigned(lSchedType) or not lSchedType.Members.Any(aMember -> (aMember.Name = "sched_priority") and (aMember.Visibility = FxMemberVisibility.Public)) then
+        raise new Exception($"Linux {aArchitecture.Name} RTL FX is missing public member 'rtl.__struct_sched_param.sched_priority'.");
+
+      var lFabsf := lGlobalType.Members.FirstOrDefault(aMember -> (aMember.Name = "fabsf") and (aMember.Visibility = FxMemberVisibility.Public));
+      if not assigned(lFabsf) or (lFabsf.Parameters.Count <> 1) or
+         not (lTarget.Types[lFabsf.Type] is FxForeignType) or
+         (FxForeignType(lTarget.Types[lFabsf.Type]).ForeignName <> "RemObjects.Elements.System.Single") or
+         not (lTarget.Types[lFabsf.Parameters[0].Type] is FxForeignType) or
+         (FxForeignType(lTarget.Types[lFabsf.Parameters[0].Type]).ForeignName <> "RemObjects.Elements.System.Single") then
+        raise new Exception($"Linux {aArchitecture.Name} RTL FX has an invalid 'rtl.fabsf' signature; expected Single -> Single.");
+
+      for each lDefineName in ["SIGKILL", "SIGEV_THREAD", "_UA_SEARCH_PHASE", "_UA_CLEANUP_PHASE", "_UA_HANDLER_FRAME", "_UA_FORCE_UNWIND"] do
+        if not lTarget.Defines.Any(aDefine -> aDefine.Name = lDefineName) then
+          raise new Exception($"Linux {aArchitecture.Name} RTL FX is missing public define 'rtl.{lDefineName}'.");
+    end;
+
     method ValidateLinuxSDK(aSDKFolder: not nullable String;
                             aArchitectures: not nullable ImmutableList<LinuxSDKArchitecture>);
     begin
@@ -328,6 +368,7 @@ type
         var lArchitectureFolder := Path.Combine(aSDKFolder, lArchitecture.Name);
         for each lName in lFxNames do
           ValidateLinuxFx(Path.Combine(lArchitectureFolder, lName+".fx"), lName, lArchitecture);
+        ValidateLinuxRTLSurface(Path.Combine(lArchitectureFolder, "rtl.fx"), lArchitecture);
         for each lForbidden in ["gc.fx", "gc.lib", "libgc.a", "sqlite3.fx", "sqlite3.a"] do
           if Path.Combine(lArchitectureFolder, lForbidden).FileExists then
             raise new Exception($"Linux {lArchitecture.Name} SDK must not contain '{lForbidden}'; GC and SQLite are packaged separately.");
