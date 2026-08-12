@@ -25,12 +25,24 @@ type
         if not lImporter.ApplicationsFolder.FolderExists then
           lImporter.ApplicationsFolder := "/Applications";
 
-        if (length(args) > 0) then begin
+        lImporter.BaseFolder := Path.Combine("/Users/mh/Code/Elements/Bin/Island SDKs/");
 
-          case args[0]:ToLowerInvariant of
+
+        var lCommandLine := new SimpleCommandLineParser(args);
+        if (length(lCommandLine.OtherParameters) > 0) then begin
+
+          case lCommandLine.OtherParameters.First:ToLowerInvariant of
 
             "cocoa", "apple": begin
-                lImporter.ImportSDKs();
+                if assigned(lCommandLine.Switches["version"]) then begin
+                  lImporter.XcodeVersion := lCommandLine.Switches["version"];
+                  lImporter.XcodeBeta := Convert.TryToInt32(lCommandLine.Switches["beta"]);
+                  lImporter.XcodeName := lCommandLine.Switches["name"];
+                end
+                else begin
+                  lImporter.SetSpecificXcode;
+                end;
+                lImporter.ImportSDKs;
                 exit 0;
               end;
 
@@ -338,7 +350,7 @@ type
                 lImporter.GCBinariesFolder := "/Users/mh/Code/Elements/Bin/References/Island";
                 //lImporter.GCBinariesFolder := lImporter.GCSourceFolder;
                 //lImporter.BaseFolder := Path.Combine(lImporter.FrameworksFolder, "Island");
-                lImporter.BaseFolder := Path.Combine("/Users/mh/Code/Elements/Bin/Island SDKs/");
+                //lImporter.BaseFolder := Path.Combine("/Users/mh/Code/Elements/Bin/Island SDKs/");
                 lImporter.ImportGC();
                 exit 0;
               end;
@@ -347,9 +359,26 @@ type
 
         end
         else begin
-
-          //..
-
+          writeLn("Usage: HI2 <command> [arguments]");
+          writeLn();
+          writeLn("Commands:");
+          writeLn();
+          writeLn("  cocoa|apple [--version=<version> --beta=<number> --name=<name>]");
+          writeLn("  fuchsia <idk-folder> <platform-output-folder> [options] [library ...]");
+          writeLn("  windows <windows-sdk-folder> <platform-output-folder> --msvc=<folder> [options]");
+          writeLn("  sqlite <amalgamation-folder> <libraries-output-folder> --windows-sdk=<folder> --msvc=<folder> --windows-declarations=<folder> [options]");
+          writeLn("  darwin-libraries <imported-island-folder> <libraries-output-folder> [--no-zip]");
+          writeLn("  linux <platform-output-folder> [options]");
+          writeLn("  android <platform-output-folder> (--ndk=<folder> | --ndk-archive=<zip>) --sqlite-archive=<zip> [options]");
+          writeLn();
+          writeLn("  windows-repackage <existing-island-sdk-folder> [options]");
+          writeLn("  linux-repackage <existing-island-sdk-folder> [options]");
+          writeLn("  android-repackage <existing-island-sdk-folder> [options]");
+          writeLn();
+          writeLn("  gc");
+          writeLn();
+          writeLn("Run 'HI2 <command>' with missing required arguments to display detailed command usage.");
+          exit 1;
         end;
 
       except

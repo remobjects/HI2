@@ -7,16 +7,24 @@ type
   Importer = public partial class
   public
 
+    method SetSpecificXcode;
+    begin
+      XcodeVersion := "27.0";
+      XcodeBeta := 5;
+      //XcodeName := "RC";
+    end;
+
+    property XcodeVersion: String;
+    property XcodeBeta: Integer;
+    property XcodeName: String;
+
     method ImportCurrentXcode;
     begin
-      ImportXcode("27.0") Beta(1);
-      //ImportXcode("26.3") Name("RC");
-      //ImportXcode("26.5");
+      ImportXcode(XcodeVersion) Beta(XcodeBeta) Name(XcodeName);
     end;
 
     method ImportSDKs;
     begin
-      //SwiftOnly := true;
       //Debug := true;
       //SkipHI := true;
 
@@ -36,11 +44,14 @@ type
       //SkipWatchOS := true;
       //SkipVisionOS := true;
 
+      //SwiftTbdSymbolModules.Add("FoundationModels");
+      //SwiftTbdSymbolModules.Add("WidgetKit");
+
       //
       // do not change these below this line!
       //
       ImportCocoaSDKs;
-      ImportSwiftSDKs;
+      //ImportSwiftSDKs;
     end;
 
     property FrameworksFolder: String;
@@ -68,6 +79,9 @@ type
       SkipDeploymentTargets := true;
       SwiftOnly := true;
       SkipSwift := false;
+      SwiftDumpJsonFolder := Path.Combine(FrameworksFolder, "Island", "Darwin", "Swift Dumps");
+      //SwiftTbdSymbolModules.Add("CreateML");
+      //SwiftTbdSymbolModules.Add("FoundationModels");
       ImportIslandSDKs;
     end;
 
