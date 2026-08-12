@@ -422,7 +422,7 @@ type
       if lSDKFolder.FolderExists then
         System.IO.Directory.Delete(lSDKFolder, true);
       Folder.Create(lSDKFolder);
-      var lSQLitePlatformFolder := Path.Combine(LinuxLibrariesOutputFolder, "SQLite", "Island", "Linux");
+      var lSQLitePlatformFolder := Path.Combine(LinuxLibrariesOutputFolder, "SQLite", "Island", "Ubuntu");
       if lSQLitePlatformFolder.FolderExists then
         System.IO.Directory.Delete(lSQLitePlatformFolder, true);
       Folder.Create(lSQLitePlatformFolder);
@@ -475,7 +475,7 @@ type
         CreateIslandPlatformLibraryZip(LinuxLibrariesOutputFolder,
                                        LinuxIntermediateFolder,
                                        "SQLite",
-                                       "Linux",
+                                       "Ubuntu",
                                        "Island-Linux-sqlite.zip");
       end;
     end;
@@ -505,7 +505,7 @@ type
         RequireIslandSDKFile(Path.Combine(lArchitectureFolder, "sqlite3.a"), $"Linux {lArchitecture.Name} SQLite static library");
       end;
 
-      var lSQLitePlatformFolder := Path.Combine(LinuxLibrariesOutputFolder, "SQLite", "Island", "Linux");
+      var lSQLitePlatformFolder := Path.Combine(LinuxLibrariesOutputFolder, "SQLite", "Island", "Ubuntu");
       if lSQLitePlatformFolder.FolderExists then
         System.IO.Directory.Delete(lSQLitePlatformFolder, true);
       Folder.Create(lSQLitePlatformFolder);
@@ -528,7 +528,7 @@ type
         CreateIslandPlatformLibraryZip(LinuxLibrariesOutputFolder,
                                        LinuxIntermediateFolder,
                                        "SQLite",
-                                       "Linux",
+                                       "Ubuntu",
                                        "Island-Linux-sqlite.zip");
       end;
     end;
