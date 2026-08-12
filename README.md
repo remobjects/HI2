@@ -249,10 +249,10 @@ The generated layout is:
 <platform-output-folder>/Ubuntu 26.04/x86_64/
 <platform-output-folder>/Ubuntu 26.04/arm64/
 <platform-output-folder>/__Public/Ubuntu 26.04.zip
-<libraries-output-folder>/SQLite/Island/Linux/x86_64/sqlite3.fx
-<libraries-output-folder>/SQLite/Island/Linux/x86_64/sqlite3.a
-<libraries-output-folder>/SQLite/Island/Linux/arm64/sqlite3.fx
-<libraries-output-folder>/SQLite/Island/Linux/arm64/sqlite3.a
+<libraries-output-folder>/SQLite/Island/Ubuntu/x86_64/sqlite3.fx
+<libraries-output-folder>/SQLite/Island/Ubuntu/x86_64/sqlite3.a
+<libraries-output-folder>/SQLite/Island/Ubuntu/arm64/sqlite3.fx
+<libraries-output-folder>/SQLite/Island/Ubuntu/arm64/sqlite3.a
 <libraries-output-folder>/__Public/Island-Linux-sqlite.zip
 ```
 
