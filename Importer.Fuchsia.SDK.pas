@@ -11,7 +11,7 @@ type
     method FuchsiaTriple(aArchitecture: not nullable String): not nullable String;
     begin
       case aArchitecture of
-        "x64": result := "x86_64-unknown-fuchsia";
+        "x86_64": result := "x86_64-unknown-fuchsia";
         "arm64": result := "aarch64-unknown-fuchsia";
         else raise new Exception($"Unsupported Fuchsia SDK architecture '{aArchitecture}'.");
       end;
@@ -20,8 +20,18 @@ type
     method FuchsiaTarget(aArchitecture: not nullable String): FxCpuTarget;
     begin
       case aArchitecture of
-        "x64": result := FxCpuTarget.x86_64;
+        "x86_64": result := FxCpuTarget.x86_64;
         "arm64": result := FxCpuTarget.arm64;
+        else raise new Exception($"Unsupported Fuchsia SDK architecture '{aArchitecture}'.");
+      end;
+    end;
+
+    method FuchsiaIDKArchitecture(aArchitecture: not nullable String): not nullable String;
+    begin
+      // Raw Fuchsia IDKs use "x64" for the Intel target directory.
+      case aArchitecture of
+        "x86_64": result := "x64";
+        "arm64": result := "arm64";
         else raise new Exception($"Unsupported Fuchsia SDK architecture '{aArchitecture}'.");
       end;
     end;
@@ -47,7 +57,8 @@ type
                                     aClangFolder: not nullable String): not nullable List<String>;
     begin
       result := new List<String>;
-      result.Add(RequireIslandSDKFolder(Path.Combine(FuchsiaIDKFolder, "arch", aArchitecture, "sysroot", "include"), $"Fuchsia {aArchitecture} sysroot headers"));
+      var lIDKArchitecture := FuchsiaIDKArchitecture(aArchitecture);
+      result.Add(RequireIslandSDKFolder(Path.Combine(FuchsiaIDKFolder, "arch", lIDKArchitecture, "sysroot", "include"), $"Fuchsia {aArchitecture} sysroot headers"));
       result.Add(ResolveFuchsiaClangIncludeFolder(aClangFolder));
       result.Add(RequireIslandSDKFolder(Path.Combine(FuchsiaIDKFolder, "pkg", "fdio", "include"), "Fuchsia fdio headers"));
     end;
@@ -56,6 +67,11 @@ type
     begin
       result := new List<String>;
       var lSeen := new HashSet<String>;
+      var lAllTypesHeader := "bits/alltypes.h";
+      if not Path.Combine(aIncludeFolders[0], lAllTypesHeader).FileExists then
+        raise new Exception($"Required Fuchsia system header '{lAllTypesHeader}' was not found in '{aIncludeFolders[0]}'.");
+      lSeen.Add(lAllTypesHeader);
+      result.Add(lAllTypesHeader);
       var lClangIncludeFolder := aIncludeFolders[1];
       for each lHeader in ["stddef.h", "stdarg.h", "stdint.h", "stdbool.h", "stdatomic.h", "stdalign.h", "stdnoreturn.h", "float.h", "unwind.h"] do begin
         if not Path.Combine(lClangIncludeFolder, lHeader).FileExists then begin
@@ -99,7 +115,8 @@ type
     method FuchsiaRTLIndirectHeaders(aArchitecture: not nullable String): not nullable List<String>;
     begin
       result := new List<String>;
-      var lSysrootIncludeFolder := RequireIslandSDKFolder(Path.Combine(FuchsiaIDKFolder, "arch", aArchitecture, "sysroot", "include"), $"Fuchsia {aArchitecture} sysroot headers");
+      var lIDKArchitecture := FuchsiaIDKArchitecture(aArchitecture);
+      var lSysrootIncludeFolder := RequireIslandSDKFolder(Path.Combine(FuchsiaIDKFolder, "arch", lIDKArchitecture, "sysroot", "include"), $"Fuchsia {aArchitecture} sysroot headers");
       var lGeneratedSyscallsFolder := RequireIslandSDKFolder(Path.Combine(lSysrootIncludeFolder, "zircon", "syscalls", "gen"), $"Fuchsia {aArchitecture} generated syscall declarations");
       result.Add(IslandSDKRelativePath(lSysrootIncludeFolder,
                                        RequireIslandSDKFile(Path.Combine(lGeneratedSyscallsFolder, "cdecls.inc"), $"Fuchsia {aArchitecture} stable syscall declarations")));
@@ -120,6 +137,14 @@ type
         "__UINT64_TYPE__=long unsigned int", "__INTMAX_TYPE__=long int",
         "__UINTMAX_TYPE__=long unsigned int", "__INTPTR_TYPE__=long int",
         "__UINTPTR_TYPE__=long unsigned int", "__WCHAR_TYPE__=int",
+        "__UINT_LEAST8_TYPE__=unsigned char", "__UINT_LEAST16_TYPE__=unsigned short",
+        "__UINT_LEAST32_TYPE__=unsigned int", "__UINT_LEAST64_TYPE__=long unsigned int",
+        "__INT_LEAST8_TYPE__=signed char", "__INT_LEAST16_TYPE__=short",
+        "__INT_LEAST32_TYPE__=int", "__INT_LEAST64_TYPE__=long int",
+        "__UINT_FAST8_TYPE__=unsigned char", "__UINT_FAST16_TYPE__=unsigned short",
+        "__UINT_FAST32_TYPE__=unsigned int", "__UINT_FAST64_TYPE__=long unsigned int",
+        "__INT_FAST8_TYPE__=signed char", "__INT_FAST16_TYPE__=short",
+        "__INT_FAST32_TYPE__=int", "__INT_FAST64_TYPE__=long int",
         "__WINT_TYPE__=unsigned int", "__CHAR16_TYPE__=unsigned short",
         "__CHAR32_TYPE__=unsigned int", "__UINTPTR_MAX__=18446744073709551615UL",
         "!__UINT32_C(value)=value", "!__UINT64_C(value)=value",
@@ -127,8 +152,14 @@ type
         "__ATOMIC_ACQUIRE=2", "__ATOMIC_RELEASE=3", "__ATOMIC_ACQ_REL=4",
         "__ATOMIC_SEQ_CST=5", "__STDC__=1", "__STDC_VERSION__=201112L", "_GNU_SOURCE=1"
       );
+      var lIDKArchitecture := FuchsiaIDKArchitecture(aArchitecture);
+      var lAllTypesPath := RequireIslandSDKFile(Path.Combine(FuchsiaIDKFolder, "arch", lIDKArchitecture, "sysroot", "include", "bits", "alltypes.h"), $"Fuchsia {aArchitecture} all-types header");
+      var lSeenNeeds := new HashSet<String>;
+      for each lMatch: System.Text.RegularExpressions.Match in System.Text.RegularExpressions.Regex.Matches(File.ReadText(lAllTypesPath), "__NEED_[A-Za-z0-9_]+") do
+        if lSeenNeeds.Add(lMatch.Value) then
+          result.Add(lMatch.Value+"=1");
       case aArchitecture of
-        "x64": result.Add(["__x86_64=1", "__x86_64__=1", "__amd64=1", "__amd64__=1", "__SSE__=1", "__SSE2__=1"]);
+        "x86_64": result.Add(["__x86_64=1", "__x86_64__=1", "__amd64=1", "__amd64__=1", "__SSE__=1", "__SSE2__=1"]);
         "arm64": result.Add(["__aarch64__=1", "__AARCH64EL__=1", "__ARM_ARCH=8", "__ARM_ARCH_8A=1", "__ARM_64BIT_STATE=1"]);
         else raise new Exception($"Unsupported Fuchsia SDK architecture '{aArchitecture}'.");
       end;
@@ -170,7 +201,7 @@ type
                                   aSDKID: not nullable String;
                                   aIncludeFolders: not nullable ImmutableList<String>);
     begin
-      var lArchitectureFolder := Path.Combine(FuchsiaIDKFolder, "arch", aArchitecture);
+      var lArchitectureFolder := Path.Combine(FuchsiaIDKFolder, "arch", FuchsiaIDKArchitecture(aArchitecture));
       var lArguments := new List<String>;
       lArguments.Add("import");
       lArguments.Add($"--json={aConfiguration}");
@@ -202,9 +233,8 @@ type
         raise new Exception($"Fuchsia {aArchitecture} runtime FX '{aPath}' has target string '{if lFx.Targets.Count = 0 then "<none>" else lFx.Targets[0].TargetString}', expected '{FuchsiaTriple(aArchitecture)}'.");
 
       var lTarget := lFx.Targets.Single;
-      for each lTypeName in ["locale_t", "uint32_t", "uint64_t", "zx_handle_t", "zx_channel_call_args_t"] do
-        if not lTarget.NamedTypes.Any(aType -> (aType.Name = "rtl."+lTypeName) and (aType.Visibility = FxMemberVisibility.Public) and (aType.Type >= 0)) and
-           not lTarget.KnownTypes.Any(aType -> (aType.Name = "rtl."+lTypeName) and (aType.Visibility = FxMemberVisibility.Public) and (aType.Type >= 0)) then
+      for each lTypeName in ["__struct_timespec", "locale_t", "mode_t", "pid_t", "pthread_t", "uint32_t", "uint64_t", "zx_handle_t", "zx_channel_call_args_t"] do
+        if not lTarget.NamedTypes.Any(aType -> (aType.Name = "rtl."+lTypeName) and (aType.Visibility = FxMemberVisibility.Public) and (aType.Type >= 0)) then
           raise new Exception($"Fuchsia {aArchitecture} runtime FX is missing public type 'rtl.{lTypeName}'.");
 
       var lGlobalName := lTarget.NamedTypes.FirstOrDefault(aType -> aType.Name = "rtl.__Global");
@@ -240,7 +270,7 @@ type
                                        aSDKFolder: not nullable String);
     begin
       var lIslandRTLFolder := RequireIslandSDKFolder(FuchsiaIslandRTLFolder, "Fuchsia IslandRTL output folder");
-      var lIDKArchitectureFolder := Path.Combine(FuchsiaIDKFolder, "arch", aArchitecture);
+      var lIDKArchitectureFolder := Path.Combine(FuchsiaIDKFolder, "arch", FuchsiaIDKArchitecture(aArchitecture));
       var lTargetFolder := Path.Combine(aSDKFolder, aArchitecture);
       var lClangFolder := RequireIslandSDKFolder(FuchsiaClangFolder, "Fuchsia Clang folder");
       var lClangRuntimeFolder: nullable String;
@@ -299,7 +329,7 @@ type
         "dist/libfdio.so", "libunwind.a", "rtl.fx", "Island.fx",
         "libc.so", "libclang_rt.builtins.a"
       ];
-      for each lArchitecture in ["x64", "arm64"] do begin
+      for each lArchitecture in ["x86_64", "arm64"] do begin
         var lArchitectureFolder := Path.Combine(aSDKFolder, lArchitecture);
         for each lRelativePath in lRequired do
           RequireIslandSDKFile(Path.Combine(lArchitectureFolder, lRelativePath),
@@ -335,7 +365,7 @@ type
 
       HI := RequireIslandSDKFile(HI, "HeaderImporter executable");
       Log($"Assembling Fuchsia Island SDK {aSDKID}.");
-      AssembleFuchsiaArchitecture("x64", aSDKID, aAPILevel, aSDKFolder);
+      AssembleFuchsiaArchitecture("x86_64", aSDKID, aAPILevel, aSDKFolder);
       AssembleFuchsiaArchitecture("arm64", aSDKID, aAPILevel, aSDKFolder);
       ValidateFuchsiaSDK(aSDKFolder);
       if CreateZips then

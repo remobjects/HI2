@@ -15,7 +15,7 @@ When no library names are supplied, all FIDL libraries in the IDK are imported;
 libraries automatically include their dependencies. Dependencies are resolved
 from the IDK metadata and passed to `fidlc` in dependency-first order. On Linux,
 HI2 selects the host-compatible `fidlc`. On
-macOS, it runs the IDK's Linux x64 `fidlc` automatically through Docker using
+macOS, it runs the IDK's Linux Intel `fidlc` automatically through Docker using
 the `ubuntu:24.04` image. `--fidlc` provides an explicit compiler-path override,
 `--docker` provides an explicit Docker executable override, and
 `--fidlc-docker-image` overrides the container image. HI2 resolves Docker to an
@@ -24,7 +24,7 @@ absolute executable path before launching it.
 The `--ir-only` option stops after producing `fidlc` JSON IR. Otherwise HI2
 passes the IR directly to the FIDL importer in `RemObjects.Elements.dll` and
 writes architecture-specific `.fx` files under
-`<platform-output-folder>/Fuchsia <sdk-id>/x64` and
+`<platform-output-folder>/Fuchsia <sdk-id>/x86_64` and
 `<platform-output-folder>/Fuchsia <sdk-id>/arm64`. The FIDL conversion itself
 does not launch `HeaderImporter.exe`; complete SDK assembly uses it to generate
 the native Fuchsia `rtl.fx`. By default, IR and the import manifest are stored
@@ -51,15 +51,15 @@ HI2 fuchsia <idk-folder> <output-folder> \
 
 The input folders have explicit contracts:
 
-- `--islandrtl` contains `x64/Island.a`, `x64/Island.fx`, and their `arm64`
+- `--islandrtl` contains `x86_64/Island.a`, `x86_64/Island.fx`, and their `arm64`
   counterparts.
 - `--clang` is the matching Fuchsia Clang toolchain. It supplies the compiler
   headers used to import `rtl.fx`, plus `libunwind.a` and
   `libclang_rt.builtins.a`.
 
 `--clang-runtime=<folder>` can override the runtime archives copied from the
-Clang toolchain. The folder must contain `x64/libunwind.a`,
-`x64/libclang_rt.builtins.a`, and their `arm64` counterparts.
+Clang toolchain. The folder must contain `x86_64/libunwind.a`,
+`x86_64/libclang_rt.builtins.a`, and their `arm64` counterparts.
 
 HI2 discovers the public libc, Zircon, and fdio headers in each IDK sysroot,
 adds the matching Clang builtin headers, writes a versioned HeaderImporter

@@ -142,11 +142,12 @@ type
       else begin
         case Environment.OS of
           OperatingSystem.Linux: begin
-              var lHostArchitecture := case Environment.OSArchitecture of
+              // Raw Fuchsia IDKs use "x64" for the Intel host-tools directory.
+              var lRawIDKHostArchitecture := case Environment.OSArchitecture of
                 "arm64", "aarch64": "arm64";
                 else "x64";
               end;
-              lResult := Path.Combine(FuchsiaIDKFolder, "tools", lHostArchitecture, "fidlc");
+              lResult := Path.Combine(FuchsiaIDKFolder, "tools", lRawIDKHostArchitecture, "fidlc");
             end;
 
           OperatingSystem.macOS: begin
@@ -283,9 +284,9 @@ type
       var lFidlc := ResolveFidlc;
       Folder.Create(FuchsiaOutputFolder);
       var lSDKFolder := Path.Combine(FuchsiaOutputFolder, "Fuchsia "+lSDKID);
-      var lX64Folder := Path.Combine(lSDKFolder, "x64");
+      var lX8664Folder := Path.Combine(lSDKFolder, "x86_64");
       var lArm64Folder := Path.Combine(lSDKFolder, "arm64");
-      Folder.Create(lX64Folder);
+      Folder.Create(lX8664Folder);
       Folder.Create(lArm64Folder);
 
       var lOutputManifest := JsonDocument.CreateObject;
@@ -325,10 +326,10 @@ type
 
         if not SkipFidlBindingImport then begin
           var lIr := JsonObject.FromString(File.ReadText(lIrPath));
-          var lX64FxPath := Path.Combine(lX64Folder, lName+".fx");
-          var lX64Fx := FidlFxImporter.Import(lIr, "x64", lSDKID, lAPILevel);
-          using lX64Stream := new System.IO.FileStream(lX64FxPath, System.IO.FileMode.Create, System.IO.FileAccess.Write) do
-            lX64Fx.Write(lX64Stream);
+          var lX8664FxPath := Path.Combine(lX8664Folder, lName+".fx");
+          var lX8664Fx := FidlFxImporter.Import(lIr, "x86_64", lSDKID, lAPILevel);
+          using lX8664Stream := new System.IO.FileStream(lX8664FxPath, System.IO.FileMode.Create, System.IO.FileAccess.Write) do
+            lX8664Fx.Write(lX8664Stream);
 
           var lArm64FxPath := Path.Combine(lArm64Folder, lName+".fx");
           var lArm64Fx := FidlFxImporter.Import(lIr, "arm64", lSDKID, lAPILevel);
@@ -342,14 +343,14 @@ type
         lOutputLibrary["dependencies"] := new JsonArray(lLibrary.Dependencies.OrderBy(aDependency -> aDependency));
         lOutputLibrary["ir"] := Path.Combine(lName, lName+".fidl.json");
         if not SkipFidlBindingImport then begin
-          lOutputLibrary["x64Fx"] := Path.Combine("Fuchsia "+lSDKID, "x64", lName+".fx");
+          lOutputLibrary["x86_64Fx"] := Path.Combine("Fuchsia "+lSDKID, "x86_64", lName+".fx");
           lOutputLibrary["arm64Fx"] := Path.Combine("Fuchsia "+lSDKID, "arm64", lName+".fx");
         end;
         lOutputLibraries.Add(lOutputLibrary);
       end;
 
       if not SkipFidlBindingImport then begin
-        Log($"Wrote {lRequestedLibraries.Count} FIDL .fx libraries for x64 and arm64 to {lSDKFolder}.");
+        Log($"Wrote {lRequestedLibraries.Count} FIDL .fx libraries for x86_64 and arm64 to {lSDKFolder}.");
         if not AssembleFuchsiaRuntime then
           Log("Fuchsia runtime SDK assembly was not requested; pass --assemble-sdk with the runtime input options to create the complete SDK and ZIP.");
       end;
