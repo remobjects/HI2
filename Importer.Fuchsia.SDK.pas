@@ -233,7 +233,11 @@ type
         raise new Exception($"Fuchsia {aArchitecture} runtime FX '{aPath}' has target string '{if lFx.Targets.Count = 0 then "<none>" else lFx.Targets[0].TargetString}', expected '{FuchsiaTriple(aArchitecture)}'.");
 
       var lTarget := lFx.Targets.Single;
-      for each lTypeName in ["__struct_timespec", "locale_t", "mode_t", "pid_t", "pthread_t", "uint32_t", "uint64_t", "zx_handle_t", "zx_channel_call_args_t"] do
+      for each lTypeName in [
+        "__struct_timespec", "locale_t", "mode_t", "pid_t", "pthread_t", "uint32_t", "uint64_t",
+        "zx_handle_t", "zx_channel_call_args_t", "zx_channel_call_etc_args_t",
+        "zx_handle_disposition_t", "zx_handle_info_t", "zx_port_packet_t"
+      ] do
         if not lTarget.NamedTypes.Any(aType -> (aType.Name = "rtl."+lTypeName) and (aType.Visibility = FxMemberVisibility.Public) and (aType.Type >= 0)) then
           raise new Exception($"Fuchsia {aArchitecture} runtime FX is missing public type 'rtl.{lTypeName}'.");
 
@@ -243,7 +247,14 @@ type
       var lGlobalType := lTarget.Types[lGlobalName.Type] as FxDefinitionType;
       if not assigned(lGlobalType) then
         raise new Exception($"Fuchsia {aArchitecture} runtime FX global scope has an invalid type.");
-      for each lMemberName in ["_Unwind_Resume", "nl_langinfo_l", "zx_channel_call", "zx_channel_create", "zx_channel_read", "zx_channel_write", "fdio_service_connect", "zx_take_startup_handle", "zx_thread_self"] do
+      for each lMemberName in [
+        "_Unwind_Resume", "nl_langinfo_l",
+        "zx_channel_call", "zx_channel_call_etc", "zx_channel_create",
+        "zx_channel_read", "zx_channel_read_etc", "zx_channel_write", "zx_channel_write_etc",
+        "zx_handle_close", "zx_handle_replace", "zx_object_wait_async",
+        "zx_port_cancel", "zx_port_create", "zx_port_queue", "zx_port_wait",
+        "fdio_service_connect", "zx_take_startup_handle", "zx_thread_self"
+      ] do
         if not lGlobalType.Members.Any(aMember -> (aMember.Name = lMemberName) and (aMember.Visibility = FxMemberVisibility.Public)) then
           raise new Exception($"Fuchsia {aArchitecture} runtime FX is missing public member 'rtl.{lMemberName}'.");
       if not lTarget.DependentLibraries.Contains("libunwind.a") then
