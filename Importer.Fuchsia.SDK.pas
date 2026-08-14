@@ -251,6 +251,7 @@ type
         "_Unwind_Resume", "nl_langinfo_l",
         "zx_channel_call", "zx_channel_call_etc", "zx_channel_create",
         "zx_channel_read", "zx_channel_read_etc", "zx_channel_write", "zx_channel_write_etc",
+        "zx_clock_get_monotonic",
         "zx_handle_close", "zx_handle_replace", "zx_object_wait_async",
         "zx_port_cancel", "zx_port_create", "zx_port_queue", "zx_port_wait",
         "fdio_service_connect", "zx_take_startup_handle", "zx_thread_self"
