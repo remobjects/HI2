@@ -80,6 +80,7 @@ type
     property Architecture_iOSSimulator_arm64        : Architecture read new Architecture(Triple := "arm64-apple-ios-simulator",        Defines := CleanDefines(iOSDefinesSimulatorArm64),       SDKName := "iOS",          Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "14.2");
     property Architecture_watchOS_armv7k            : Architecture read new Architecture(Triple := "armv7k-apple-watchos",             Defines := CleanDefines(watchOSDefines32),               SDKName := "watchOS",                                                                                 MinimumTargetSDK := "2.0");
     property Architecture_watchOS_arm64_32          : Architecture read new Architecture(Triple := "arm64_32-apple-watchos",           Defines := CleanDefines(watchOSDefines64),               SDKName := "watchOS",                                                                                 MinimumTargetSDK := "5.0");
+    property Architecture_watchOS_arm64             : Architecture read new Architecture(Triple := "arm64-apple-watchos",              Defines := CleanDefines(_iOSDefines64+";WATCHOS;DEVICE"), SDKName := "watchOS", MinimumTargetSDK := "26.0", MinimumDeploymentTarget := "26.0");
     property Architecture_watchOSSimulator_i386     : Architecture read new Architecture(Triple := "i386-apple-watchos-simulator",     Defines := CleanDefines(watchOSDefinesSimulatori386),    SDKName := "watchOS",      Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "2.0");
     property Architecture_watchOSSimulator_x86_64   : Architecture read new Architecture(Triple := "x86_64-apple-watchos-simulator",   Defines := CleanDefines(watchOSDefinesSimulatorX64),     SDKName := "watchOS",      Simulator := true, Environment := "simulator",  CpuType := cpuType_Penryn, MinimumTargetSDK := "5.0");
     property Architecture_watchOSSimulator_arm64    : Architecture read new Architecture(Triple := "arm64-apple-watchos-simulator",    Defines := CleanDefines(watchOSDefinesSimulatorArm64),   SDKName := "watchOS",      Simulator := true, Environment := "simulator",                             MinimumTargetSDK := "7.1");
@@ -141,7 +142,8 @@ type
     const MIN_IOS_VERSION_FOR_ARM64E_SIMULATOR = "14.2";
     const MAX_IOS_VERSION_FOR_ARM_32BIT        = "10.0";
 
-    const MIN_WATCHOS_VERSION_FOR_ARM64 = "5.0";
+    const MIN_WATCHOS_VERSION_FOR_ARM64_32 = "5.0";
+    const MIN_WATCHOS_VERSION_FOR_ARM64 = "26.0";
     const MIN_WATCHOS_VERSION_FOR_ARM64E_SIMULATOR = "7.1";
     const MAX_WATCHOS_VERSION_FOR_ARMV7K = "10.3";
 
@@ -260,6 +262,7 @@ type
 
       yield (Architecture_watchOS_armv7k,          watchOSVersion);
       yield (Architecture_watchOS_arm64_32,        watchOSVersion);
+      yield (Architecture_watchOS_arm64,           watchOSVersion);
       //yield (Architecture_watchOSSimulator_i386, watchOSVersion);
       yield (Architecture_watchOSSimulator_x86_64, watchOSVersion);
       yield (Architecture_watchOSSimulator_arm64,  watchOSVersion);
@@ -328,8 +331,10 @@ type
     begin
       if watchOSVersion.CompareVersionTripleTo(MAX_WATCHOS_VERSION_FOR_ARMV7K) ≤ 0 then
         yield (Architecture_watchOS_armv7k, watchOSVersion);
-      if watchOSVersion.CompareVersionTripleTo(MIN_WATCHOS_VERSION_FOR_ARM64) ≥ 0 then
+      if watchOSVersion.CompareVersionTripleTo(MIN_WATCHOS_VERSION_FOR_ARM64_32) ≥ 0 then
         yield (Architecture_watchOS_arm64_32, watchOSVersion);
+      if watchOSVersion.CompareVersionTripleTo(MIN_WATCHOS_VERSION_FOR_ARM64) ≥ 0 then
+        yield (Architecture_watchOS_arm64, watchOSVersion);
     end;
 
     method watchOSSimulatorArchitectures: sequence of tuple of (Architecture, String); iterator;
