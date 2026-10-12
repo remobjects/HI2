@@ -162,8 +162,18 @@ type
                                                FxCpuTarget.arm64,
                                                $aa64,
                                                new List<String>("CPU64", "_ARM64_", "_WIN64", "WINVER=0x0A00", "__LITTLE_ENDIAN__", "_MSC_VER=1700", "_WIN32", "_M_ARM64", "WINDOWS", "arm64", "_INTEGRAL_MAX_BITS=64", "UNICODE", "STRICT", "_WINSOCKAPI_", "target_arch=arm64", "target_vendor=pc", "target_os=windows"));
+        "arm64ec":
+          // EC uses the AMD64 Windows API layout and compatible x64 import libraries.
+          // Keep the emitted FX target distinct from both x64 and ordinary ARM64.
+          // Compiler-only SSE emulation intrinsics are not Windows DLL exports.
+          result := new WindowsSDKArchitecture("arm64ec",
+                                               "x64",
+                                               "arm64ec-pc-windows-msvc",
+                                               FxCpuTarget.arm64ec,
+                                               $a641,
+                                               new List<String>("CPU64", "_AMD64_", "_X86_64_", "_WIN64", "WINVER=0x0A00", "__LITTLE_ENDIAN__", "_MSC_VER=1700", "_WIN32", "_M_X64=100", "_M_AMD64=100", "_M_ARM64EC=1", "_DISABLE_SOFTINTRIN_=1", "WINDOWS", "arm64ec", "_INTEGRAL_MAX_BITS=64", "UNICODE", "STRICT", "_WINSOCKAPI_", "target_arch=arm64ec", "target_vendor=pc", "target_os=windows"));
         else
-          raise new Exception($"Unsupported Windows SDK architecture '{aName}'. Supported names are i386, x86_64, and arm64.");
+          raise new Exception($"Unsupported Windows SDK architecture '{aName}'. Supported names are i386, x86_64, arm64, and arm64ec.");
       end;
     end;
 
