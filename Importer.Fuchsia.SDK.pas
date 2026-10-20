@@ -281,17 +281,17 @@ type
                                        aAPILevel: not nullable String;
                                        aSDKFolder: not nullable String);
     begin
-      var lIslandRTLFolder := RequireIslandSDKFolder(FuchsiaIslandRTLFolder, "Fuchsia IslandRTL output folder");
       var lIDKArchitectureFolder := Path.Combine(FuchsiaIDKFolder, "arch", FuchsiaIDKArchitecture(aArchitecture));
       var lTargetFolder := Path.Combine(aSDKFolder, aArchitecture);
       var lClangFolder := RequireIslandSDKFolder(FuchsiaClangFolder, "Fuchsia Clang folder");
       var lClangRuntimeFolder: nullable String;
       if length(FuchsiaClangRuntimeFolder) > 0 then
         lClangRuntimeFolder := RequireIslandSDKFolder(FuchsiaClangRuntimeFolder, "Fuchsia Clang runtime folder");
-      for each lGCFile in ["gc.fx", "libgc.a"] do begin
-        var lStaleGCPath := Path.Combine(lTargetFolder, lGCFile);
-        if lStaleGCPath.FileExists then
-          File.Delete(lStaleGCPath);
+      // Older imports included compiler-owned runtime files, shadowing newer compiler installs.
+      for each lRuntimeFile in ["Island.a", "Island.fx", "gc.fx", "libgc.a"] do begin
+        var lStalePath := Path.Combine(lTargetFolder, lRuntimeFile);
+        if lStalePath.FileExists then
+          File.Delete(lStalePath);
       end;
 
       var lIncludeFolders := FuchsiaRTLIncludeFolders(aArchitecture, lClangFolder);
@@ -308,8 +308,6 @@ type
                          Path.Combine(lTargetFolder, "libfdio.so"));
       CopyIslandSDKFile(Path.Combine(lIDKArchitectureFolder, "sysroot", "lib", "libzircon.so"),
                          Path.Combine(lTargetFolder, "libzircon.so"));
-      CopyIslandSDKFile(Path.Combine(lIslandRTLFolder, aArchitecture, "Island.a"),
-                         Path.Combine(lTargetFolder, "Island.a"));
       CopyIslandSDKFile(Path.Combine(lIDKArchitectureFolder, "sysroot", "dist", "lib", "ld.so.1"),
                          Path.Combine(lTargetFolder, "ld.so.1"));
       CopyIslandSDKFile(Path.Combine(lIDKArchitectureFolder, "dist", "libfdio.so"),
@@ -321,8 +319,6 @@ type
         CopyIslandSDKFile(Path.Combine(lClangFolder, "lib", FuchsiaTriple(aArchitecture), "libunwind.a"),
                            Path.Combine(lTargetFolder, "libunwind.a"));
       end;
-      CopyIslandSDKFile(Path.Combine(lIslandRTLFolder, aArchitecture, "Island.fx"),
-                         Path.Combine(lTargetFolder, "Island.fx"));
       CopyIslandSDKFile(Path.Combine(lIDKArchitectureFolder, "sysroot", "lib", "libc.so"),
                          Path.Combine(lTargetFolder, "libc.so"));
       if assigned(lClangRuntimeFolder) then
@@ -337,8 +333,8 @@ type
     method ValidateFuchsiaSDK(aSDKFolder: not nullable String);
     begin
       var lRequired := [
-        "Scrt1.o", "libfdio.so", "libzircon.so", "Island.a", "ld.so.1",
-        "dist/libfdio.so", "libunwind.a", "rtl.fx", "Island.fx",
+        "Scrt1.o", "libfdio.so", "libzircon.so", "ld.so.1",
+        "dist/libfdio.so", "libunwind.a", "rtl.fx",
         "libc.so", "libclang_rt.builtins.a"
       ];
       for each lArchitecture in ["x86_64", "arm64"] do begin
@@ -346,9 +342,9 @@ type
         for each lRelativePath in lRequired do
           RequireIslandSDKFile(Path.Combine(lArchitectureFolder, lRelativePath),
                                $"Fuchsia {lArchitecture} SDK entry '{lRelativePath}'");
-        for each lGCFile in ["gc.fx", "libgc.a"] do
-          if Path.Combine(lArchitectureFolder, lGCFile).FileExists then
-            raise new Exception($"Fuchsia {lArchitecture} SDK must not contain '{lGCFile}'; GC is packaged separately.");
+        for each lRuntimeFile in ["Island.a", "Island.fx", "gc.fx", "libgc.a"] do
+          if Path.Combine(lArchitectureFolder, lRuntimeFile).FileExists then
+            raise new Exception($"Fuchsia {lArchitecture} SDK must not contain '{lRuntimeFile}'; IslandRTL and GC are supplied separately from the SDK.");
         if Folder.GetFiles(lArchitectureFolder).Where(aFile -> aFile.PathExtension = ".fx").Count <= lRequired.Where(aFile -> aFile.PathExtension = ".fx").Count then
           raise new Exception($"Fuchsia {lArchitecture} SDK contains no imported FIDL .fx files.");
       end;
@@ -356,6 +352,7 @@ type
 
     method CreateFuchsiaSDKZip(aSDKFolder: not nullable String): not nullable String;
     begin
+      ValidateFuchsiaSDK(aSDKFolder);
       var lPublicFolder := Path.Combine(FuchsiaOutputFolder, "__Public");
       result := CreateDeterministicIslandSDKZip(aSDKFolder,
                                                 Path.Combine(lPublicFolder, Path.GetFileName(aSDKFolder)+".zip"));
@@ -364,7 +361,6 @@ type
   public
 
     property AssembleFuchsiaRuntime := false;
-    property FuchsiaIslandRTLFolder: nullable String;
     property FuchsiaClangFolder: nullable String;
     property FuchsiaClangRuntimeFolder: nullable String;
 

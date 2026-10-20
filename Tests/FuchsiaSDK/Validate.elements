@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ProjectGuid>{B52E39EC-B2E9-4438-A53F-C7C484428E44}</ProjectGuid>
+    <BinaryName>FuchsiaSdkCheck</BinaryName>
+    <StartupClassName>FuchsiaSdkCheck.Program</StartupClassName>
+    <TargetFramework>.NETFramework4.8</TargetFramework>
+    <OutputPath>bin</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Compile Include="Validate.pas" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\RemObjects Software\Elements\RemObjects.Elements.Echoes.targets" />
+</Project>

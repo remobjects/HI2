@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <ProjectGuid>{9D01DE2C-77BD-4199-A63B-09EAA625AE37}</ProjectGuid>
+    <BinaryName>WindowsSdkCheck</BinaryName>
+    <StartupClassName>WindowsSdkCheck.Program</StartupClassName>
+    <TargetFramework>.NET10.0</TargetFramework>
+    <CompilerBin Condition="'$(CompilerBin)' == ''">..\..\Bin\Core</CompilerBin>
+    <OutputPath>bin</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Elements"><HintPath>$(CompilerBin)\Elements.dll</HintPath><Private>True</Private></Reference>
+    <Reference Include="RemObjects.Elements"><HintPath>$(CompilerBin)\RemObjects.Elements.dll</HintPath><Private>True</Private></Reference>
+    <Reference Include="RemObjects.Elements.Code"><HintPath>$(CompilerBin)\RemObjects.Elements.Code.dll</HintPath><Private>True</Private></Reference>
+    <Reference Include="RemObjects.Elements.Island"><HintPath>$(CompilerBin)\RemObjects.Elements.Island.dll</HintPath><Private>True</Private></Reference>
+    <Compile Include="Inspect.pas" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\RemObjects Software\Elements\RemObjects.Elements.Echoes.targets" />
+</Project>

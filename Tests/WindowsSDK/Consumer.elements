@@ -1,0 +1,15 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{62BE9A36-3898-4E44-AC69-B4AA7E5629DF}</ProjectGuid><OutputType>StaticLibrary</OutputType><BinaryName>WindowsSdkConsumer</BinaryName>
+    <Mode>Island</Mode><SubMode>Windows</SubMode><Architecture>arm64ec</Architecture>
+    <NoGC>True</NoGC><NoRTL>True</NoRTL><NoIsland>True</NoIsland><AllowGlobals>True</AllowGlobals>
+    <EnableAsserts>False</EnableAsserts><GenerateDebugInfo>False</GenerateDebugInfo>
+    <GenerateIRFile>True</GenerateIRFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="rtl"><HintPath>$(SDKRoot)\arm64ec\rtl.fx</HintPath></Reference>
+    <Reference Include="Island"><HintPath>$(IslandDeclarations)</HintPath></Reference>
+    <Compile Include="Consumer.pas"/>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\RemObjects Software\Elements\RemObjects.Elements.Island.Windows.targets"/>
+</Project>
