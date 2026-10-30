@@ -33,14 +33,17 @@ type
 
           case lCommandLine.OtherParameters.First:ToLowerInvariant of
 
-            "cocoa", "apple": begin
+            "xcode", "cocoa", "apple": begin
                 if assigned(lCommandLine.Switches["version"]) then begin
                   lImporter.XcodeVersion := lCommandLine.Switches["version"];
                   lImporter.XcodeBeta := Convert.TryToInt32(lCommandLine.Switches["beta"]);
                   lImporter.XcodeName := lCommandLine.Switches["name"];
                 end
                 else begin
-                  lImporter.SetSpecificXcode;
+                  writeLn("Usage: HI2 xcode --version:... [--beta:...] [--name:...]");
+                  writeLn();
+                  exit 1;
+                  //lImporter.SetSpecificXcode;
                 end;
                 lImporter.ImportSDKs;
                 exit 0;
@@ -48,7 +51,8 @@ type
 
             "fuchsia": begin
                 if length(args) < 3 then begin
-                  writeLn("Usage: HI2 fuchsia <idk-folder> <platform-output-folder> [--intermediate=<folder>] [--api=<level>] [--fidlc=<path>] [--docker=<path>] [--fidlc-docker-image=<image>] [--header-importer=<absolute-path>] [--stable-only] [--reuse-ir] [--ir-only] [--assemble-sdk --islandrtl=<folder> --clang=<folder> [--clang-runtime=<folder>]] [--no-zip] [library ...]");
+                  writeLn("Usage: HI2 fuchsia <idk-folder> <platform-output-folder> [--intermediate=<folder>] [--api=<level>] [--fidlc=<path>] [--docker=<path>] [--fidlc-docker-image=<image>] [--header-importer=<absolute-path>] [--stable-only] [--reuse-ir] [--ir-only] [--assemble-sdk --clang=<folder> [--clang-runtime=<folder>]] [--no-zip] [library ...]");
+                  writeLn();
                   exit 1;
                 end;
 
@@ -79,7 +83,7 @@ type
                   else if lArgument:ToLowerInvariant = "--assemble-sdk" then
                     lImporter.AssembleFuchsiaRuntime := true
                   else if lArgument.StartsWith("--islandrtl=", true) then begin
-                    lImporter.FuchsiaIslandRTLFolder := lArgument.Substring(length("--islandrtl="));
+                    writeLn("Warning: --islandrtl is ignored; IslandRTL is supplied by the compiler installation, not the Fuchsia SDK.");
                   end
                   else if lArgument.StartsWith("--clang=", true) then begin
                     lImporter.FuchsiaClangFolder := lArgument.Substring(length("--clang="));
@@ -101,7 +105,7 @@ type
 
             "windows": begin
                 if length(args) < 3 then begin
-                  writeLn("Usage: HI2 windows <windows-sdk-folder> <platform-output-folder> --msvc=<folder> [--netfx-sdk=<folder>] [--sdk-version=<version>] [--architectures=i386,x86_64,arm64] [--rtl-config-folder=<folder>] [--support-files=<folder>] [--intermediate=<folder>] [--header-importer=<absolute-path>] [--skip-winrt] [--no-zip]");
+                  writeLn("Usage: HI2 windows <windows-sdk-folder> <platform-output-folder> --msvc=<folder> [--netfx-sdk=<folder>] [--sdk-version=<version>] [--architectures=i386,x86_64,arm64] [--rtl-config-folder=<folder>] [--support-files=<folder>] [--intermediate=<folder>] [--header-importer=<absolute-path>] [--jdk=<windows-jdk-folder>] [--skip-winrt] [--no-zip]");
                   exit 1;
                 end;
 
@@ -124,6 +128,8 @@ type
                     lImporter.WindowsIntermediateFolder := lArgument.Substring(length("--intermediate="))
                   else if lArgument.StartsWith("--header-importer=", true) then
                     lImporter.HI := lArgument.Substring(length("--header-importer="))
+                  else if lArgument.StartsWith("--jdk=", true) then
+                    lImporter.WindowsJDKFolder := lArgument.Substring(length("--jdk="))
                   else if lArgument:ToLowerInvariant = "--skip-winrt" then
                     lImporter.ImportWindowsRuntime := false
                   else if lArgument:ToLowerInvariant = "--no-zip" then
@@ -138,17 +144,25 @@ type
 
             "windows-repackage": begin
                 if length(args) < 2 then begin
-                  writeLn("Usage: HI2 windows-repackage <existing-island-sdk-folder> [--architectures=i386,x86_64,arm64] [--skip-winrt] [--no-zip]");
+                  writeLn("Usage: HI2 windows-repackage <existing-island-sdk-folder> [--architectures=i386,x86_64,arm64] [--jdk=<windows-jdk-folder>] [--skip-winrt] [--no-zip]");
                   exit 1;
                 end;
 
                 for each lArgument in args.Skip(2) do begin
                   if lArgument.StartsWith("--architectures=", true) then
                     lImporter.WindowsArchitectures.Add(lArgument.Substring(length("--architectures=")).Replace(",", ";").Split(";", true))
+                  else if lArgument.StartsWith("--jdk=", true) then
+                    lImporter.WindowsJDKFolder := lArgument.Substring(length("--jdk="))
                   else if lArgument:ToLowerInvariant = "--skip-winrt" then
                     lImporter.ImportWindowsRuntime := false
                   else if lArgument:ToLowerInvariant = "--no-zip" then
                     lImporter.CreateZips := false
+                  else if lArgument.StartsWith("--header-importer=", true) then
+                    lImporter.HI := lArgument.Substring(length("--header-importer="))
+                  else if lArgument.StartsWith("--rtl-config-folder=", true) then
+                    lImporter.WindowsRTLConfigFolder := lArgument.Substring(length("--rtl-config-folder="))
+                  else if lArgument.StartsWith("--intermediate=", true) then
+                    lImporter.WindowsIntermediateFolder := lArgument.Substring(length("--intermediate="))
                   else
                     raise new HIException($"Invalid Windows repackage option: {lArgument}");
                 end;

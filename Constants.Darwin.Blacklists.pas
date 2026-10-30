@@ -177,9 +177,9 @@ type
                   'IOKit', // Error   IOKit/IORPC.h - IOKit/IORPC.h (5902) opening brace expected Identifier (IORPCMessage)
 
                   // macOS 11
-                  'GameController',     //GameController.h - GameController/GCPhysicalInputProfile.h (89277) One of semicolon, comma, (eof) expected Identifier (GCControllerButtonInput)
-                  'GameKit',            //GameKit.h - GameController/GCPhysicalInputProfile.h (89758) One of semicolon, comma, (eof) expected Identifier (GCControllerButtonInput)
-                  'Hypervisor',         //Hypervisor.h - Hypervisor/hv_vm.h (5435) Declaration expected Identifier (hv_vm_config_t)
+                  //'GameController',     //GameController.h - GameController/GCPhysicalInputProfile.h (89277) One of semicolon, comma, (eof) expected Identifier (GCControllerButtonInput)
+                  //'GameKit',            //GameKit.h - GameController/GCPhysicalInputProfile.h (89758) One of semicolon, comma, (eof) expected Identifier (GCControllerButtonInput)
+                  //'Hypervisor',         //Hypervisor.h - Hypervisor/hv_vm.h (5435) Declaration expected Identifier (hv_vm_config_t)
 
                   'x86_64-apple-macosx:ClockKit', // imports UIKit, even though its on macOS!?
                   'arm64-apple-macosx:ClockKit',

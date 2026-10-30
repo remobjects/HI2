@@ -9,13 +9,13 @@ type
 
     method SetSpecificXcode;
     begin
-      XcodeVersion := "27.0";
-      XcodeBeta := 5;
+      //XcodeVersion := "27.0";
+      //XcodeBeta := 5;
       //XcodeName := "RC";
     end;
 
     property XcodeVersion: String;
-    property XcodeBeta: Integer;
+    property XcodeBeta: nullable Integer;
     property XcodeName: String;
 
     method ImportCurrentXcode;
@@ -94,7 +94,7 @@ type
 
       method FindXcode(aApplicationsFolder: String): String;
       begin
-        if assigned(aBeta) then begin
+        if assigned(aBeta) and (aBeta > 0) then begin
           Darwin.DeveloperFolder := $"{aApplicationsFolder}/Xcode-{aVersion}-Beta{aBeta}.app/Contents/Developer";
           Darwin.BetaSuffix := $"Xcode {aVersion} Beta {aBeta}";
         end
@@ -116,7 +116,7 @@ type
         FindXcode("/Applications");
 
       if not Darwin.DeveloperFolder.FolderExists then
-        raise new Exception("The specified Xcode version was not found.");
+        raise new Exception(#"The specified Xcode version {Darwin.DeveloperFolder} was not found.");
 
       Darwin.LoadVersionsFromXcode();
 

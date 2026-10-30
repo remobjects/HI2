@@ -346,6 +346,54 @@ type
       RunHI(lArguments) SDKFolder(aLayout.SDKRoot);
     end;
 
+    method ImportWindowsJava(aArchitecture: not nullable WindowsSDKArchitecture;
+                              aSDKFolder: not nullable String);
+    begin
+      // Modern Windows JDKs provide 64-bit JNI headers. Do not emit an i386
+      // binding with their empty JNICALL macro in place of the legacy stdcall ABI.
+      if aArchitecture.Target = FxCpuTarget.i386 then
+        raise new Exception("Windows Java generation requires a 64-bit target; retain the existing i386 java.fx via --support-files.");
+      var lJDK := RequireIslandSDKFolder(WindowsJDKFolder, "Windows JDK folder");
+      var lInclude := RequireIslandSDKFolder(Path.Combine(lJDK, "include"), "Windows JDK include folder");
+      var lWin32 := RequireIslandSDKFolder(Path.Combine(lInclude, "win32"), "Windows JDK platform headers");
+      var lConfigFolder := if length(WindowsRTLConfigFolder) > 0 then WindowsRTLConfigFolder else Path.Combine(FrameworksFolder, "Island", "Custom Jsons");
+      var lConfig := JsonObject.FromString(File.ReadText(RequireIslandSDKFile(Path.Combine(lConfigFolder, "windows-java.json"), "Windows Java import configuration")));
+      lConfig["TargetString"] := aArchitecture.TargetString;
+      lConfig["Defines"] := new JsonArray(aArchitecture.Defines);
+      var lWorkRoot := if length(WindowsIntermediateFolder) > 0 then WindowsIntermediateFolder else Path.Combine(Path.GetParentDirectory(aSDKFolder), "Import Configurations");
+      var lWork := Path.Combine(lWorkRoot, "java-"+aArchitecture.Name);
+      Folder.Create(lWork);
+      var lHeaders := Path.Combine(lWork, "headers");
+      Folder.Create(lHeaders);
+      // Windows RTL metadata records Windows.h with this casing. Normalize only
+      // the staged AWT include so HeaderImporter reuses that exact dependency.
+      var lAWT := File.ReadText(RequireIslandSDKFile(Path.Combine(lWin32, "jawt_md.h"), "Windows AWT header"));
+      File.WriteText(Path.Combine(lHeaders, "jawt_md.h"), lAWT.Replace("<windows.h>", "<Windows.h>"));
+      var lConfigPath := Path.Combine(lWork, "java.json");
+      File.WriteText(lConfigPath, lConfig.ToString);
+      var lOutput := Path.Combine(lWork, "output");
+      Folder.Create(lOutput);
+      var lFx := Path.Combine(lOutput, "java.fx");
+      if lFx.FileExists then
+        File.Delete(lFx);
+      var lArguments := new List<String>("import", "--json="+lConfigPath, "-o", lOutput,
+                                        "-i", lHeaders, "-i", lInclude, "-i", lWin32,
+                                        "-x", Path.Combine(aSDKFolder, aArchitecture.Name, "rtl.fx"));
+      RunHI(lArguments);
+      ValidateWindowsFx(lFx, "java", aArchitecture);
+      var lXML := Path.Combine(lWork, "java.xml");
+      if lXML.FileExists then
+        File.Delete(lXML);
+      RunHI(new List<String>("xmlexport", lFx, lXML));
+      var lMetadata := File.ReadText(RequireIslandSDKFile(lXML, "Exported Java metadata"));
+      if lMetadata.Contains("<type>-1</type>") then
+        raise new Exception($"Windows {aArchitecture.Name} Java metadata contains unresolved types.");
+      for each lName in ["JNI_CreateJavaVM", "JNI_GetCreatedJavaVMs", "JNI_GetDefaultJavaVMInitArgs", "JAWT_GetAWT"] do
+        if not lMetadata.Contains("<name>"+lName+"</name>") then
+          raise new Exception($"Windows {aArchitecture.Name} Java metadata is missing {lName}.");
+      CopyIslandSDKFile(lFx, Path.Combine(aSDKFolder, aArchitecture.Name, "java.fx"));
+    end;
+
     method CopyWindowsSupportFiles(aArchitecture: not nullable WindowsSDKArchitecture;
                                    aOutputFolder: not nullable String);
     begin
@@ -390,6 +438,9 @@ type
         ValidateWindowsFx(Path.Combine(lArchitectureFolder, "rtl.fx"), "rtl", lArchitecture);
         if ImportWindowsRuntime then
           ValidateWindowsFx(Path.Combine(lArchitectureFolder, "winrt.fx"), "winrt", lArchitecture);
+        var lJava := Path.Combine(lArchitectureFolder, "java.fx");
+        if lJava.FileExists then
+          ValidateWindowsFx(lJava, "java", lArchitecture);
         for each lStandaloneFile in ["gc.fx", "gc.lib", "libgc.a", "sqlite3.fx", "sqlite3.lib"] do
           if Path.Combine(lArchitectureFolder, lStandaloneFile).FileExists then
             raise new Exception($"Windows {lArchitecture.Name} SDK must not contain '{lStandaloneFile}'; GC and SQLite are packaged separately.");
@@ -421,6 +472,7 @@ type
     property WindowsIntermediateFolder: nullable String;
     property WindowsRTLConfigFolder: nullable String;
     property WindowsSupportFilesFolder: nullable String;
+    property WindowsJDKFolder: nullable String;
     property WindowsArchitectures: List<String> := new List<String>; readonly;
     property ImportWindowsRuntime := true;
 
@@ -454,7 +506,10 @@ type
         if ImportWindowsRuntime then
           lConfiguration := CreateWindowsRuntimeConfiguration(lArchitecture, lLayout, WindowsIntermediateFolder, lConfiguration);
         RunWindowsHeaderImport(lConfiguration, lArchitectureFolder, lLayout, lArchitecture, lIncludeFolders);
-        CopyWindowsSupportFiles(lArchitecture, lArchitectureFolder);
+        if length(WindowsJDKFolder) > 0 then
+          ImportWindowsJava(lArchitecture, lSDKFolder)
+        else
+          CopyWindowsSupportFiles(lArchitecture, lArchitectureFolder);
       end;
 
       ValidateWindowsSDK(lSDKFolder, lArchitectures);
@@ -467,6 +522,9 @@ type
     begin
       var lSDKFolder := RequireIslandSDKFolder(aSDKFolder, "Existing Windows Island SDK folder");
       var lArchitectures := ResolveWindowsArchitectures;
+      if length(WindowsJDKFolder) > 0 then
+        for each lArchitecture in lArchitectures do
+          ImportWindowsJava(lArchitecture, lSDKFolder);
       RemoveWindowsStandaloneLibraries(lSDKFolder, lArchitectures);
       ValidateWindowsSDK(lSDKFolder, lArchitectures);
       if CreateZips then

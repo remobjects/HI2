@@ -70,9 +70,14 @@ type
         OperatingSystem.macOS: begin
             var lImageBase := Path.Combine(LinuxIntermediateFolder, $"Ubuntu {LinuxUbuntuVersion} Sysroots");
             var lImagePath := lImageBase+".sparseimage";
-            // Give every import a private mountpoint. The reusable image stays
-            // below the intermediate folder, but is never exposed to Docker.
-            var lMountPoint := Path.Combine("/private/tmp", "ElementsLinuxSDK-"+System.Guid.NewGuid.ToString("N"));
+            // GLib exposes __FILE__ strings in metadata, so repeat imports
+            // need a stable mountpoint. Keep it outside the repository's
+            // Frameworks directory, which the C parser treats as Apple paths.
+            // Hashing the intermediate path isolates separate import jobs.
+            var lMountPoint: String;
+            using lHash := System.Security.Cryptography.SHA256.Create do
+              lMountPoint := Path.Combine("/private/tmp", "ElementsLinuxSDK-"+
+                System.BitConverter.ToString(lHash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(LinuxIntermediateFolder))).Replace("-", "").ToLowerInvariant);
             if not lImagePath.FileExists then begin
               Log($"Creating case-sensitive Linux sysroot image at {lImagePath}.");
               RunIslandSDKTool("/usr/bin/hdiutil",
