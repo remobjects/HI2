@@ -113,7 +113,7 @@ type
         result := result.Remove("__ARM_NEON;");
     end;
 
-    method DeploymentTargets(aSDK: String; aArchitecture: String): String;
+    method DeploymentTargets(aSDK: String; aArchitecture: String; aSDKVersion: String): String;
     begin
       result := case aSDK of
         "macOS": case aArchitecture of
@@ -128,6 +128,19 @@ type
         "tvOS": tvOSDeploymentTargets;
         "watchOS": watchOSDeploymentTargets;
         "visionOS": visionOSDeploymentTargets;
+      end;
+
+      result := AddCurrentDeploymentTarget(result, aSDKVersion);
+    end;
+
+    method AddCurrentDeploymentTarget(aTargets: String; aSDKVersion: String): String;
+    begin
+      result := aTargets;
+      // Annual SDK majors are automatic; retain curated legacy and minor targets.
+      if (length(result) > 0) and (aSDKVersion.CompareVersionTripleTo("26.0") ≥ 0) then begin
+        var lMajorVersion := aSDKVersion.SubstringToFirstOccurrenceOf(".")+".0";
+        if not result.Split(";").Contains(lMajorVersion) then
+          result := lMajorVersion+";"+result;
       end;
     end;
 
@@ -175,17 +188,45 @@ type
     property watchOSSimulatorArm: Boolean read iOSVersion.CompareVersionTripleTo(MIN_WATCHOS_VERSION_FOR_ARM64E_SIMULATOR) ≥ 0;
     property tvOSSimulatorArm: Boolean read iOSVersion.CompareVersionTripleTo(MIN_TVOS_VERSION_FOR_ARM64E_SIMULATOR) ≥ 0;
 
-    method CalculateIntegerVersion(aName: String; aVersion: String): String;
+    method DefinesForVersion(aName: String; aVersion: String): String;
     begin
-      if aName in ["OS X", "macOS"] then begin
-        if aVersion.CompareVersionTripleTo("10.10") ≥ 0 then
-          result := ShortVersion(aVersion).Replace(".", "")+"00" // 10.10 -> 101000;
-        else
-          result := ShortVersion(aVersion).Replace(".", "")+"0"; // 10.8 -> 1080;
+      var lEnvironmentVersionDefine := case aName of
+        "macOS": Darwin.macOSEnvironmentVersionDefine;
+        "Mac Catalyst": Darwin.iOSEnvironmentVersionDefine;
+        "iOS": Darwin.iOSEnvironmentVersionDefine;
+        "tvOS": Darwin.tvOSEnvironmentVersionDefine;
+        "watchOS": Darwin.watchOSEnvironmentVersionDefine;
+        "visionOS": Darwin.visionOSEnvironmentVersionDefine;
+      end;
+
+      if lEnvironmentVersionDefine.Contains(";") then begin
+        var lSplit := lEnvironmentVersionDefine.Split(";", true);
+        lEnvironmentVersionDefine := "";
+        for each s in lSplit do
+          lEnvironmentVersionDefine := lEnvironmentVersionDefine+";"+s+"="+Darwin.CalculateIntegerVersion(aName, aVersion);
+        lEnvironmentVersionDefine := lEnvironmentVersionDefine.Trim(';');
       end
       else begin
-        result := ShortVersion(aVersion).Replace(".", "0")+"00"; // 6.1 -> 60100
+        lEnvironmentVersionDefine := lEnvironmentVersionDefine+"="+Darwin.CalculateIntegerVersion(aName, aVersion);
       end;
+
+      var lDefines := lEnvironmentVersionDefine;
+      if Darwin.Toffee then
+        lDefines := lDefines+";"+Darwin.ExtraDefinesToffee
+      else if Darwin.Island then
+        lDefines := lDefines+";"+Darwin.ExtraDefinesIsland;
+      result := lDefines;
+    end;
+
+    method CalculateIntegerVersion(aName: String; aVersion: String): String;
+    begin
+      var lVersion := ShortVersion(aVersion).Split(".");
+      var lMajor := Convert.ToInt32(lVersion[0]);
+      var lMinor := Convert.ToInt32(lVersion[1]);
+      if (aName in ["OS X", "macOS"]) and (aVersion.CompareVersionTripleTo("10.10") < 0) then
+        result := (lMajor*100+lMinor*10).ToString // 10.9 -> 1090
+      else
+        result := (lMajor*10000+lMinor*100).ToString; // 10.10 -> 101000; 27.0 -> 270000
     end;
 
     method ShortVersion(aVersion: String): String;
